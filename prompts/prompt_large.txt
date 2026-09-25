@@ -5,3 +5,75 @@ Discuss the advantages and limitations of both approaches. For on-device inferen
 Discuss model quantization and explain how different quantization levels can change model size, memory requirements, computational workload, execution time, and energy consumption. Explain why reducing model precision may introduce trade-offs between resource consumption and model performance. Also discuss why different models may have different energy characteristics even when they are evaluated using the same prompt and hardware.
 
 Finally, explain how prompt length and output length can influence inference workload. Describe why experiments comparing local and remote LLM inference should control variables such as model, quantization level, prompt length, output length, hardware, number of runs, and network conditions. Explain how measurements such as total energy in joules, energy per output token in joules per token, execution time in seconds, CPU and GPU utilization in percentage, memory usage in megabytes, network traffic in bytes, and network latency in milliseconds can be used to evaluate the energy efficiency and resource requirements of different inference configurations.
+You are a Green IT and sustainable-computing analyst writing an open-ended essay for a university computer science assessment. The essay should be technically grounded and demonstrate that environmental sustainability in computing involves infrastructure, software, hardware, energy systems, and the complete lifecycle of ICT equipment.
+
+Scenario:
+
+A large digital-services organization operates cloud applications, data-intensive analytics, and AI workloads across several geographically distributed data centers. Its employees use laptops, smartphones, monitors, networking equipment, and other electronic devices. The organization wants to substantially reduce the environmental impact of its ICT operations while maintaining reliability, security, reasonable performance, service availability, and acceptable costs.
+
+The organization initially assumed that reducing electricity consumption would solve most of its environmental problems. However, an internal assessment identified several additional issues: data-center cooling and infrastructure efficiency, differences in electricity carbon intensity, unnecessary software computation, the timing and location of workloads, increasing volumes of electronic waste, emissions associated with manufacturing ICT equipment, and environmental impacts occurring throughout global technology supply chains.
+
+Write an open-ended essay that analyzes this scenario through four major areas of Green IT: energy-efficient data centers, carbon-aware software, electronic waste, and the overall ICT carbon footprint. The essay should connect these areas rather than treating them as completely independent topics.
+
+First, analyze energy-efficient data centers. Explain the main sources of energy consumption in modern data centers, including computing hardware, storage, networking, cooling, and supporting infrastructure. Discuss techniques such as server utilization, virtualization, workload consolidation, power management, efficient processors, storage optimization, cooling optimization, and infrastructure design. Explain how improving utilization can reduce wasted capacity and how cooling efficiency can influence total facility energy consumption. Also discuss the role of renewable electricity and low-carbon electricity sources.
+
+Clearly distinguish between reducing energy demand and reducing carbon emissions. A workload may consume the same amount of electricity but produce different emissions depending on the electricity source. Conversely, moving computation to a region with lower-carbon electricity could increase network usage or latency. Explain why data-center sustainability should therefore be evaluated using multiple metrics rather than a single efficiency measure. Discuss suitable measurements such as total energy consumption, energy per workload, utilization, power usage effectiveness, and associated carbon emissions.
+
+Second, analyze carbon-aware software. Explain how software design decisions can influence energy consumption and emissions even when software engineers do not directly control physical infrastructure. Discuss efficient algorithms, computational complexity, reducing unnecessary computation, efficient data storage and movement, caching, autoscaling, workload consolidation, model selection, and optimization of AI inference.
+
+Explain carbon-aware computing in detail. Electricity grids can have different carbon intensities at different times and locations because their generation mixes change. Describe how software systems could use this information to schedule flexible workloads during lower-carbon periods or execute them in lower-carbon regions. Explain which workloads are suitable for such approaches, such as batch processing, model training, analytics, backups, or other delay-tolerant computation.
+
+Do not assume that carbon-aware scheduling is always beneficial. Analyze constraints including latency-sensitive applications, workload deadlines, data sovereignty, availability requirements, network energy consumption, geographic data-transfer restrictions, and the possibility that moving a workload may create additional infrastructure or communication overhead. Give at least two concrete examples showing how software architecture or workload scheduling could reduce emissions.
+
+Third, analyze electronic waste and the ICT hardware lifecycle. Explain the environmental consequences associated with extracting raw materials, manufacturing electronic components, assembling devices, transporting products, operating hardware, repairing equipment, replacing components, and disposing of equipment.
+
+Discuss why extending the useful life of laptops, smartphones, servers, networking equipment, and other devices can reduce demand for new manufacturing. Analyze strategies including repairability, modular design, software support, refurbishment, resale, reuse, responsible procurement, component replacement, and recycling. Explain why recycling is important but should not automatically be treated as equivalent to avoiding the production of new equipment.
+
+Consider the trade-off between replacing inefficient older hardware and extending its lifetime. New equipment may consume less electricity during operation or provide substantially better performance per watt, but manufacturing the replacement creates embodied environmental impacts. Analyze how organizations could decide between continued use, repair, refurbishment, or replacement using lifecycle considerations rather than a single metric.
+
+Fourth, analyze the overall ICT carbon footprint. Explain why the environmental impact of ICT cannot be measured only by electricity consumed while devices and servers are operating. Distinguish operational emissions from embodied emissions and explain the role of raw-material extraction, manufacturing, transportation, construction of infrastructure, electricity generation, maintenance, and end-of-life treatment.
+
+Compare different categories of ICT equipment, such as data-center infrastructure, end-user devices, telecommunications and networking equipment, cloud infrastructure, and storage systems. Explain why their environmental profiles can differ substantially depending on utilization, lifetime, energy source, hardware efficiency, and manufacturing processes.
+
+Discuss the difficulty of estimating the total ICT carbon footprint. Explain how results can change depending on system boundaries, assumptions about equipment lifetime, utilization rates, electricity mixes, manufacturing locations, recycling rates, and allocation methods. If you use numerical examples, clearly identify them as illustrative rather than presenting invented figures as established facts.
+
+After analyzing the four areas, develop an integrated Green IT strategy for the organization in the scenario. Divide the strategy into short-term, medium-term, and long-term actions. For each major action, explain:
+
+- what should be changed;
+- how the change could reduce environmental impact;
+- whether it primarily affects operational emissions, embodied emissions, material waste, or multiple categories;
+- what technical or organizational resources are required;
+- what limitations or risks could occur;
+- how the organization could measure whether the intervention actually worked.
+
+The strategy should include actions relevant to data centers, software engineering, workload scheduling, AI systems, hardware procurement, device management, repair and reuse, and end-of-life processes. Do not simply recommend “use renewable energy,” “use efficient hardware,” or “recycle more.” Explain the mechanism through which each intervention affects sustainability and identify situations in which an intervention could shift environmental impact somewhere else.
+
+The essay must explicitly analyze at least four trade-offs. Possible examples include performance versus energy efficiency, latency versus carbon-aware scheduling, reliability versus aggressive server consolidation, network overhead versus geographically shifting workloads, hardware replacement versus extending device lifetime, sustainability versus procurement cost, and computational accuracy versus the energy required for larger AI models.
+
+Also explain how Green IT decisions can interact. For example, reducing computation can lower operational energy use but may have different effects than replacing hardware. Moving workloads to a lower-carbon region may reduce electricity-related emissions but increase network traffic. Extending hardware lifetime can reduce manufacturing demand but may increase operational electricity consumption if the older device is substantially less efficient. These interactions should be analyzed rather than treated as exceptions.
+
+Acceptance criteria:
+
+1. The essay substantively covers energy-efficient data centers, carbon-aware software, e-waste, and the ICT carbon footprint.
+2. It distinguishes electricity consumption, carbon intensity, carbon emissions, embodied emissions, and material waste.
+3. It uses lifecycle thinking when evaluating sustainability interventions.
+4. Carbon-aware computing is explained using both temporal and geographic variation in electricity carbon intensity.
+5. At least four meaningful sustainability trade-offs are explicitly analyzed.
+6. Technical recommendations are connected to measurable outcomes.
+7. The essay acknowledges uncertainty caused by assumptions and system boundaries when discussing ICT environmental impacts.
+8. Examples are technically plausible and relevant to cloud computing, software systems, AI/ML, data centers, networking, or end-user devices.
+9. No technology is presented as a universal solution without discussing limitations.
+10. The conclusion synthesizes the relationships among infrastructure, software, hardware, energy, emissions, and lifecycle management rather than merely repeating earlier sections.
+
+Use the following structure:
+
+- Introduction and scenario
+- Energy-Efficient Data Centers
+- Carbon-Aware Software
+- E-Waste and Hardware Lifecycle
+- ICT Carbon Footprint
+- Integrated Green IT Strategy
+- Trade-offs, Interactions, and Measurement
+- Conclusion
+
+Maintain a neutral analytical tone. Prioritize causal reasoning, technical specificity, concrete examples, and meaningful comparisons over generic statements about environmental sustainability.

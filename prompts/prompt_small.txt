@@ -1,1 +1,7 @@
-Explain edge computing and why it can reduce latency compared with sending every computation to a remote cloud server. Discuss the main benefits and limitations of processing data closer to the user. Consider factors such as response time, bandwidth usage, privacy, reliability, and computational resources. Give a concise technical explanation with practical examples of applications where edge computing is useful, such as smart cameras, autonomous systems, healthcare devices, and industrial monitoring.
+You are writing an open-ended essay about Green IT and sustainable computing. Explain how the ICT sector affects the environment and how computing can become more sustainable.
+
+Discuss four connected areas: energy-efficient data centers, carbon-aware software, electronic waste (e-waste), and the overall carbon footprint of ICT. Explain the environmental issue associated with each area and describe practical ways organizations or software engineers can reduce its impact.
+
+Your discussion should distinguish between electricity consumption, carbon emissions, and material waste. For data centers, consider energy efficiency and cooling. For software, consider efficient computation and running workloads when or where electricity is less carbon-intensive. For e-waste, consider device lifetimes, repair, reuse, and recycling. For the ICT carbon footprint, consider both emissions from operating equipment and emissions associated with manufacturing and disposing of it.
+
+Include relevant examples and discuss at least one trade-off between sustainability and factors such as performance, cost, reliability, or convenience. End by explaining why Green IT requires a lifecycle perspective rather than focusing on energy use alone.
