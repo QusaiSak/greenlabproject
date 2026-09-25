@@ -1,0 +1,23 @@
+{
+  "model": "Qwen3-8B-Q4_K_M",
+  "model_path": "/Users/qusaisak/Documents/VU/greenlabproject/models/Qwen3-8B-Q4_K_M.gguf",
+  "quantization": "Q4_K_M",
+  "prompt_size": "large",
+  "prompt_file": "/Users/qusaisak/Documents/VU/greenlabproject/prompts/prompt_large.txt",
+  "run": 10,
+  "requested_output_tokens": 512,
+  "context_size": 2048,
+  "batch_size": 512,
+  "ubatch_size": 256,
+  "gpu_layers": 99,
+  "temperature": 0,
+  "seed": 42,
+  "energibridge_interval_ms": 200,
+  "start_time": "2026-09-25T19:34:22.726685",
+  "end_time": "2026-09-25T19:35:20.569128",
+  "wall_clock_time_s": 57.84213904198259,
+  "output_file_exists": true,
+  "output_file_size_bytes": 3706,
+  "energy_file_exists": true,
+  "status": "SUCCESS"
+}

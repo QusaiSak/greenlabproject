@@ -1,0 +1,77 @@
+
+
+Loading model... 
+
+▄▄ ▄▄
+██ ██
+██ ██  ▀▀█▄ ███▄███▄  ▀▀█▄    ▄████ ████▄ ████▄
+██ ██ ▄█▀██ ██ ██ ██ ▄█▀██    ██    ██ ██ ██ ██
+██ ██ ▀█▄██ ██ ██ ██ ▀█▄██ ██ ▀████ ████▀ ████▀
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+build      : b11146-7fe450e19
+model      : /Users/qusaisak/Documents/VU/greenlabproject/models/Qwen3-8B-Q4_K_M.gguf
+ftype      : Q4_K - Medium
+modalities : text
+
+available commands:
+  /exit or Ctrl+C     stop or exit
+  /regen              regenerate the last response
+  /clear              clear the chat history
+  /read <file>        add a text file
+  /glob <pattern>     add text files using globbing pattern
+
+
+
+> Explain edge computing and why it can reduce latency compared with sending every computation to a remote cloud server. Discuss the main benefits and limitations of processing data closer to the user. Consider factors such as response time, bandwidth usage, privacy, reliability, and computational resources. Give a concise technical explanation with practical examples of applications where edge computing is useful, such as smart cameras, autonomous systems, healthcare devices, and industrial monit ... (truncated)
+**Edge Computing: A Technical Explanation**
+
+**Definition:**
+Edge computing is a distributed computing paradigm that brings computation and data storage closer to the location where it is needed, rather than relying on a centralized cloud server. Instead of sending raw data to a remote cloud for processing, edge computing processes data at the "edge" of the network — typically on local devices or edge servers located near the data source.
+
+---
+
+### **Why Edge Computing Reduces Latency**
+
+**Latency** is the time it takes for a system to respond to a request. In traditional cloud computing, data must travel from the device to the cloud, be processed, and then sent back. This round-trip delay can be significant, especially over long distances or with high network congestion.
+
+**Edge computing reduces latency** by:
+
+- **Minimizing data transmission distance**: Processing occurs locally, reducing the need for long-distance data transfer.
+- **Reducing the amount of data sent**: Only relevant or processed data is sent to the cloud, reducing network load and transmission time.
+- **Enabling real-time processing**: Critical decisions can be made locally without waiting for cloud responses.
+
+---
+
+### **Main Benefits of Edge Computing**
+
+1. **Lower Latency**  
+   - **Example**: Autonomous vehicles need real-time decision-making (e.g., braking, steering). Edge computing allows immediate processing of sensor data without waiting for cloud responses.
+
+2. **Reduced Bandwidth Usage**  
+   - **Example**: Smart cameras in a city can process video locally, sending only alerts or relevant clips to the cloud, rather than raw video streams.
+
+3. **Improved Privacy**  
+   - Sensitive data (e.g., medical data from wearable devices) can be processed locally, reducing exposure to the cloud and minimizing data breaches.
+
+4. **Enhanced Reliability**  
+   - Edge nodes can operate independently if the cloud is unreachable, ensuring continuous operation in disconnected environments (e.g., disaster zones or remote areas).
+
+5. **Better Scalability**  
+   - Edge computing allows for distributed processing, reducing the load on centralized cloud infrastructure.
+
+---
+
+### **Limitations of Edge Computing**
+
+1. **Limited Computational Resources**  
+   - Edge devices (e.g., IoT sensors, smart cameras) often have limited processing power, memory, and storage, which restricts the complexity of tasks they can perform.
+
+2. **Higher Initial Costs**  
+   - Deploying and maintaining edge infrastructure (e.g., edge servers, gateways) can be more expensive than relying on cloud
+
+[ Prompt: 131.1 t/s | Generation: 10.6 t/s ]
+
+
+Exiting...

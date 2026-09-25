@@ -1,0 +1,76 @@
+
+
+Loading model... 
+
+▄▄ ▄▄
+██ ██
+██ ██  ▀▀█▄ ███▄███▄  ▀▀█▄    ▄████ ████▄ ████▄
+██ ██ ▄█▀██ ██ ██ ██ ▄█▀██    ██    ██ ██ ██ ██
+██ ██ ▀█▄██ ██ ██ ██ ▀█▄██ ██ ▀████ ████▀ ████▀
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+build      : b11146-7fe450e19
+model      : /Users/qusaisak/Documents/VU/greenlabproject/models/Qwen3-8B-Q4_K_M.gguf
+ftype      : Q4_K - Medium
+modalities : text
+
+available commands:
+  /exit or Ctrl+C     stop or exit
+  /regen              regenerate the last response
+  /clear              clear the chat history
+  /read <file>        add a text file
+  /glob <pattern>     add text files using globbing pattern
+
+
+
+> Explain in detail how edge computing and cloud computing can be used to execute artificial intelligence workloads, particularly large language model inference. Compare on-device inference with remote inference and discuss how the location of computation affects energy consumption, energy efficiency, execution time, CPU utilization, GPU utilization, memory usage, network traffic, and network latency. Explain the complete path of a remote inference request, beginning with the user device generatin ... (truncated)
+### **Edge Computing and Cloud Computing in AI Workloads: A Deep Dive into Large Language Model Inference**
+
+---
+
+## **1. Overview of Edge vs. Cloud Computing for AI Inference**
+
+### **Edge Computing**
+- **Definition**: Edge computing involves performing computation and data processing at the **edge of the network**, close to the source of data (e.g., on a user device, local server, or edge gateway).
+- **Use Case**: Ideal for **low-latency, real-time applications** and scenarios where **network connectivity is unreliable** or **data privacy is critical**.
+- **Key Characteristics**:
+  - **Low latency** due to proximity to the user.
+  - **Reduced network traffic**.
+  - **Local data processing** (privacy, compliance).
+  - **Limited computational resources** (e.g., CPU, GPU, memory).
+
+### **Cloud Computing**
+- **Definition**: Cloud computing involves offloading computation to **remote, centralized servers** (e.g., AWS, Azure, Google Cloud).
+- **Use Case**: Suitable for **complex, resource-intensive tasks** (e.g., large language model inference) where **high computational power and scalability** are required.
+- **Key Characteristics**:
+  - **High computational power** (e.g., GPUs, TPUs).
+  - **Scalability** and **flexibility**.
+  - **Centralized management** and **cost-effective resource allocation**.
+  - **Higher latency** due to network distance.
+
+---
+
+## **2. On-Device vs. Remote Inference: A Comparative Analysis**
+
+### **On-Device Inference (Edge Computing)**
+- **Location**: Computation occurs **locally on the user device** (e.g., smartphone, IoT device).
+- **Key Factors**:
+  - **Energy Consumption**: Lower due to reduced network communication.
+  - **Execution Time**: Lower latency, but may be slower due to limited hardware.
+  - **CPU/GPU Utilization**: Lower due to limited hardware.
+  - **Memory Usage**: Limited by device memory.
+  - **Network Traffic**: Minimal or zero.
+  - **Network Latency**: Near-zero.
+- **Advantages**:
+  - **Privacy**: Data never leaves the device.
+  - **Low latency** for real-time applications.
+  - **No dependency on network connectivity**.
+- **Limitations**:
+  - **Limited computational power** (e.g., small GPUs, no TPUs).
+  - **Memory constraints**
+
+[ Prompt: 78.1 t/s | Generation: 10.1 t/s ]
+
+
+Exiting...

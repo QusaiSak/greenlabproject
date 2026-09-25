@@ -1,0 +1,6 @@
+.DS_Store
+<<<<<<< HEAD
+=======
+models/
+>>>>>>> fc67dc5 (Started benchmarking)
+venv/

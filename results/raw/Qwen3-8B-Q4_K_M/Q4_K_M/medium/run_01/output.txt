@@ -1,0 +1,68 @@
+
+
+Loading model... 
+
+▄▄ ▄▄
+██ ██
+██ ██  ▀▀█▄ ███▄███▄  ▀▀█▄    ▄████ ████▄ ████▄
+██ ██ ▄█▀██ ██ ██ ██ ▄█▀██    ██    ██ ██ ██ ██
+██ ██ ▀█▄██ ██ ██ ██ ▀█▄██ ██ ▀████ ████▀ ████▀
+                                    ██    ██
+                                    ▀▀    ▀▀
+
+build      : b11146-7fe450e19
+model      : /Users/qusaisak/Documents/VU/greenlabproject/models/Qwen3-8B-Q4_K_M.gguf
+ftype      : Q4_K - Medium
+modalities : text
+
+available commands:
+  /exit or Ctrl+C     stop or exit
+  /regen              regenerate the last response
+  /clear              clear the chat history
+  /read <file>        add a text file
+  /glob <pattern>     add text files using globbing pattern
+
+
+
+> Explain edge computing and compare it with traditional cloud computing. Discuss how moving computation closer to users and data sources can affect latency, network traffic, energy consumption, privacy, reliability, and computational requirements. Explain the role of edge devices, local servers, and remote cloud infrastructure in a distributed system. Describe situations in which processing an AI or large language model locally may be beneficial and situations in which sending the workload to a r ... (truncated)
+Edge computing and traditional cloud computing are two paradigms for processing and storing data, each with its own strengths and limitations. Understanding the differences between them is essential for designing efficient, scalable, and secure systems, especially in the context of AI and large language models (LLMs). Let's explore these concepts in detail.
+
+---
+
+## **1. Edge Computing vs. Traditional Cloud Computing**
+
+### **Edge Computing**
+- **Definition**: Edge computing is a distributed computing paradigm that brings computation and data storage closer to the location where it is needed, such as on local devices, edge servers, or gateways.
+- **Key Characteristics**:
+  - **Low Latency**: Processing data locally reduces the time it takes to send data to and from the cloud.
+  - **Reduced Network Traffic**: Data is processed locally, so only relevant or summarized data is sent to the cloud.
+  - **Improved Reliability**: Less dependency on a centralized cloud infrastructure.
+  - **Privacy and Security**: Sensitive data is processed locally, reducing exposure to the internet.
+  - **Energy Efficiency**: Less data transmission means lower energy consumption.
+
+### **Traditional Cloud Computing**
+- **Definition**: Cloud computing involves processing and storing data in remote data centers, typically accessed over the internet.
+- **Key Characteristics**:
+  - **High Scalability**: Cloud infrastructure can scale dynamically to handle large workloads.
+  - **Centralized Management**: Easier to manage and update from a single location.
+  - **Cost-Effective for Large Workloads**: Pay-as-you-go models are efficient for heavy computations.
+  - **High Latency**: Data must travel long distances, increasing response time.
+  - **Higher Network Traffic**: All data is transmitted to the cloud, increasing bandwidth usage.
+  - **Lower Privacy**: Data is exposed to the internet, increasing the risk of breaches.
+
+---
+
+## **2. Impact of Moving Computation Closer to Users and Data Sources**
+
+| Factor | Edge Computing | Traditional Cloud Computing |
+|--------|----------------|-----------------------------|
+| **Latency** | Low (local processing) | High (long-distance transmission) |
+| **Network Traffic** | Reduced (only relevant data sent) | High (all data transmitted) |
+| **Energy Consumption** | Lower (less data transmission) | Higher (more data transmission) |
+| **Privacy** | Better (data processed locally) | Lower (data exposed to the internet) |
+| **Reliability** | Higher (less dependency on internet) | Lower (depends on network stability
+
+[ Prompt: 78.2 t/s | Generation: 10.5 t/s ]
+
+
+Exiting...
