@@ -1,61 +1,521 @@
 import argparse
 import json
+import os
+import re
 import subprocess
 import sys
+import tempfile
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
 
 
 # ============================================================
-# EXPERIMENT CONFIGURATION
+# CONFIGURATION
 # ============================================================
 
-PROMPTS = {
+PROMPT_SIZES = {
     "small": "prompt_small.txt",
     "medium": "prompt_medium.txt",
     "large": "prompt_large.txt",
 }
 
 DEFAULT_RUNS = 10
-DEFAULT_OUTPUT_TOKENS = 512
 
-# Cooldown between measured runs
-RUN_COOLDOWN_SECONDS = 0
+# IMPORTANT: fixed maximum output length
+DEFAULT_OUTPUT_TOKENS = 1024
 
-# Cooldown between prompt sizes
-BLOCK_COOLDOWN_SECONDS = 120
-
-# Time between EnergiBridge samples
-ENERGYBRIDGE_INTERVAL_MS = 200
-
-# llama.cpp memory configuration
-CONTEXT_SIZE = 2048
-
+# Your verified working llama.cpp configuration
+GPU_LAYERS = 99
+CONTEXT_SIZE = 4096
 BATCH_SIZE = 512
-
 UBATCH_SIZE = 256
 
-# GPU offload
-GPU_LAYERS = 99
+# Experiment timing
+RUN_COOLDOWN_SECONDS = 10
+BLOCK_COOLDOWN_SECONDS = 120
+
+# EnergiBridge
+ENERGYBRIDGE_INTERVAL_MS = 200
+
+# External monitoring
+MONITOR_INTERVAL_SECONDS = 0.2
+
+# Name of the llama.cpp tokenizer helper binary used to get exact
+# token counts (ships alongside llama-cli in every llama.cpp build).
+LLAMA_TOKENIZE_BIN = "llama-tokenize"
 
 
 # ============================================================
-# UTILITY
+# COMMAND EXECUTION
 # ============================================================
 
-def wait_with_countdown(seconds, message):
-
-    if seconds <= 0:
-        return
-
+def run_command(command):
+    print("\nRunning:")
+    print(" ".join(command))
     print()
-    print(message)
 
-    for remaining in range(seconds, 0, -1):
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    combined = result.stdout + "\n" + result.stderr
+
+    # llama.cpp can occasionally return code 0 despite
+    # reporting a generation/compute failure.
+    failure_messages = [
+        "Compute error",
+        "Insufficient Memory",
+        "failed to decode",
+        "backend is in error state",
+        "llama_decode() failed",
+    ]
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Command failed with exit code "
+            f"{result.returncode}\n\n{combined}"
+        )
+
+    for message in failure_messages:
+        if message in combined:
+            raise RuntimeError(
+                f"llama.cpp reported '{message}'\n\n"
+                f"{combined}"
+            )
+
+    return result.stdout, result.stderr
+
+
+
+def extract_llama_timing(text):
+
+    metrics = {}
+
+    # New compact footer, e.g.:
+    #   [ Prompt: 50.5 t/s | Generation: 6.8 t/s ]
+    match = re.search(
+        r"\[\s*Prompt:\s*([\d.]+)\s*t/s\s*\|\s*Generation:\s*([\d.]+)\s*t/s\s*\]",
+        text,
+        re.IGNORECASE,
+    )
+
+    if match:
+        metrics["prompt_tokens_per_second"] = float(match.group(1))
+        metrics["generation_tokens_per_second"] = float(match.group(2))
+        return metrics
+
+    # Fallback: legacy verbose format, in case an older llama-cli
+    # build is ever used again.
+    match = re.search(
+        r"prompt eval time\s*=\s*([\d.]+)\s*ms\s*/\s*(\d+)\s*tokens",
+        text,
+        re.IGNORECASE,
+    )
+
+    if match:
+        metrics["prompt_eval_time_ms"] = float(match.group(1))
+        metrics["prompt_tokens"] = int(match.group(2))
+
+    match = re.search(
+        r"(?<!prompt )eval time\s*=\s*([\d.]+)\s*ms\s*/\s*(\d+)\s*runs",
+        text,
+        re.IGNORECASE,
+    )
+
+    if match:
+        metrics["generation_time_ms"] = float(match.group(1))
+        metrics["output_tokens"] = int(match.group(2))
+
+    return metrics
+
+
+def extract_response_text(output_text):
+    """
+    Isolate just the model's generated reply from the raw llama-cli
+    transcript captured in output_txt: everything after the echoed
+    "> <prompt>" input line and before the closing
+    "[ Prompt: ... | Generation: ... ]" footer.
+    """
+
+    lines = output_text.splitlines()
+
+    start_idx = None
+
+    for i, line in enumerate(lines):
+        if line.startswith("> "):
+            start_idx = i + 1
+            break
+
+    if start_idx is None:
+        return None
+
+    end_idx = len(lines)
+
+    for i in range(start_idx, len(lines)):
+        if re.match(r"^\s*\[\s*Prompt:.*t/s", lines[i], re.IGNORECASE):
+            end_idx = i
+            break
+
+    response = "\n".join(lines[start_idx:end_idx]).strip()
+
+    return response if response else None
+
+
+def count_tokens(model, text, add_bos):
+    """
+    Exact token count via the `llama-tokenize` helper that ships
+    with llama.cpp. Uses --ids so the output is a plain
+    "[1, 2, 3, ...]" list we can count reliably, regardless of the
+    exact wording any --show-count message uses in a given build.
+    """
+
+    if not text or not text.strip():
+        return None
+
+    tmp_path = None
+
+    try:
+
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            suffix=".txt",
+            delete=False,
+            encoding="utf-8",
+        ) as tmp:
+
+            tmp.write(text)
+            tmp_path = tmp.name
+
+        command = [
+            LLAMA_TOKENIZE_BIN,
+            "-m",
+            str(model),
+            "-f",
+            tmp_path,
+            "--ids",
+            "--log-disable",
+        ]
+
+        if not add_bos:
+            command.append("--no-bos")
+
+        result = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=60,
+        )
+
+        match = re.search(r"\[([^\]]*)\]", result.stdout)
+
+        if not match:
+            print(
+                f"Warning: could not parse token count from "
+                f"llama-tokenize output: {result.stdout!r} "
+                f"{result.stderr!r}"
+            )
+            return None
+
+        ids_str = match.group(1).strip()
+
+        if not ids_str:
+            return 0
+
+        return len(
+            [x for x in ids_str.split(",") if x.strip() != ""]
+        )
+
+    except Exception as error:
+
+        print(f"Warning: token counting failed: {error}")
+
+        return None
+
+    finally:
+
+        if tmp_path is not None:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+
+
+# ============================================================
+# SYSTEM MONITOR
+# ============================================================
+
+def get_cpu_usage():
+
+    try:
+        import psutil
+
+        return float(
+            psutil.cpu_percent(
+                interval=None
+            )
+        )
+
+    except Exception:
+        return None
+
+
+def get_memory_usage():
+
+    try:
+        import psutil
+
+        memory = psutil.virtual_memory()
+
+        return {
+            "memory_used_mb":
+                memory.used / 1024 / 1024,
+
+            "memory_percent":
+                memory.percent,
+
+            "memory_available_mb":
+                memory.available / 1024 / 1024,
+        }
+
+    except Exception:
+        return {
+            "memory_used_mb": None,
+            "memory_percent": None,
+            "memory_available_mb": None,
+        }
+
+
+def get_gpu_usage_macos():
+
+    """
+    Apple Silicon GPU utilization.
+
+    Uses ioreg because the M4 does not expose GPU utilization
+    through normal psutil APIs.
+
+    Returns GPU utilization percentage when available.
+    """
+
+    try:
+
+        result = subprocess.run(
+            [
+                "ioreg",
+                "-r",
+                "-d",
+                "1",
+                "-c",
+                "IOAccelerator",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=1,
+        )
+
+        text = result.stdout
+
+        patterns = [
+            r'"Device Utilization %" = (\d+)',
+            r'"Device Utilization %"=(\d+)',
+        ]
+
+        for pattern in patterns:
+
+            match = re.search(
+                pattern,
+                text,
+            )
+
+            if match:
+                return float(
+                    match.group(1)
+                )
+
+    except Exception:
+        pass
+
+    return None
+
+
+# ============================================================
+# MONITOR THREAD
+# ============================================================
+
+class SystemMonitor:
+
+    def __init__(
+        self,
+        interval=MONITOR_INTERVAL_SECONDS,
+    ):
+
+        self.interval = interval
+
+        self.running = False
+
+        self.thread = None
+
+        self.cpu_samples = []
+        self.gpu_samples = []
+
+        self.memory_samples = []
+        self.memory_percent_samples = []
+
+    def _monitor(self):
+
+        # Prime psutil CPU measurement
+        try:
+            import psutil
+            psutil.cpu_percent(
+                interval=None
+            )
+        except Exception:
+            pass
+
+        while self.running:
+
+            # CPU
+            cpu = get_cpu_usage()
+
+            if cpu is not None:
+                self.cpu_samples.append(cpu)
+
+            # GPU
+            gpu = get_gpu_usage_macos()
+
+            if gpu is not None:
+                self.gpu_samples.append(gpu)
+
+            # Memory
+            memory = get_memory_usage()
+
+            if memory["memory_used_mb"] is not None:
+
+                self.memory_samples.append(
+                    memory["memory_used_mb"]
+                )
+
+                self.memory_percent_samples.append(
+                    memory["memory_percent"]
+                )
+
+            time.sleep(
+                self.interval
+            )
+
+    def start(self):
+
+        self.running = True
+
+        self.thread = threading.Thread(
+            target=self._monitor,
+            daemon=True,
+        )
+
+        self.thread.start()
+
+    def stop(self):
+
+        self.running = False
+
+        if self.thread is not None:
+            self.thread.join(
+                timeout=2
+            )
+
+    @staticmethod
+    def average(values):
+
+        if not values:
+            return None
+
+        return sum(values) / len(values)
+
+    @staticmethod
+    def maximum(values):
+
+        if not values:
+            return None
+
+        return max(values)
+
+    def results(self):
+
+        return {
+
+            "cpu_usage_avg_pct":
+                self.average(
+                    self.cpu_samples
+                ),
+
+            "cpu_usage_max_pct":
+                self.maximum(
+                    self.cpu_samples
+                ),
+
+            "gpu_usage_avg_pct":
+                self.average(
+                    self.gpu_samples
+                ),
+
+            "gpu_usage_max_pct":
+                self.maximum(
+                    self.gpu_samples
+                ),
+
+            "memory_avg_mb":
+                self.average(
+                    self.memory_samples
+                ),
+
+            "memory_max_mb":
+                self.maximum(
+                    self.memory_samples
+                ),
+
+            "memory_avg_pct":
+                self.average(
+                    self.memory_percent_samples
+                ),
+
+            "memory_max_pct":
+                self.maximum(
+                    self.memory_percent_samples
+                ),
+        }
+
+
+# ============================================================
+# HELPERS
+# ============================================================
+
+def sleep_with_message(
+    seconds,
+    reason,
+):
+
+    print(
+        f"\n{reason}"
+    )
+
+    print(
+        f"Waiting {seconds} seconds..."
+    )
+
+    for remaining in range(
+        seconds,
+        0,
+        -1,
+    ):
 
         print(
-            f"\rRemaining: {remaining:3d} seconds",
+            f"\rRemaining: {remaining:3d}s",
             end="",
             flush=True,
         )
@@ -65,144 +525,51 @@ def wait_with_countdown(seconds, message):
     print()
 
 
-# ============================================================
-# RUN COMMAND
-# ============================================================
+def get_model_name(model_path):
 
-def run_command(command):
-
-    print()
-    print("=" * 80)
-    print("COMMAND")
-    print("=" * 80)
-
-    print(" ".join(command))
-
-    print()
-    print("=" * 80)
-
-    result = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-
-    print("Return code:", result.returncode)
-
-    if result.stdout:
-        print()
-        print("--- STDOUT ---")
-        print(result.stdout)
-
-    if result.stderr:
-        print()
-        print("--- STDERR ---")
-        print(result.stderr)
-
-    if result.returncode != 0:
-
-        raise RuntimeError(
-            f"Command failed with return code "
-            f"{result.returncode}"
-        )
-
-    return result.stdout, result.stderr
+    return Path(
+        model_path
+    ).stem
 
 
-# ============================================================
-# WARM-UP
-# ============================================================
-
-def warmup(model, prompt_file):
-
-    print()
-    print("=" * 80)
-    print("WARM-UP")
-    print("=" * 80)
-
-    prompt = prompt_file.read_text(
-        encoding="utf-8"
-    ).strip()
-
-    command = [
-
-        "llama-cli",
-
-        "-m",
-        str(model),
-
-        # Prompt
-        "-p",
-        prompt,
-
-        # GPU offload
-        "-ngl",
-        str(GPU_LAYERS),
-
-        # Controlled memory usage
-        "-c",
-        str(CONTEXT_SIZE),
-
-        "-b",
-        str(BATCH_SIZE),
-
-        "-ub",
-        str(UBATCH_SIZE),
-
-        # Warm-up does not need full generation
-        "-n",
-        "128",
-
-        # Deterministic generation
-        "--temp",
-        "0",
-
-        "--seed",
-        "42",
-
-        # Do not print prompt
-        "--no-display-prompt",
-
-        # One generation then exit
-        "--single-turn",
-
-        # Clean output
-        "--simple-io",
-        "--reasoning-budget" ,
-        "0"
-
-    ]
-
-    stdout, stderr = run_command(command)
-
-    print()
-    print("Warm-up completed successfully.")
-
-    return stdout, stderr
-
-
-# ============================================================
-# MEASURED RUN
-# ============================================================
-
-def measured_run(
-    model,
-    prompt_file,
-    model_name,
-    quantization,
-    prompt_size,
-    run_number,
-    output_tokens,
-    results_dir,
+def save_metadata(
+    path,
+    metadata,
 ):
 
-    # --------------------------------------------------------
-    # Output directory
-    # --------------------------------------------------------
+    with open(
+        path,
+        "w",
+        encoding="utf-8",
+    ) as f:
+
+        json.dump(
+            metadata,
+            f,
+            indent=2,
+        )
+
+
+# ============================================================
+# SINGLE MEASURED RUN
+# ============================================================
+
+def run_single(
+    model,
+    quantization,
+    prompt_size,
+    prompt_file,
+    run_number,
+    output_tokens,
+    raw_root,
+):
+
+    model_name = get_model_name(
+        model
+    )
 
     run_dir = (
-        results_dir
+        raw_root
         / model_name
         / quantization
         / prompt_size
@@ -214,34 +581,47 @@ def measured_run(
         exist_ok=True,
     )
 
-    energy_csv = run_dir / "energy.csv"
-    output_txt = run_dir / "output.txt"
-    stderr_txt = run_dir / "stderr.txt"
-    metadata_json = run_dir / "metadata.json"
+    energy_csv = (
+        run_dir / "energy.csv"
+    )
 
-    # --------------------------------------------------------
-    # Read prompt
-    # --------------------------------------------------------
+    output_txt = (
+        run_dir / "output.txt"
+    )
+
+    stderr_txt = (
+        run_dir / "stderr.txt"
+    )
+
+    metadata_json = (
+        run_dir / "metadata.json"
+    )
 
     prompt = prompt_file.read_text(
         encoding="utf-8"
     ).strip()
 
-    # --------------------------------------------------------
-    # Display experiment information
-    # --------------------------------------------------------
-
     print()
     print("#" * 80)
-    print(f"MODEL        : {model_name}")
-    print(f"QUANTIZATION : {quantization}")
-    print(f"PROMPT SIZE  : {prompt_size}")
-    print(f"RUN          : {run_number}")
-    print(f"OUTPUT TOKENS: {output_tokens}")
+    print(
+        f"MODEL        : {model_name}"
+    )
+    print(
+        f"QUANTIZATION : {quantization}"
+    )
+    print(
+        f"PROMPT SIZE  : {prompt_size}"
+    )
+    print(
+        f"RUN          : {run_number}"
+    )
+    print(
+        f"OUTPUT TOKENS: {output_tokens}"
+    )
     print("#" * 80)
 
     # --------------------------------------------------------
-    # llama.cpp command
+    # LLAMA COMMAND
     # --------------------------------------------------------
 
     llama_command = [
@@ -251,25 +631,14 @@ def measured_run(
         "-m",
         str(model),
 
-        # ----------------------------------------------------
-        # IMPORTANT:
-        # Pass prompt directly instead of using -f
-        # ----------------------------------------------------
+        "-f",
+        str(prompt_file),
 
-        "-p",
-        prompt,
-
-        # ----------------------------------------------------
         # GPU
-        # ----------------------------------------------------
-
         "-ngl",
         str(GPU_LAYERS),
 
-        # ----------------------------------------------------
-        # MEMORY CONTROL
-        # ----------------------------------------------------
-
+        # Memory configuration
         "-c",
         str(CONTEXT_SIZE),
 
@@ -279,50 +648,35 @@ def measured_run(
         "-ub",
         str(UBATCH_SIZE),
 
-        # ----------------------------------------------------
-        # OUTPUT LENGTH
-        # ----------------------------------------------------
-
+        # Fixed output limit
         "-n",
         str(output_tokens),
 
-        # ----------------------------------------------------
-        # DETERMINISTIC GENERATION
-        # ----------------------------------------------------
-
+        # Deterministic
         "--temp",
         "0",
 
         "--seed",
         "42",
 
-        # ----------------------------------------------------
-        # OUTPUT OPTIONS
-        # ----------------------------------------------------
+        # Disable Qwen reasoning
+        "--reasoning-budget",
+        "0",
 
+        # Clean output
         "--no-display-prompt",
-
         "--single-turn",
-
         "--simple-io",
-        "--reasoning-budget" ,
-        "0"
 
-        # ----------------------------------------------------
-        # We perform our own warm-up
-        # ----------------------------------------------------
-
+        # Do our own warm-up
         "--no-warmup",
 
-        # ----------------------------------------------------
         # llama.cpp performance information
-        # ----------------------------------------------------
-
         "--perf",
     ]
 
     # --------------------------------------------------------
-    # EnergiBridge command
+    # ENERGIBRIDGE
     # --------------------------------------------------------
 
     energy_command = [
@@ -336,29 +690,38 @@ def measured_run(
         str(output_txt),
 
         "-i",
-        str(ENERGYBRIDGE_INTERVAL_MS),
+        str(
+            ENERGYBRIDGE_INTERVAL_MS
+        ),
 
-        # GPU monitoring
         "-g",
 
-        # Energy summary
         "--summary",
 
         "--",
     ]
 
-    # Append llama.cpp command
     energy_command.extend(
         llama_command
     )
 
-    # --------------------------------------------------------
-    # Start measurement
-    # --------------------------------------------------------
+    print()
+    print(
+        "Starting measurement..."
+    )
 
-    start_time = datetime.now()
+    monitor = SystemMonitor()
 
-    wall_start = time.perf_counter()
+    start_datetime = (
+        datetime.now()
+        .isoformat()
+    )
+
+    wall_start = (
+        time.perf_counter()
+    )
+
+    monitor.start()
 
     try:
 
@@ -368,123 +731,117 @@ def measured_run(
 
     except Exception as error:
 
-        wall_end = time.perf_counter()
+        monitor.stop()
 
-        # Save error information
         stderr_txt.write_text(
             str(error),
             encoding="utf-8",
         )
 
-        metadata = {
-
-            "model": model_name,
-
-            "model_path": str(model),
-
-            "quantization": quantization,
-
-            "prompt_size": prompt_size,
-
-            "run": run_number,
-
-            "requested_output_tokens":
-                output_tokens,
-
-            "context_size":
-                CONTEXT_SIZE,
-
-            "batch_size":
-                BATCH_SIZE,
-
-            "ubatch_size":
-                UBATCH_SIZE,
-
-            "gpu_layers":
-                GPU_LAYERS,
-
-            "energibridge_interval_ms":
-                ENERGYBRIDGE_INTERVAL_MS,
-
-            "status":
-                "FAILED",
-
-            "error":
-                str(error),
-
-            "start_time":
-                start_time.isoformat(),
-
-            "wall_clock_time_s":
-                wall_end - wall_start,
-        }
-
-        metadata_json.write_text(
-            json.dumps(
-                metadata,
-                indent=2,
-            ),
-            encoding="utf-8",
-        )
-
-        print()
-        print("!" * 80)
-        print("MEASURED RUN FAILED")
-        print("!" * 80)
-        print(error)
-
         raise
 
-    wall_end = time.perf_counter()
+    finally:
 
-    end_time = datetime.now()
+        monitor.stop()
+
+    wall_end = (
+        time.perf_counter()
+    )
+
+    wall_clock_time = (
+        wall_end - wall_start
+    )
 
     # --------------------------------------------------------
-    # Save stdout
+    # llama.cpp metrics
+    #
+    # `stdout`/`stderr` here are energibridge's OWN streams, not
+    # llama-cli's. llama-cli's transcript (including the timing
+    # footer) was captured by energibridge into output_txt via
+    # the `-c` flag, so that's what we must parse.
     # --------------------------------------------------------
 
-    # EnergiBridge -c normally writes the application output.
-    # We additionally save llama stdout if available.
-
-    if stdout:
-
-        llama_stdout_file = (
-            run_dir / "llama_stdout.txt"
-        )
-
-        llama_stdout_file.write_text(
-            stdout,
+    try:
+        output_txt_content = output_txt.read_text(
             encoding="utf-8",
+            errors="replace",
+        )
+    except Exception as error:
+        print(f"Warning: could not read {output_txt}: {error}")
+        output_txt_content = ""
+
+    llama_metrics = extract_llama_timing(
+        output_txt_content
+    )
+
+    if not llama_metrics:
+        # Fallback in case a future/older build writes timing info
+        # to energibridge's own stdout/stderr instead.
+        combined_output = stdout + "\n" + stderr
+        llama_metrics = extract_llama_timing(combined_output)
+
+    # Exact token counts, independent of whatever llama-cli prints.
+    prompt_tokens = count_tokens(
+        model,
+        prompt,
+        add_bos=True,
+    )
+
+    response_text = extract_response_text(
+        output_txt_content
+    )
+
+    output_tokens_actual = count_tokens(
+        model,
+        response_text,
+        add_bos=False,
+    ) if response_text else None
+
+    if prompt_tokens is not None:
+        llama_metrics["prompt_tokens"] = prompt_tokens
+
+    if output_tokens_actual is not None:
+        llama_metrics["output_tokens"] = output_tokens_actual
+
+    # Derive millisecond timings from throughput + exact counts,
+    # when both are available and we don't already have them from
+    # the (legacy) verbose format.
+    if (
+        "prompt_eval_time_ms" not in llama_metrics
+        and "prompt_tokens_per_second" in llama_metrics
+        and llama_metrics.get("prompt_tokens_per_second", 0) > 0
+        and prompt_tokens
+    ):
+        llama_metrics["prompt_eval_time_ms"] = (
+            prompt_tokens
+            / llama_metrics["prompt_tokens_per_second"]
+            * 1000.0
         )
 
-    # --------------------------------------------------------
-    # Save stderr
-    # --------------------------------------------------------
+    if (
+        "generation_time_ms" not in llama_metrics
+        and "generation_tokens_per_second" in llama_metrics
+        and llama_metrics.get("generation_tokens_per_second", 0) > 0
+        and output_tokens_actual
+    ):
+        llama_metrics["generation_time_ms"] = (
+            output_tokens_actual
+            / llama_metrics["generation_tokens_per_second"]
+            * 1000.0
+        )
 
-    stderr_txt.write_text(
-        stderr,
-        encoding="utf-8",
+    monitor_metrics = (
+        monitor.results()
     )
 
     # --------------------------------------------------------
-    # Check generated output
-    # --------------------------------------------------------
-
-    output_exists = output_txt.exists()
-
-    output_size = (
-        output_txt.stat().st_size
-        if output_exists
-        else 0
-    )
-
-    # --------------------------------------------------------
-    # Metadata
+    # Save metadata
     # --------------------------------------------------------
 
     metadata = {
 
-        "model": model_name,
+        "model":
+            model_name,
 
         "model_path":
             str(model),
@@ -504,112 +861,173 @@ def measured_run(
         "requested_output_tokens":
             output_tokens,
 
-        "context_size":
-            CONTEXT_SIZE,
+        "actual_output_tokens":
+            llama_metrics.get(
+                "output_tokens"
+            ),
 
-        "batch_size":
-            BATCH_SIZE,
+        "measurement_start":
+            start_datetime,
 
-        "ubatch_size":
-            UBATCH_SIZE,
+        "measurement_end":
+            datetime.now().isoformat(),
 
-        "gpu_layers":
-            GPU_LAYERS,
-
-        "temperature":
-            0,
-
-        "seed":
-            42,
+        "wall_clock_time_s":
+            wall_clock_time,
 
         "energibridge_interval_ms":
             ENERGYBRIDGE_INTERVAL_MS,
 
-        "start_time":
-            start_time.isoformat(),
+        # llama.cpp
+        "llama_metrics":
+            llama_metrics,
 
-        "end_time":
-            end_time.isoformat(),
+        # independent system monitoring
+        "system_metrics":
+            monitor_metrics,
 
-        "wall_clock_time_s":
-            wall_end - wall_start,
+        # experiment configuration
+        "configuration": {
 
-        "output_file_exists":
-            output_exists,
+            "gpu_layers":
+                GPU_LAYERS,
 
-        "output_file_size_bytes":
-            output_size,
+            "context_size":
+                CONTEXT_SIZE,
 
-        "energy_file_exists":
-            energy_csv.exists(),
+            "batch_size":
+                BATCH_SIZE,
 
-        "status":
-            "SUCCESS",
+            "ubatch_size":
+                UBATCH_SIZE,
+
+            "output_tokens":
+                output_tokens,
+
+            "temperature":
+                0,
+
+            "seed":
+                42,
+
+            "reasoning_budget":
+                0,
+        },
     }
 
-    metadata_json.write_text(
-        json.dumps(
-            metadata,
-            indent=2,
-        ),
-        encoding="utf-8",
+    save_metadata(
+        metadata_json,
+        metadata,
     )
-
-    # --------------------------------------------------------
-    # Validate results
-    # --------------------------------------------------------
-
-    if not output_exists:
-
-        raise RuntimeError(
-            "Run finished but output.txt "
-            "was not created."
-        )
-
-    if output_size == 0:
-
-        raise RuntimeError(
-            "Run finished but output.txt "
-            "is empty."
-        )
-
-    if not energy_csv.exists():
-
-        raise RuntimeError(
-            "Run finished but energy.csv "
-            "was not created."
-        )
-
-    # --------------------------------------------------------
-    # Success
-    # --------------------------------------------------------
 
     print()
-    print("=" * 80)
-    print("MEASURED RUN SUCCESSFUL")
-    print("=" * 80)
-
     print(
-        "Output:",
-        output_txt,
+        "Run complete."
     )
 
     print(
-        "Energy:",
-        energy_csv,
+        f"Wall time: "
+        f"{wall_clock_time:.3f}s"
+    )
+
+    if llama_metrics:
+
+        print(
+            "\nllama.cpp metrics:"
+        )
+
+        for key, value in (
+            llama_metrics.items()
+        ):
+
+            print(
+                f"  {key}: {value}"
+            )
+
+    print(
+        "\nSystem metrics:"
+    )
+
+    for key, value in (
+        monitor_metrics.items()
+    ):
+
+        print(
+            f"  {key}: {value}"
+        )
+
+    return run_dir
+
+
+# ============================================================
+# WARM-UP
+# ============================================================
+
+def warmup(
+    model,
+    prompt_file,
+    output_tokens,
+):
+
+    print()
+    print("=" * 70)
+    print(
+        f"WARM-UP: {prompt_file.name}"
+    )
+    print("=" * 70)
+
+    prompt = prompt_file.read_text(
+        encoding="utf-8"
+    ).strip()
+
+    command = [
+
+        "llama-cli",
+
+        "-m",
+        str(model),
+
+        "-f",
+        str(prompt_file),
+
+        "-ngl",
+        str(GPU_LAYERS),
+
+        "-c",
+        str(CONTEXT_SIZE),
+
+        "-b",
+        str(BATCH_SIZE),
+
+        "-ub",
+        str(UBATCH_SIZE),
+
+        "-n",
+        str(output_tokens),
+
+        "--temp",
+        "0",
+
+        "--seed",
+        "42",
+
+        "--reasoning-budget",
+        "0",
+
+        "--no-display-prompt",
+
+        "--single-turn",
+
+        "--simple-io",
+    ]
+
+    run_command(
+        command
     )
 
     print(
-        "Metadata:",
-        metadata_json,
+        "Warm-up complete."
     )
-
-    print(
-        "Wall-clock time:",
-        f"{wall_end - wall_start:.3f} s",
-    )
-
-    print("=" * 80)
 
 
 # ============================================================
@@ -619,10 +1037,8 @@ def measured_run(
 def main():
 
     parser = argparse.ArgumentParser(
-        description=(
-            "Run local LLM energy benchmark "
-            "using llama.cpp and EnergiBridge."
-        )
+        description=
+        "Run local LLM energy benchmark."
     )
 
     parser.add_argument(
@@ -634,264 +1050,215 @@ def main():
     parser.add_argument(
         "--quantization",
         required=True,
-        help="Quantization label, e.g. Q4_K_M",
+        help="Quantization label",
     )
 
     parser.add_argument(
         "--runs",
         type=int,
         default=DEFAULT_RUNS,
-        help="Number of measured runs per prompt size",
     )
 
     parser.add_argument(
         "--output-tokens",
         type=int,
         default=DEFAULT_OUTPUT_TOKENS,
-        help="Maximum generated tokens",
     )
 
     parser.add_argument(
         "--prompt-dir",
-        default="prompts",
-        help="Directory containing prompt files",
+        default="prompts/",
     )
 
     parser.add_argument(
         "--results-dir",
         default="results/raw",
-        help="Output directory",
+    )
+
+    parser.add_argument(
+        "--skip-cooldown",
+        action="store_true",
     )
 
     args = parser.parse_args()
-
-    # ========================================================
-    # PATHS
-    # ========================================================
 
     model = Path(
         args.model
     ).expanduser().resolve()
 
-    prompt_dir = Path(
-        args.prompt_dir
-    ).expanduser().resolve()
-
-    results_dir = Path(
-        args.results_dir
-    ).expanduser().resolve()
-
-    # ========================================================
-    # VALIDATION
-    # ========================================================
-
     if not model.exists():
 
         print(
-            f"ERROR: model does not exist:\n{model}"
+            f"ERROR: model does not exist: "
+            f"{model}"
         )
 
         sys.exit(1)
 
-    for prompt_filename in PROMPTS.values():
+    prompt_dir = Path(
+        args.prompt_dir
+    ).expanduser().resolve()
 
-        prompt_path = (
-            prompt_dir / prompt_filename
-        )
+    raw_root = Path(
+        args.results_dir
+    ).expanduser().resolve()
 
-        if not prompt_path.exists():
+    # Check prompts
 
-            print(
-                "ERROR: prompt file does not exist:"
-            )
-
-            print(prompt_path)
-
-            sys.exit(1)
-
-    # ========================================================
-    # MODEL NAME
-    # ========================================================
-
-    model_name = model.stem
-
-    # ========================================================
-    # EXPERIMENT INFORMATION
-    # ========================================================
-
-    print()
-    print("=" * 80)
-    print("LOCAL LLM ENERGY EXPERIMENT")
-    print("=" * 80)
-
-    print(
-        f"Model           : {model_name}"
-    )
-
-    print(
-        f"Quantization    : {args.quantization}"
-    )
-
-    print(
-        f"Runs/size       : {args.runs}"
-    )
-
-    print(
-        f"Output tokens   : {args.output_tokens}"
-    )
-
-    print(
-        "Prompt sizes    : Small / Medium / Large"
-    )
-
-    print(
-        f"GPU layers      : {GPU_LAYERS}"
-    )
-
-    print(
-        f"Context         : {CONTEXT_SIZE}"
-    )
-
-    print(
-        f"Batch           : {BATCH_SIZE}"
-    )
-
-    print(
-        f"Micro-batch     : {UBATCH_SIZE}"
-    )
-
-    print(
-        f"EB interval     : {ENERGYBRIDGE_INTERVAL_MS} ms"
-    )
-
-    print(
-        f"Run cooldown    : {RUN_COOLDOWN_SECONDS} s"
-    )
-
-    print(
-        f"Block cooldown  : {BLOCK_COOLDOWN_SECONDS} s"
-    )
-
-    print("=" * 80)
-
-    input(
-        "\nPress ENTER to begin the experiment..."
-    )
-
-    # ========================================================
-    # PROMPT SIZES
-    # ========================================================
-
-    prompt_sizes = [
-        "small",
-        "medium",
-        "large",
-    ]
-
-    for block_index, prompt_size in enumerate(
-        prompt_sizes
+    for size, filename in (
+        PROMPT_SIZES.items()
     ):
 
         prompt_file = (
-            prompt_dir
-            / PROMPTS[prompt_size]
+            prompt_dir / filename
         )
 
-        print()
-        print()
-        print("#" * 80)
-        print(
-            f"PROMPT SIZE: {prompt_size.upper()}"
+        if not prompt_file.exists():
+
+            print(
+                f"ERROR: missing prompt: "
+                f"{prompt_file}"
+            )
+
+            sys.exit(1)
+
+    print()
+    print("=" * 70)
+    print(
+        "LOCAL LLM ENERGY EXPERIMENT"
+    )
+    print("=" * 70)
+
+    print(
+        f"Model:          {model.name}"
+    )
+
+    print(
+        f"Quantization:   "
+        f"{args.quantization}"
+    )
+
+    print(
+        f"Runs/size:      {args.runs}"
+    )
+
+    print(
+        f"Output tokens:  "
+        f"{args.output_tokens}"
+    )
+
+    print(
+        f"GPU layers:     "
+        f"{GPU_LAYERS}"
+    )
+
+    print(
+        f"Context:        "
+        f"{CONTEXT_SIZE}"
+    )
+
+    print(
+        f"Batch:          "
+        f"{BATCH_SIZE}"
+    )
+
+    print(
+        f"Micro-batch:    "
+        f"{UBATCH_SIZE}"
+    )
+
+    print(
+        "Prompt sizes:    "
+        "small / medium / large"
+    )
+
+    print("=" * 70)
+
+    input(
+        "\nPress ENTER to start..."
+    )
+
+    sizes = list(
+        PROMPT_SIZES.items()
+    )
+
+    for size_index, (
+        prompt_size,
+        filename,
+    ) in enumerate(sizes):
+
+        prompt_file = (
+            prompt_dir / filename
         )
-        print("#" * 80)
 
-        # ====================================================
-        # WARM-UP ONCE
-        # ====================================================
-
+        # One warm-up per prompt size
         warmup(
             model,
             prompt_file,
+            args.output_tokens,
         )
 
-        # ====================================================
-        # STABILIZATION
-        # ====================================================
+        if not args.skip_cooldown:
 
-        wait_with_countdown(
-            30,
-            "Stabilizing system after warm-up..."
-        )
-
-        # ====================================================
-        # MEASURED RUNS
-        # ====================================================
+            sleep_with_message(
+                30,
+                "Stabilizing after warm-up..."
+            )
 
         for run_number in range(
             1,
             args.runs + 1,
         ):
 
-            measured_run(
+            run_single(
                 model=model,
-
-                prompt_file=prompt_file,
-
-                model_name=model_name,
-
-                quantization=args.quantization,
-
-                prompt_size=prompt_size,
-
-                run_number=run_number,
-
-                output_tokens=args.output_tokens,
-
-                results_dir=results_dir,
+                quantization=
+                    args.quantization,
+                prompt_size=
+                    prompt_size,
+                prompt_file=
+                    prompt_file,
+                run_number=
+                    run_number,
+                output_tokens=
+                    args.output_tokens,
+                raw_root=
+                    raw_root,
             )
 
-            # -----------------------------------------------
-            # Cooldown between measured runs
-            # -----------------------------------------------
+            if (
+                run_number < args.runs
+                and not args.skip_cooldown
+            ):
 
-            if run_number < args.runs:
-
-                wait_with_countdown(
+                sleep_with_message(
                     RUN_COOLDOWN_SECONDS,
-                    "Cooldown before next measured run..."
+                    "Cooldown between runs..."
                 )
 
-        # ====================================================
-        # COOLDOWN BETWEEN PROMPT SIZES
-        # ====================================================
+        if (
+            size_index
+            < len(sizes) - 1
+            and not args.skip_cooldown
+        ):
 
-        if block_index < len(prompt_sizes) - 1:
-
-            wait_with_countdown(
+            sleep_with_message(
                 BLOCK_COOLDOWN_SECONDS,
                 "Cooldown before next prompt size..."
             )
 
-    # ========================================================
-    # COMPLETE
-    # ========================================================
-
     print()
-    print()
-    print("=" * 80)
-    print("EXPERIMENT COMPLETE")
-    print("=" * 80)
+    print("=" * 70)
+    print(
+        "BENCHMARK COMPLETE"
+    )
+    print("=" * 70)
 
     print(
-        f"Results stored in:\n{results_dir}"
+        f"Raw results saved to:\n"
+        f"{raw_root}"
     )
 
-    print("=" * 80)
-
-
-# ============================================================
-# ENTRY POINT
-# ============================================================
 
 if __name__ == "__main__":
     main()

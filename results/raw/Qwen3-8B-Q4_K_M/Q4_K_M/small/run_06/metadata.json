@@ -5,19 +5,38 @@
   "prompt_size": "small",
   "prompt_file": "/Users/qusaisak/Documents/VU/greenlabproject/prompts/prompt_small.txt",
   "run": 6,
-  "requested_output_tokens": 512,
-  "context_size": 2048,
-  "batch_size": 512,
-  "ubatch_size": 256,
-  "gpu_layers": 99,
-  "temperature": 0,
-  "seed": 42,
+  "requested_output_tokens": 1024,
+  "actual_output_tokens": 1080,
+  "measurement_start": "2026-09-26T20:29:23.438530",
+  "measurement_end": "2026-09-26T20:30:22.402111",
+  "wall_clock_time_s": 58.543998582987115,
   "energibridge_interval_ms": 200,
-  "start_time": "2026-09-25T19:06:34.760502",
-  "end_time": "2026-09-25T19:07:26.723624",
-  "wall_clock_time_s": 51.96313720900798,
-  "output_file_exists": true,
-  "output_file_size_bytes": 4073,
-  "energy_file_exists": true,
-  "status": "SUCCESS"
+  "llama_metrics": {
+    "prompt_tokens_per_second": 179.0,
+    "generation_tokens_per_second": 18.3,
+    "prompt_tokens": 206,
+    "output_tokens": 1080,
+    "prompt_eval_time_ms": 1150.8379888268157,
+    "generation_time_ms": 59016.393442622946
+  },
+  "system_metrics": {
+    "cpu_usage_avg_pct": 10.953558052434456,
+    "cpu_usage_max_pct": 39.4,
+    "gpu_usage_avg_pct": 97.36704119850187,
+    "gpu_usage_max_pct": 100.0,
+    "memory_avg_mb": 12924.182350187266,
+    "memory_max_mb": 13039.75,
+    "memory_avg_pct": 56.81722846441948,
+    "memory_max_pct": 57.3
+  },
+  "configuration": {
+    "gpu_layers": 99,
+    "context_size": 4096,
+    "batch_size": 512,
+    "ubatch_size": 256,
+    "output_tokens": 1024,
+    "temperature": 0,
+    "seed": 42,
+    "reasoning_budget": 0
+  }
 }
