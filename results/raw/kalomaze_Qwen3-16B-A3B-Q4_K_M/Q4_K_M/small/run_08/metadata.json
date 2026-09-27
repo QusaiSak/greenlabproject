@@ -1,0 +1,42 @@
+{
+  "model": "kalomaze_Qwen3-16B-A3B-Q4_K_M",
+  "model_path": "/Users/qusaisak/Documents/VU/greenlabproject/models/kalomaze_Qwen3-16B-A3B-Q4_K_M.gguf",
+  "quantization": "Q4_K_M",
+  "prompt_size": "small",
+  "prompt_file": "/Users/qusaisak/Documents/VU/greenlabproject/prompts/prompt_small.txt",
+  "run": 8,
+  "requested_output_tokens": 1024,
+  "actual_output_tokens": 989,
+  "measurement_start": "2026-09-27T22:49:26.010647",
+  "measurement_end": "2026-09-27T22:49:52.215298",
+  "wall_clock_time_s": 25.81191991700007,
+  "energibridge_interval_ms": 200,
+  "llama_metrics": {
+    "prompt_tokens_per_second": 369.3,
+    "generation_tokens_per_second": 39.5,
+    "prompt_tokens": 206,
+    "output_tokens": 989,
+    "prompt_eval_time_ms": 557.8120769022474,
+    "generation_time_ms": 25037.974683544304
+  },
+  "system_metrics": {
+    "cpu_usage_avg_pct": 1.9706896551724138,
+    "cpu_usage_max_pct": 9.1,
+    "gpu_usage_avg_pct": 92.83620689655173,
+    "gpu_usage_max_pct": 100.0,
+    "memory_avg_mb": 17387.762931034482,
+    "memory_max_mb": 17597.265625,
+    "memory_avg_pct": 73.59310344827585,
+    "memory_max_pct": 74.5
+  },
+  "configuration": {
+    "gpu_layers": 99,
+    "context_size": 4096,
+    "batch_size": 512,
+    "ubatch_size": 256,
+    "output_tokens": 1024,
+    "temperature": 0,
+    "seed": 42,
+    "reasoning_budget": 0
+  }
+}

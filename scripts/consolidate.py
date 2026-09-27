@@ -611,6 +611,34 @@ def process_run(
     }
 
 
+def add_model_label(df):
+    """
+    A single label identifying model+quantization, for grouping and
+    for plot legends. `model` is usually already the gguf filename
+    stem (e.g. "Qwen3-8B-Q4_K_M"), which already encodes
+    quantization - but fall back to appending quantization
+    explicitly in case a model's filename doesn't include it, so
+    two differently-quantized runs of the same model are never
+    silently merged together.
+    """
+
+    def label(row):
+
+        model = str(row.get("model") or "")
+        quant = str(row.get("quantization") or "")
+
+        if quant and quant.lower() not in model.lower():
+            return f"{model} ({quant})"
+
+        return model or "unknown"
+
+    df = df.copy()
+
+    df["model_label"] = df.apply(label, axis=1)
+
+    return df
+
+
 # ============================================================
 # DATA QUALITY REPORT
 #
@@ -674,7 +702,13 @@ def print_data_quality_report(df):
     # runs 9 and 10 of your "small" condition.
     outlier_rows = []
 
-    for prompt_size, group in df.groupby("prompt_size"):
+    group_cols = (
+        ["model_label", "prompt_size"]
+        if "model_label" in df.columns
+        else ["prompt_size"]
+    )
+
+    for key, group in df.groupby(group_cols):
 
         median_time = group["execution_time_s"].median()
 
@@ -688,7 +722,7 @@ def print_data_quality_report(df):
         for _, row in flagged.iterrows():
             outlier_rows.append(
                 (
-                    prompt_size,
+                    key,
                     row["run"],
                     row["execution_time_s"],
                     median_time,
@@ -699,12 +733,12 @@ def print_data_quality_report(df):
 
         print(
             "\n  Possible outlier runs (execution_time_s > 2x the "
-            "median for that prompt size):"
+            "median for that model/prompt-size condition):"
         )
 
-        for prompt_size, run, exec_time, median_time in outlier_rows:
+        for key, run, exec_time, median_time in outlier_rows:
             print(
-                f"    prompt_size={prompt_size} run={run}: "
+                f"    {key} run={run}: "
                 f"{exec_time:.1f}s vs median {median_time:.1f}s"
             )
 
@@ -744,52 +778,67 @@ STATS_METRICS = [
 PROMPT_ORDER = {"small": 0, "medium": 1, "large": 2}
 
 
+def _stat_row(group):
+
+    row = {"n_runs": len(group)}
+
+    for metric in STATS_METRICS:
+
+        if metric not in group.columns:
+            continue
+
+        values = pd.to_numeric(
+            group[metric],
+            errors="coerce",
+        ).dropna()
+
+        if values.empty:
+
+            row[f"{metric}_mean"] = None
+            row[f"{metric}_std"] = None
+            row[f"{metric}_cv_pct"] = None
+
+            continue
+
+        mean = float(values.mean())
+
+        std = (
+            float(values.std(ddof=1))
+            if len(values) > 1
+            else 0.0
+        )
+
+        cv_pct = (
+            (std / mean * 100.0)
+            if mean not in (0, None)
+            else None
+        )
+
+        row[f"{metric}_mean"] = mean
+        row[f"{metric}_std"] = std
+        row[f"{metric}_cv_pct"] = cv_pct
+
+    return row
+
+
 def compute_summary_stats(df):
+    """
+    One row per (model, prompt_size) condition - this is the
+    model-wise x prompt-size breakdown.
+    """
 
     rows = []
 
-    for prompt_size, group in df.groupby("prompt_size"):
+    for (model_label, prompt_size), group in df.groupby(
+        ["model_label", "prompt_size"]
+    ):
 
         row = {
+            "model_label": model_label,
             "prompt_size": prompt_size,
-            "n_runs": len(group),
         }
 
-        for metric in STATS_METRICS:
-
-            if metric not in group.columns:
-                continue
-
-            values = pd.to_numeric(
-                group[metric],
-                errors="coerce",
-            ).dropna()
-
-            if values.empty:
-
-                row[f"{metric}_mean"] = None
-                row[f"{metric}_std"] = None
-                row[f"{metric}_cv_pct"] = None
-
-                continue
-
-            mean = float(values.mean())
-
-            std = (
-                float(values.std(ddof=1))
-                if len(values) > 1
-                else 0.0
-            )
-
-            cv_pct = (
-                (std / mean * 100.0)
-                if mean not in (0, None)
-                else None
-            )
-
-            row[f"{metric}_mean"] = mean
-            row[f"{metric}_std"] = std
-            row[f"{metric}_cv_pct"] = cv_pct
+        row.update(_stat_row(group))
 
         rows.append(row)
 
@@ -802,10 +851,29 @@ def compute_summary_stats(df):
     )
 
     stats_df = stats_df.sort_values(
-        "_order"
+        ["model_label", "_order"]
     ).drop(columns=["_order"])
 
     return stats_df
+
+
+def compute_model_summary(df):
+    """
+    One row per model, aggregated across all prompt sizes - the
+    top-line "model A vs model B vs model C" comparison.
+    """
+
+    rows = []
+
+    for model_label, group in df.groupby("model_label"):
+
+        row = {"model_label": model_label}
+
+        row.update(_stat_row(group))
+
+        rows.append(row)
+
+    return pd.DataFrame(rows).sort_values("model_label")
 
 
 # ============================================================
@@ -863,12 +931,23 @@ GRAPH_SPECS = [
 ]
 
 
+MODEL_COLORS = [
+    "#4C72B0",
+    "#DD8452",
+    "#55A868",
+    "#C44E52",
+    "#8172B2",
+    "#937860",
+]
+
+
 def generate_plots(stats_df, plots_dir):
 
     try:
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
+        import numpy as np
     except ImportError:
         print(
             "\nmatplotlib not installed - skipping graph generation. "
@@ -878,10 +957,14 @@ def generate_plots(stats_df, plots_dir):
 
     plots_dir.mkdir(parents=True, exist_ok=True)
 
-    order = [
+    prompt_order = [
         p for p in ["small", "medium", "large"]
         if p in stats_df["prompt_size"].values
     ]
+
+    models = sorted(stats_df["model_label"].unique())
+
+    n_models = len(models)
 
     written = []
 
@@ -894,29 +977,67 @@ def generate_plots(stats_df, plots_dir):
             print(f"  Skipping {filename}: no data for '{metric}'")
             continue
 
-        plot_df = stats_df.set_index("prompt_size").loc[order]
-
-        if plot_df[mean_col].isna().all():
+        if stats_df[mean_col].isna().all():
             print(f"  Skipping {filename}: '{metric}' is empty for every run")
             continue
 
-        fig, ax = plt.subplots(figsize=(6, 4.5))
-
-        means = plot_df[mean_col].astype(float)
-        stds = plot_df[std_col].astype(float).fillna(0.0)
-
-        ax.bar(
-            order,
-            means,
-            yerr=stds,
-            capsize=5,
-            color="#4C72B0",
+        indexed = stats_df.set_index(
+            ["model_label", "prompt_size"]
         )
+
+        fig, ax = plt.subplots(
+            figsize=(2.2 * len(prompt_order) + 2, 4.5)
+        )
+
+        x = np.arange(len(prompt_order))
+
+        bar_width = 0.8 / max(n_models, 1)
+
+        for i, model_label in enumerate(models):
+
+            means = []
+            stds = []
+
+            for prompt_size in prompt_order:
+
+                try:
+                    row = indexed.loc[(model_label, prompt_size)]
+                    mean_val = row[mean_col]
+                    std_val = row[std_col]
+                except KeyError:
+                    mean_val = None
+                    std_val = None
+
+                means.append(
+                    float(mean_val) if pd.notna(mean_val) else 0.0
+                )
+                stds.append(
+                    float(std_val) if pd.notna(std_val) else 0.0
+                )
+
+            offset = (i - (n_models - 1) / 2) * bar_width
+
+            ax.bar(
+                x + offset,
+                means,
+                width=bar_width,
+                yerr=stds,
+                capsize=3,
+                label=model_label,
+                color=MODEL_COLORS[i % len(MODEL_COLORS)],
+            )
 
         ax.set_title(title)
         ax.set_xlabel("Prompt size")
         ax.set_ylabel(ylabel)
+        ax.set_xticks(x)
+        ax.set_xticklabels(prompt_order)
         ax.grid(axis="y", linestyle="--", alpha=0.4)
+        ax.legend(
+            fontsize=8,
+            loc="upper left",
+            bbox_to_anchor=(1.02, 1.0),
+        )
 
         fig.tight_layout()
 
@@ -959,6 +1080,13 @@ def main():
     )
 
     parser.add_argument(
+        "--model-summary-output",
+        default=
+        "results/consolidated/"
+        "model_summary.csv",
+    )
+
+    parser.add_argument(
         "--plots-dir",
         default=
         "results/consolidated/plots",
@@ -984,6 +1112,10 @@ def main():
         args.stats_output
     ).expanduser().resolve()
 
+    model_summary_file = Path(
+        args.model_summary_output
+    ).expanduser().resolve()
+
     plots_dir = Path(
         args.plots_dir
     ).expanduser().resolve()
@@ -994,6 +1126,11 @@ def main():
     )
 
     stats_file.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    model_summary_file.parent.mkdir(
         parents=True,
         exist_ok=True,
     )
@@ -1034,6 +1171,8 @@ def main():
         rows
     )
 
+    df = add_model_label(df)
+
     # --------------------------------------------------------
     # Sort
     # --------------------------------------------------------
@@ -1046,8 +1185,7 @@ def main():
 
     df = df.sort_values(
         [
-            "model",
-            "quantization",
+            "model_label",
             "_prompt_order",
             "run",
         ]
@@ -1095,7 +1233,19 @@ def main():
     )
 
     print(
-        f"\nSummary statistics:\n{stats_file}"
+        f"\nSummary statistics (model x prompt size):\n{stats_file}"
+    )
+
+    model_summary_df = compute_model_summary(df)
+
+    model_summary_df.to_csv(
+        model_summary_file,
+        index=False,
+    )
+
+    print(
+        f"Model-wise summary (all prompt sizes combined):\n"
+        f"{model_summary_file}"
     )
 
     # --------------------------------------------------------
