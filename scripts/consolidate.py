@@ -249,6 +249,16 @@ def process_run(
         "",
     )
 
+    architecture = metadata.get(
+        "architecture",
+        configuration.get("architecture", ""),
+    )
+
+    energy_measurement = metadata.get(
+        "energy_measurement",
+        {},
+    )
+
     quantization = metadata.get(
         "quantization",
         "",
@@ -330,6 +340,19 @@ def process_run(
         llama_metrics.get(
             "generation_time_ms"
         )
+    )
+
+    prompt_tokens_per_second = llama_metrics.get(
+        "prompt_tokens_per_second"
+    )
+
+    generation_tokens_per_second = llama_metrics.get(
+        "generation_tokens_per_second"
+    )
+
+    output_token_count_source = llama_metrics.get(
+        "output_token_count_source",
+        "unknown",
     )
 
     # --------------------------------------------------------
@@ -490,6 +513,9 @@ def process_run(
         "model":
             model,
 
+        "architecture":
+            architecture,
+
         "quantization":
             quantization,
 
@@ -522,9 +548,36 @@ def process_run(
         "tokens_per_second":
             tokens_per_second,
 
+        "prompt_tokens_per_second":
+            prompt_tokens_per_second,
+
+        "generation_tokens_per_second":
+            generation_tokens_per_second,
+
+        "request_wall_time_s":
+            llama_metrics.get("request_wall_time_s"),
+
+        "finish_reason":
+            llama_metrics.get("finish_reason"),
+
+        "output_token_count_source":
+            output_token_count_source,
+
         # Energy
         "energy_j":
             energy_j,
+
+        "energy_source":
+            energy_measurement.get(
+                "source",
+                "EnergiBridge",
+            ),
+
+        "energy_measurement_method":
+            energy_measurement.get(
+                "method",
+                "Sampled system power integrated over time",
+            ),
 
         "energy_j_per_output_token":
             energy_j_per_token,
@@ -591,6 +644,12 @@ def process_run(
                 "output_tokens"
             ),
 
+        "runtime":
+            configuration.get("runtime", "llama-server"),
+
+        "deployment":
+            configuration.get("deployment", "on-device"),
+
         "temperature":
             configuration.get(
                 "temperature"
@@ -656,6 +715,10 @@ CORE_METRICS = [
     "execution_time_s",
     "prompt_eval_time_ms",
     "generation_time_ms",
+    "request_wall_time_s",
+    "prompt_tokens_per_second",
+    "generation_tokens_per_second",
+    "request_wall_time_s",
     "tokens_per_second",
     "energy_j",
     "energy_j_per_output_token",
@@ -761,9 +824,12 @@ def print_data_quality_report(df):
 # ============================================================
 
 STATS_METRICS = [
+    "prompt_tokens",
+    "output_tokens",
     "execution_time_s",
     "prompt_eval_time_ms",
     "generation_time_ms",
+    "request_wall_time_s",
     "tokens_per_second",
     "energy_j",
     "energy_j_per_output_token",

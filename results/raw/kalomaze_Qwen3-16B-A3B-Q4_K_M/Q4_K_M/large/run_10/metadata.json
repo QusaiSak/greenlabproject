@@ -1,35 +1,95 @@
 {
   "model": "kalomaze_Qwen3-16B-A3B-Q4_K_M",
+  "architecture": "MoE",
   "model_path": "/Users/qusaisak/Documents/VU/greenlabproject/models/kalomaze_Qwen3-16B-A3B-Q4_K_M.gguf",
   "quantization": "Q4_K_M",
   "prompt_size": "large",
   "prompt_file": "/Users/qusaisak/Documents/VU/greenlabproject/prompts/prompt_large.txt",
   "run": 10,
   "requested_output_tokens": 1024,
-  "actual_output_tokens": 1021,
-  "measurement_start": "2026-09-27T23:11:57.204572",
-  "measurement_end": "2026-09-27T23:12:41.136861",
-  "wall_clock_time_s": 43.5112842919998,
+  "actual_output_tokens": 1024,
+  "measurement_start": "2026-09-29T22:22:46.266115",
+  "measurement_end": "2026-09-29T22:23:20.191016",
+  "wall_clock_time_s": 33.92179249999754,
   "energibridge_interval_ms": 200,
+  "energy_measurement": {
+    "source": "EnergiBridge",
+    "method": "Sampled system power integrated over time from energy.csv while one llama-server inference HTTP request was executed.",
+    "unit": "J",
+    "scope": "Local Mac system power interface exposed by EnergiBridge; not a wall-plug measurement unless that interface represents the complete system."
+  },
   "llama_metrics": {
-    "prompt_tokens_per_second": 284.6,
-    "generation_tokens_per_second": 29.6,
-    "prompt_tokens": 2020,
-    "output_tokens": 1021,
-    "prompt_eval_time_ms": 7097.680955727336,
-    "generation_time_ms": 34493.24324324324
+    "prompt_tokens": 1,
+    "output_tokens": 1024,
+    "prompt_token_count_source": "llama-server /metrics",
+    "output_token_count_source": "llama-server /metrics",
+    "prompt_eval_time_ms": 35.2099999999993,
+    "generation_time_ms": 33209.99999999992,
+    "prompt_tokens_per_second": 28.40102243680829,
+    "generation_tokens_per_second": 30.834086118639036,
+    "request_wall_time_s": 33.25286529200093,
+    "finish_reason": "length",
+    "response_usage": {
+      "completion_tokens": 1024,
+      "prompt_tokens": 2032,
+      "total_tokens": 3056,
+      "prompt_tokens_details": {
+        "cached_tokens": 2031
+      }
+    }
+  },
+  "server_metrics": {
+    "before": {
+      "prompt_tokens_total": 3042.0,
+      "prompt_tokens_cached_total": 28069.0,
+      "prompt_seconds_total": 9.3773,
+      "tokens_predicted_total": 31259.0,
+      "tokens_predicted_seconds_total": 879.508,
+      "n_decode_total": 31263.0,
+      "n_tokens_max": 3055.0,
+      "spec_decode_num_draft_tokens_total": 0.0,
+      "spec_decode_num_accepted_tokens_total": 0.0,
+      "spec_decode_num_drafts_total": 0.0,
+      "prompt_tokens_seconds": 0.0,
+      "predicted_tokens_seconds": 0.0,
+      "requests_processing": 0.0,
+      "requests_deferred": 0.0,
+      "n_busy_slots_per_decode": 1.0
+    },
+    "after": {
+      "prompt_tokens_total": 3043.0,
+      "prompt_tokens_cached_total": 30100.0,
+      "prompt_seconds_total": 9.41251,
+      "tokens_predicted_total": 32283.0,
+      "tokens_predicted_seconds_total": 912.718,
+      "n_decode_total": 32287.0,
+      "n_tokens_max": 3055.0,
+      "spec_decode_num_draft_tokens_total": 0.0,
+      "spec_decode_num_accepted_tokens_total": 0.0,
+      "spec_decode_num_drafts_total": 0.0,
+      "prompt_tokens_seconds": 28.4051,
+      "predicted_tokens_seconds": 30.804,
+      "requests_processing": 0.0,
+      "requests_deferred": 0.0,
+      "n_busy_slots_per_decode": 1.0
+    }
   },
   "system_metrics": {
-    "cpu_usage_avg_pct": 1.6233830845771144,
-    "cpu_usage_max_pct": 12.6,
-    "gpu_usage_avg_pct": 95.37810945273633,
-    "gpu_usage_max_pct": 100.0,
-    "memory_avg_mb": 17377.31584266169,
-    "memory_max_mb": 17557.828125,
-    "memory_avg_pct": 73.61890547263681,
-    "memory_max_pct": 74.4
+    "cpu_usage_avg_pct": 3.044366197183099,
+    "cpu_usage_max_pct": 12.5,
+    "gpu_usage_avg_pct": 94.51408450704226,
+    "gpu_usage_max_pct": 97.0,
+    "memory_avg_mb": 16964.565691021126,
+    "memory_max_mb": 17070.078125,
+    "memory_avg_pct": 75.2669014084507,
+    "memory_max_pct": 75.7
   },
   "configuration": {
+    "architecture": "MoE",
+    "deployment": "on-device",
+    "runtime": "llama-server",
+    "server_host": "127.0.0.1",
+    "server_port": 18080,
     "gpu_layers": 99,
     "context_size": 4096,
     "batch_size": 512,
@@ -37,6 +97,6 @@
     "output_tokens": 1024,
     "temperature": 0,
     "seed": 42,
-    "reasoning_budget": 0
+    "reasoning": "off"
   }
 }
