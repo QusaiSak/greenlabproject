@@ -6,11 +6,13 @@
   "prompt_size": "large",
   "prompt_file": "/Users/qusaisak/Documents/VU/greenlabproject/prompts/prompt_large.txt",
   "run": 9,
-  "requested_output_tokens": 1024,
-  "actual_output_tokens": 1024,
-  "measurement_start": "2026-09-29T23:23:33.778606",
-  "measurement_end": "2026-09-29T23:25:37.882820",
-  "wall_clock_time_s": 124.10076850000041,
+  "schedule_index": 26,
+  "order_seed": 42,
+  "requested_output_tokens": 1536,
+  "actual_output_tokens": 1536,
+  "measurement_start": "2026-10-02T12:28:39.683626",
+  "measurement_end": "2026-10-02T12:31:37.430868",
+  "wall_clock_time_s": 177.7458352500107,
   "energibridge_interval_ms": 200,
   "energy_measurement": {
     "source": "EnergiBridge",
@@ -19,34 +21,34 @@
     "scope": "Local Mac system power interface exposed by EnergiBridge; not a wall-plug measurement unless that interface represents the complete system."
   },
   "llama_metrics": {
-    "prompt_tokens": 1,
-    "output_tokens": 1024,
+    "prompt_tokens": 2103,
+    "output_tokens": 1536,
     "prompt_token_count_source": "llama-server /metrics",
     "output_token_count_source": "llama-server /metrics",
-    "prompt_eval_time_ms": 89.49999999999747,
-    "generation_time_ms": 123369.99999999988,
-    "prompt_tokens_per_second": 11.173184357542215,
-    "generation_tokens_per_second": 8.30023506525088,
-    "request_wall_time_s": 123.4675435829995,
+    "prompt_eval_time_ms": 15627.999999999985,
+    "generation_time_ms": 161439.9999999996,
+    "prompt_tokens_per_second": 134.56616329664718,
+    "generation_tokens_per_second": 9.51437066402381,
+    "request_wall_time_s": 177.0762284579978,
     "finish_reason": "length",
     "response_usage": {
-      "completion_tokens": 1024,
-      "prompt_tokens": 2032,
-      "total_tokens": 3056,
+      "completion_tokens": 1536,
+      "prompt_tokens": 2103,
+      "total_tokens": 3639,
       "prompt_tokens_details": {
-        "cached_tokens": 2031
+        "cached_tokens": 0
       }
     }
   },
   "server_metrics": {
     "before": {
-      "prompt_tokens_total": 3041.0,
-      "prompt_tokens_cached_total": 26038.0,
-      "prompt_seconds_total": 17.0803,
-      "tokens_predicted_total": 31744.0,
-      "tokens_predicted_seconds_total": 2821.42,
-      "n_decode_total": 31748.0,
-      "n_tokens_max": 3055.0,
+      "prompt_tokens_total": 30507.0,
+      "prompt_tokens_cached_total": 0.0,
+      "prompt_seconds_total": 218.842,
+      "tokens_predicted_total": 44129.0,
+      "tokens_predicted_seconds_total": 4456.59,
+      "n_decode_total": 44175.0,
+      "n_tokens_max": 3638.0,
       "spec_decode_num_draft_tokens_total": 0.0,
       "spec_decode_num_accepted_tokens_total": 0.0,
       "spec_decode_num_drafts_total": 0.0,
@@ -57,32 +59,32 @@
       "n_busy_slots_per_decode": 1.0
     },
     "after": {
-      "prompt_tokens_total": 3042.0,
-      "prompt_tokens_cached_total": 28069.0,
-      "prompt_seconds_total": 17.1698,
-      "tokens_predicted_total": 32768.0,
-      "tokens_predicted_seconds_total": 2944.79,
-      "n_decode_total": 32772.0,
-      "n_tokens_max": 3055.0,
+      "prompt_tokens_total": 32610.0,
+      "prompt_tokens_cached_total": 0.0,
+      "prompt_seconds_total": 234.47,
+      "tokens_predicted_total": 45665.0,
+      "tokens_predicted_seconds_total": 4618.03,
+      "n_decode_total": 45715.0,
+      "n_tokens_max": 3638.0,
       "spec_decode_num_draft_tokens_total": 0.0,
       "spec_decode_num_accepted_tokens_total": 0.0,
       "spec_decode_num_drafts_total": 0.0,
-      "prompt_tokens_seconds": 11.1748,
-      "predicted_tokens_seconds": 8.29204,
+      "prompt_tokens_seconds": 134.567,
+      "predicted_tokens_seconds": 9.50813,
       "requests_processing": 0.0,
       "requests_deferred": 0.0,
       "n_busy_slots_per_decode": 1.0
     }
   },
   "system_metrics": {
-    "cpu_usage_avg_pct": 1.6216404886561953,
-    "cpu_usage_max_pct": 37.5,
-    "gpu_usage_avg_pct": 98.52181500872601,
-    "gpu_usage_max_pct": 99.0,
-    "memory_avg_mb": 15105.235029450261,
-    "memory_max_mb": 15173.4375,
-    "memory_avg_pct": 68.0239092495637,
-    "memory_max_pct": 68.3
+    "cpu_usage_avg_pct": 5.591891891891892,
+    "cpu_usage_max_pct": 39.7,
+    "gpu_usage_avg_pct": 98.85135135135135,
+    "gpu_usage_max_pct": 100.0,
+    "memory_avg_mb": 16025.181894963145,
+    "memory_max_mb": 16427.78125,
+    "memory_avg_pct": 71.83562653562653,
+    "memory_max_pct": 73.5
   },
   "configuration": {
     "architecture": "Dense",
@@ -94,9 +96,11 @@
     "context_size": 4096,
     "batch_size": 512,
     "ubatch_size": 256,
-    "output_tokens": 1024,
-    "temperature": 0,
+    "output_tokens": 1536,
+    "temperature": 0.6,
     "seed": 42,
-    "reasoning": "off"
+    "reasoning": "off",
+    "prompt_cache_enabled": false,
+    "cache_ram_mb": 0
   }
 }

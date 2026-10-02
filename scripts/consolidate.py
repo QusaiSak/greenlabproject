@@ -398,6 +398,28 @@ def process_run(
             / generation_time_s
         )
 
+    # EnergiBridge samples total request power but does not expose exact
+    # prompt/generation boundary timestamps. These phase values are therefore
+    # time-proportional estimates, not independent measurements.
+    prompt_time_s = (
+        float(prompt_eval_time_ms) / 1000.0
+        if prompt_eval_time_ms is not None
+        else None
+    )
+    phase_time_s = (
+        prompt_time_s + generation_time_s
+        if prompt_time_s is not None
+        and generation_time_s is not None
+        and prompt_time_s + generation_time_s > 0
+        else None
+    )
+    prompt_energy_j_estimate = None
+    generation_energy_j_estimate = None
+
+    if energy_j is not None and phase_time_s is not None:
+        prompt_energy_j_estimate = energy_j * prompt_time_s / phase_time_s
+        generation_energy_j_estimate = energy_j * generation_time_s / phase_time_s
+
     # --------------------------------------------------------
     # Independent CPU measurements
     # --------------------------------------------------------
@@ -582,6 +604,15 @@ def process_run(
         "energy_j_per_output_token":
             energy_j_per_token,
 
+        "prompt_energy_j_estimate":
+            prompt_energy_j_estimate,
+
+        "generation_energy_j_estimate":
+            generation_energy_j_estimate,
+
+        "energy_phase_estimation_method":
+            "Total energy allocated by prompt/generation inference time; not a phase-isolated measurement.",
+
         # CPU
         "cpu_usage_avg_pct":
             cpu_avg,
@@ -722,6 +753,8 @@ CORE_METRICS = [
     "tokens_per_second",
     "energy_j",
     "energy_j_per_output_token",
+    "prompt_energy_j_estimate",
+    "generation_energy_j_estimate",
     "cpu_usage_avg_pct",
     "gpu_usage_avg_pct",
     "gpu_power_w",
@@ -833,6 +866,8 @@ STATS_METRICS = [
     "tokens_per_second",
     "energy_j",
     "energy_j_per_output_token",
+    "prompt_energy_j_estimate",
+    "generation_energy_j_estimate",
     "cpu_usage_avg_pct",
     "cpu_usage_max_pct",
     "gpu_usage_avg_pct",
@@ -963,6 +998,18 @@ GRAPH_SPECS = [
         "energy_j_per_output_token",
         "Energy per Output Token vs. Prompt Length",
         "Energy (J/token)",
+    ),
+    (
+        "prompt_energy_estimate_vs_prompt_length",
+        "prompt_energy_j_estimate",
+        "Estimated Prompt-Evaluation Energy vs. Prompt Length",
+        "Estimated prompt energy (J)",
+    ),
+    (
+        "generation_energy_estimate_vs_prompt_length",
+        "generation_energy_j_estimate",
+        "Estimated Generation Energy vs. Prompt Length",
+        "Estimated generation energy (J)",
     ),
     (
         "execution_time_vs_prompt_length",
