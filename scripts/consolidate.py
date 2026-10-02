@@ -249,6 +249,16 @@ def process_run(
         "",
     )
 
+    architecture = metadata.get(
+        "architecture",
+        configuration.get("architecture", ""),
+    )
+
+    energy_measurement = metadata.get(
+        "energy_measurement",
+        {},
+    )
+
     quantization = metadata.get(
         "quantization",
         "",
@@ -332,6 +342,19 @@ def process_run(
         )
     )
 
+    prompt_tokens_per_second = llama_metrics.get(
+        "prompt_tokens_per_second"
+    )
+
+    generation_tokens_per_second = llama_metrics.get(
+        "generation_tokens_per_second"
+    )
+
+    output_token_count_source = llama_metrics.get(
+        "output_token_count_source",
+        "unknown",
+    )
+
     # --------------------------------------------------------
     # Energy efficiency
     # --------------------------------------------------------
@@ -374,6 +397,28 @@ def process_run(
             output_tokens
             / generation_time_s
         )
+
+    # EnergiBridge samples total request power but does not expose exact
+    # prompt/generation boundary timestamps. These phase values are therefore
+    # time-proportional estimates, not independent measurements.
+    prompt_time_s = (
+        float(prompt_eval_time_ms) / 1000.0
+        if prompt_eval_time_ms is not None
+        else None
+    )
+    phase_time_s = (
+        prompt_time_s + generation_time_s
+        if prompt_time_s is not None
+        and generation_time_s is not None
+        and prompt_time_s + generation_time_s > 0
+        else None
+    )
+    prompt_energy_j_estimate = None
+    generation_energy_j_estimate = None
+
+    if energy_j is not None and phase_time_s is not None:
+        prompt_energy_j_estimate = energy_j * prompt_time_s / phase_time_s
+        generation_energy_j_estimate = energy_j * generation_time_s / phase_time_s
 
     # --------------------------------------------------------
     # Independent CPU measurements
@@ -490,6 +535,9 @@ def process_run(
         "model":
             model,
 
+        "architecture":
+            architecture,
+
         "quantization":
             quantization,
 
@@ -522,12 +570,48 @@ def process_run(
         "tokens_per_second":
             tokens_per_second,
 
+        "prompt_tokens_per_second":
+            prompt_tokens_per_second,
+
+        "generation_tokens_per_second":
+            generation_tokens_per_second,
+
+        "request_wall_time_s":
+            llama_metrics.get("request_wall_time_s"),
+
+        "finish_reason":
+            llama_metrics.get("finish_reason"),
+
+        "output_token_count_source":
+            output_token_count_source,
+
         # Energy
         "energy_j":
             energy_j,
 
+        "energy_source":
+            energy_measurement.get(
+                "source",
+                "EnergiBridge",
+            ),
+
+        "energy_measurement_method":
+            energy_measurement.get(
+                "method",
+                "Sampled system power integrated over time",
+            ),
+
         "energy_j_per_output_token":
             energy_j_per_token,
+
+        "prompt_energy_j_estimate":
+            prompt_energy_j_estimate,
+
+        "generation_energy_j_estimate":
+            generation_energy_j_estimate,
+
+        "energy_phase_estimation_method":
+            "Total energy allocated by prompt/generation inference time; not a phase-isolated measurement.",
 
         # CPU
         "cpu_usage_avg_pct":
@@ -591,6 +675,12 @@ def process_run(
                 "output_tokens"
             ),
 
+        "runtime":
+            configuration.get("runtime", "llama-server"),
+
+        "deployment":
+            configuration.get("deployment", "on-device"),
+
         "temperature":
             configuration.get(
                 "temperature"
@@ -636,6 +726,24 @@ def add_model_label(df):
 
     df["model_label"] = df.apply(label, axis=1)
 
+    def family(row):
+
+        model = str(row.get("model") or "")
+        quant = str(row.get("quantization") or "")
+
+        for suffix in (f"-{quant}", quant):
+
+            if quant and model.endswith(suffix):
+                model = model[:-len(suffix)].rstrip("- _")
+                break
+
+        if model.startswith("kalomaze_"):
+            model = model[len("kalomaze_"):]
+
+        return model or "unknown"
+
+    df["model_family"] = df.apply(family, axis=1)
+
     return df
 
 
@@ -656,9 +764,15 @@ CORE_METRICS = [
     "execution_time_s",
     "prompt_eval_time_ms",
     "generation_time_ms",
+    "request_wall_time_s",
+    "prompt_tokens_per_second",
+    "generation_tokens_per_second",
+    "request_wall_time_s",
     "tokens_per_second",
     "energy_j",
     "energy_j_per_output_token",
+    "prompt_energy_j_estimate",
+    "generation_energy_j_estimate",
     "cpu_usage_avg_pct",
     "gpu_usage_avg_pct",
     "gpu_power_w",
@@ -761,12 +875,17 @@ def print_data_quality_report(df):
 # ============================================================
 
 STATS_METRICS = [
+    "prompt_tokens",
+    "output_tokens",
     "execution_time_s",
     "prompt_eval_time_ms",
     "generation_time_ms",
+    "request_wall_time_s",
     "tokens_per_second",
     "energy_j",
     "energy_j_per_output_token",
+    "prompt_energy_j_estimate",
+    "generation_energy_j_estimate",
     "cpu_usage_avg_pct",
     "cpu_usage_max_pct",
     "gpu_usage_avg_pct",
@@ -827,16 +946,22 @@ def compute_summary_stats(df):
     model-wise x prompt-size breakdown.
     """
 
+    return compute_group_summary(
+        df,
+        ["model_label", "prompt_size"],
+    )
+
+
+def compute_group_summary(df, group_columns):
+
     rows = []
 
-    for (model_label, prompt_size), group in df.groupby(
-        ["model_label", "prompt_size"]
-    ):
+    for group_key, group in df.groupby(group_columns):
 
-        row = {
-            "model_label": model_label,
-            "prompt_size": prompt_size,
-        }
+        if not isinstance(group_key, tuple):
+            group_key = (group_key,)
+
+        row = dict(zip(group_columns, group_key))
 
         row.update(_stat_row(group))
 
@@ -844,15 +969,26 @@ def compute_summary_stats(df):
 
     stats_df = pd.DataFrame(rows)
 
-    stats_df["_order"] = (
-        stats_df["prompt_size"]
-        .map(PROMPT_ORDER)
-        .fillna(99)
-    )
+    if "prompt_size" in stats_df.columns:
 
-    stats_df = stats_df.sort_values(
-        ["model_label", "_order"]
-    ).drop(columns=["_order"])
+        stats_df["_order"] = (
+            stats_df["prompt_size"]
+            .map(PROMPT_ORDER)
+            .fillna(99)
+        )
+
+        sort_columns = [
+            column for column in group_columns
+            if column != "prompt_size"
+        ] + ["_order"]
+
+        stats_df = stats_df.sort_values(
+            sort_columns
+        ).drop(columns=["_order"])
+
+    else:
+
+        stats_df = stats_df.sort_values(group_columns)
 
     return stats_df
 
@@ -863,17 +999,7 @@ def compute_model_summary(df):
     top-line "model A vs model B vs model C" comparison.
     """
 
-    rows = []
-
-    for model_label, group in df.groupby("model_label"):
-
-        row = {"model_label": model_label}
-
-        row.update(_stat_row(group))
-
-        rows.append(row)
-
-    return pd.DataFrame(rows).sort_values("model_label")
+    return compute_group_summary(df, ["model_label"])
 
 
 # ============================================================
@@ -897,6 +1023,18 @@ GRAPH_SPECS = [
         "energy_j_per_output_token",
         "Energy per Output Token vs. Prompt Length",
         "Energy (J/token)",
+    ),
+    (
+        "prompt_energy_estimate_vs_prompt_length",
+        "prompt_energy_j_estimate",
+        "Estimated Prompt-Evaluation Energy vs. Prompt Length",
+        "Estimated prompt energy (J)",
+    ),
+    (
+        "generation_energy_estimate_vs_prompt_length",
+        "generation_energy_j_estimate",
+        "Estimated Generation Energy vs. Prompt Length",
+        "Estimated generation energy (J)",
     ),
     (
         "execution_time_vs_prompt_length",
@@ -1052,6 +1190,100 @@ def generate_plots(stats_df, plots_dir):
     return written
 
 
+def generate_factor_plots(
+    stats_df,
+    plots_dir,
+    series_columns,
+    series_name,
+):
+
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import numpy as np
+    except ImportError:
+        return []
+
+    if "prompt_size" not in stats_df.columns:
+        return []
+
+    prompt_order = [
+        prompt for prompt in ["small", "medium", "large"]
+        if prompt in stats_df["prompt_size"].values
+    ]
+
+    plot_specs = [
+        ("energy_j", "Energy (J)", "Energy"),
+        ("execution_time_s", "Time (s)", "Execution time"),
+        ("tokens_per_second", "Tokens/second", "Throughput"),
+    ]
+
+    stats_df = stats_df.copy()
+    stats_df["series"] = stats_df[series_columns].astype(str).agg(" | ".join, axis=1)
+    series_values = sorted(stats_df["series"].unique())
+    indexed = stats_df.set_index(["series", "prompt_size"])
+    written = []
+
+    for metric, ylabel, metric_name in plot_specs:
+
+        mean_col = f"{metric}_mean"
+        std_col = f"{metric}_std"
+
+        if mean_col not in stats_df.columns or stats_df[mean_col].isna().all():
+            continue
+
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+        x = np.arange(len(prompt_order))
+        bar_width = 0.8 / max(len(series_values), 1)
+
+        for index, series in enumerate(series_values):
+
+            means = []
+            stds = []
+
+            for prompt_size in prompt_order:
+
+                try:
+                    row = indexed.loc[(series, prompt_size)]
+                    mean_value = row[mean_col]
+                    std_value = row[std_col]
+                except KeyError:
+                    mean_value = None
+                    std_value = None
+
+                means.append(float(mean_value) if pd.notna(mean_value) else 0.0)
+                stds.append(float(std_value) if pd.notna(std_value) else 0.0)
+
+            offset = (index - (len(series_values) - 1) / 2) * bar_width
+            ax.bar(
+                x + offset,
+                means,
+                width=bar_width,
+                yerr=stds,
+                capsize=3,
+                label=series,
+                color=MODEL_COLORS[index % len(MODEL_COLORS)],
+            )
+
+        ax.set_title(f"{metric_name} by {series_name} and prompt length")
+        ax.set_xlabel("Prompt size")
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(x)
+        ax.set_xticklabels(prompt_order)
+        ax.grid(axis="y", linestyle="--", alpha=0.4)
+        ax.legend(fontsize=8, loc="upper left", bbox_to_anchor=(1.02, 1.0))
+        fig.tight_layout()
+
+        filename = f"{series_name.lower()}_{metric}.png"
+        out_path = plots_dir / filename
+        fig.savefig(out_path, dpi=150)
+        plt.close(fig)
+        written.append(out_path)
+
+    return written
+
+
 # ============================================================
 # MAIN
 # ============================================================
@@ -1087,6 +1319,27 @@ def main():
     )
 
     parser.add_argument(
+        "--prompt-summary-output",
+        default=
+        "results/consolidated/"
+        "prompt_length_summary.csv",
+    )
+
+    parser.add_argument(
+        "--quantization-summary-output",
+        default=
+        "results/consolidated/"
+        "quantization_summary.csv",
+    )
+
+    parser.add_argument(
+        "--architecture-summary-output",
+        default=
+        "results/consolidated/"
+        "architecture_summary.csv",
+    )
+
+    parser.add_argument(
         "--plots-dir",
         default=
         "results/consolidated/plots",
@@ -1116,6 +1369,18 @@ def main():
         args.model_summary_output
     ).expanduser().resolve()
 
+    prompt_summary_file = Path(
+        args.prompt_summary_output
+    ).expanduser().resolve()
+
+    quantization_summary_file = Path(
+        args.quantization_summary_output
+    ).expanduser().resolve()
+
+    architecture_summary_file = Path(
+        args.architecture_summary_output
+    ).expanduser().resolve()
+
     plots_dir = Path(
         args.plots_dir
     ).expanduser().resolve()
@@ -1131,6 +1396,11 @@ def main():
     )
 
     model_summary_file.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    prompt_summary_file.parent.mkdir(
         parents=True,
         exist_ok=True,
     )
@@ -1248,6 +1518,45 @@ def main():
         f"{model_summary_file}"
     )
 
+    prompt_summary_df = compute_group_summary(
+        df,
+        [
+            "model_family",
+            "architecture",
+            "quantization",
+            "prompt_size",
+        ],
+    )
+    prompt_summary_df.to_csv(prompt_summary_file, index=False)
+
+    quantization_summary_df = compute_group_summary(
+        df,
+        ["model_family", "quantization", "prompt_size"],
+    )
+    quantization_summary_df.to_csv(
+        quantization_summary_file,
+        index=False,
+    )
+
+    architecture_summary_df = compute_group_summary(
+        df,
+        ["architecture", "prompt_size"],
+    )
+    architecture_summary_df.to_csv(
+        architecture_summary_file,
+        index=False,
+    )
+
+    print(
+        f"Prompt-length comparison:\n{prompt_summary_file}"
+    )
+    print(
+        f"Quantization comparison:\n{quantization_summary_file}"
+    )
+    print(
+        f"Architecture comparison:\n{architecture_summary_file}"
+    )
+
     # --------------------------------------------------------
     # Graphs
     # --------------------------------------------------------
@@ -1259,6 +1568,20 @@ def main():
         )
 
         written = generate_plots(stats_df, plots_dir)
+
+        written += generate_factor_plots(
+            quantization_summary_df,
+            plots_dir,
+            ["model_family", "quantization"],
+            "quantization",
+        )
+
+        written += generate_factor_plots(
+            architecture_summary_df,
+            plots_dir,
+            ["architecture"],
+            "architecture",
+        )
 
         for path in written:
             print(f"  {path.name}")
