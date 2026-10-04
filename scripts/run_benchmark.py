@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import random
 import re
 import subprocess
 import sys
@@ -12,6 +13,11 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 PROMPT_SIZES = {
     "small": "prompt_small.txt",
     "medium": "prompt_medium.txt",
@@ -19,7 +25,7 @@ PROMPT_SIZES = {
 }
 
 DEFAULT_RUNS = 10
-DEFAULT_OUTPUT_TOKENS = 1024
+DEFAULT_OUTPUT_TOKENS = 1536
 
 GPU_LAYERS = 99
 CONTEXT_SIZE = 4096
@@ -31,8 +37,8 @@ BLOCK_COOLDOWN_SECONDS = 120
 ENERGYBRIDGE_INTERVAL_MS = 200
 MONITOR_INTERVAL_SECONDS = 0.2
 
-DEFAULT_SERVER_HOST = "127.0.0.1"
-DEFAULT_SERVER_PORT = 18080
+DEFAULT_SERVER_HOST = os.getenv("DEFAULT_SERVER_HOST")
+DEFAULT_SERVER_PORT = os.getenv("DEFAULT_LLAMA_PORT")
 
 
 def run_command(command, check=True):
@@ -263,6 +269,8 @@ def start_server(model, port, server_log):
         "-b", str(BATCH_SIZE),
         "-ub", str(UBATCH_SIZE),
         "--reasoning", "off",
+        "--no-cache-prompt",
+        "--cache-ram", "0",
     ]
 
     log_file = open(server_log, "w", encoding="utf-8")
@@ -312,7 +320,7 @@ def internal_request(args):
         "messages": [
             {"role": "user", "content": args.prompt}
         ],
-        "temperature": 0,
+        "temperature": 0.6,
         "seed": 42,
         "max_tokens": args.max_tokens,
         "stream": False,
@@ -401,6 +409,8 @@ def run_single(
     raw_root,
     server_host,
     server_port,
+    order_seed,
+    schedule_index,
 ):
     model_name = get_model_name(model)
 
@@ -520,6 +530,8 @@ def run_single(
         "prompt_size": prompt_size,
         "prompt_file": str(prompt_file),
         "run": run_number,
+        "schedule_index": schedule_index,
+        "order_seed": order_seed,
         "requested_output_tokens": output_tokens,
         "actual_output_tokens": client_result.get("output_tokens_runtime"),
         "measurement_start": start_datetime,
@@ -575,9 +587,11 @@ def run_single(
             "batch_size": BATCH_SIZE,
             "ubatch_size": UBATCH_SIZE,
             "output_tokens": output_tokens,
-            "temperature": 0,
+            "temperature": 0.6,
             "seed": 42,
             "reasoning": "off",
+            "prompt_cache_enabled": False,
+            "cache_ram_mb": 0,
         },
     }
 
@@ -627,7 +641,7 @@ def warmup(model_name, prompt_file, output_tokens, host, port):
     payload = {
         "model": model_name,
         "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0,
+        "temperature": 0.6,
         "seed": 42,
         "max_tokens": output_tokens,
         "stream": False,
@@ -703,6 +717,12 @@ def main():
     parser.add_argument("--server-host", default=DEFAULT_SERVER_HOST)
     parser.add_argument("--server-port", type=int, default=DEFAULT_SERVER_PORT)
     parser.add_argument("--skip-cooldown", action="store_true")
+    parser.add_argument(
+        "--order-seed",
+        type=int,
+        default=42,
+        help="Seed for balanced random prompt-size ordering.",
+    )
 
     args = parser.parse_args()
 
@@ -758,51 +778,60 @@ def main():
         print("llama-server is ready.")
 
         sizes = list(PROMPT_SIZES.items())
+        order_rng = random.Random(args.order_seed)
 
-        for size_index, (prompt_size, filename) in enumerate(sizes):
-            prompt_file = prompt_dir / filename
-
+        warmup_sizes = sizes.copy()
+        order_rng.shuffle(warmup_sizes)
+        for _, filename in warmup_sizes:
             warmup(
                 model.name,
-                prompt_file,
+                prompt_dir / filename,
                 args.output_tokens,
                 args.server_host,
                 args.server_port,
             )
 
-            if not args.skip_cooldown:
+        if not args.skip_cooldown:
+            sleep_with_message(
+                30,
+                "Stabilizing after warm-up..."
+            )
+
+        # Each block contains one repetition of every prompt size. Shuffling
+        # each block balances prompt sizes while avoiding fixed thermal order.
+        schedule = []
+        for run_number in range(1, args.runs + 1):
+            block = sizes.copy()
+            order_rng.shuffle(block)
+            schedule.extend(
+                (run_number, prompt_size, filename)
+                for prompt_size, filename in block
+            )
+
+        print("\nMeasured prompt order:")
+        print("  " + " -> ".join(size for _, size, _ in schedule))
+
+        for schedule_index, (run_number, prompt_size, filename) in enumerate(schedule):
+            prompt_file = prompt_dir / filename
+            run_single(
+                model=model,
+                quantization=args.quantization,
+                architecture=architecture,
+                prompt_size=prompt_size,
+                prompt_file=prompt_file,
+                run_number=run_number,
+                output_tokens=args.output_tokens,
+                raw_root=raw_root,
+                server_host=args.server_host,
+                server_port=args.server_port,
+                order_seed=args.order_seed,
+                schedule_index=schedule_index,
+            )
+
+            if schedule_index < len(schedule) - 1 and not args.skip_cooldown:
                 sleep_with_message(
-                    30,
-                    "Stabilizing after warm-up..."
-                )
-
-            for run_number in range(1, args.runs + 1):
-                run_single(
-                    model=model,
-                    quantization=args.quantization,
-                    architecture=architecture,
-                    prompt_size=prompt_size,
-                    prompt_file=prompt_file,
-                    run_number=run_number,
-                    output_tokens=args.output_tokens,
-                    raw_root=raw_root,
-                    server_host=args.server_host,
-                    server_port=args.server_port,
-                )
-
-                if run_number < args.runs and not args.skip_cooldown:
-                    sleep_with_message(
-                        RUN_COOLDOWN_SECONDS,
-                        "Cooldown between runs..."
-                    )
-
-            if (
-                size_index < len(sizes) - 1
-                and not args.skip_cooldown
-            ):
-                sleep_with_message(
-                    BLOCK_COOLDOWN_SECONDS,
-                    "Cooldown before next prompt size..."
+                    RUN_COOLDOWN_SECONDS,
+                    "Cooldown between runs..."
                 )
 
     finally:
