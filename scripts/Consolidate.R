@@ -151,7 +151,7 @@ process_run <- function(metadata_path) {
   # A model label that never merges different quantizations accidentally.
   model_label <- model
   if (!is.na(quantization) && nzchar(quantization) &&
-      (is.na(model) || !grepl(quantization, model, fixed = TRUE, ignore.case = TRUE))) {
+      (is.na(model) || !grepl(tolower(quantization), tolower(model), fixed = TRUE))) {
     model_label <- paste0(model, " (", quantization, ")")
   }
   if (is.na(model_label) || !nzchar(model_label)) model_label <- "unknown model"
@@ -356,7 +356,7 @@ write_csv(model_summary, file.path(OUTPUT_DIR, "model_summary.csv"), na = "")
 # Plot helpers
 # ============================================================
 
-save_plot <- function(plot, filename, width = 9, height = 6) {
+save_plot <- function(plot, filename, width = 10, height = 7) {
   ggsave(
     filename = file.path(PLOTS_DIR, filename),
     plot = plot,
@@ -369,247 +369,467 @@ save_plot <- function(plot, filename, width = 9, height = 6) {
 
 plot_theme <- theme_minimal(base_size = 13) +
   theme(
-    plot.title = element_text(face = "bold", size = 15),
+    plot.title = element_text(face = "bold", size = 16),
     plot.subtitle = element_text(size = 11),
+    axis.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold", size = 11),
     legend.position = "bottom",
-    panel.grid.minor = element_blank()
+    panel.grid.minor = element_blank(),
+    panel.spacing = unit(1.1, "lines")
   )
 
-n_models <- n_distinct(analysis_df$model_label)
-n_quant <- n_distinct(na.omit(analysis_df$quantization))
-n_deployments <- n_distinct(analysis_df$deployment)
+# ============================================================
+# LOCAL-ONLY PLOTS
+# ============================================================
+# The current stage of the project has only on-device data.
+# Remote results are intentionally excluded from these figures.
+# They can be added later as a separate deployment comparison.
+# ============================================================
 
-# Use model+quantization as the comparison group. If only one model
-# exists, this remains a clean single-series plot.
-analysis_df <- analysis_df %>%
+local_df <- analysis_df %>%
+  filter(tolower(deployment) %in% c("on_device", "on-device", "on device", "local"))
+
+if (nrow(local_df) == 0) {
+  stop("No on-device/local runs found. Check the deployment field in run_table.csv.")
+}
+
+# Clean model/quantization labels.
+# model_quant = unique comparison group.
+# model_family = model name with a trailing quantization suffix removed,
+# when the metadata model field already contains the quantization name.
+local_df <- local_df %>%
   mutate(
     model_quant = ifelse(
-      !is.na(quantization) & nzchar(quantization) & !grepl(quantization, model, fixed = TRUE, ignore.case = TRUE),
+      !is.na(quantization) & nzchar(quantization) &
+        !grepl(quantization, model, ignore.case = TRUE, fixed = FALSE),
       paste0(model, " (", quantization, ")"),
       model_label
+    ),
+    model_quant = ifelse(
+      is.na(model_quant) | !nzchar(model_quant), "Unknown model", model_quant
+    ),
+    model_family = model,
+    prompt_condition = factor(
+      prompt_size,
+      levels = c("small", "medium", "large"),
+      labels = c("Short", "Medium", "Long")
     )
   )
 
+# If prompt_size contains another naming convention, keep it instead
+# of producing missing facet labels.
+if (all(is.na(local_df$prompt_condition))) {
+  local_df$prompt_condition <- factor(local_df$prompt_size)
+}
+
+model_levels <- local_df %>%
+  distinct(model_quant) %>%
+  arrange(model_quant) %>%
+  pull(model_quant)
+local_df$model_quant <- factor(local_df$model_quant, levels = model_levels)
+
+prompt_levels <- levels(droplevels(local_df$prompt_condition))
+
+# ------------------------------------------------------------
+# Condition summaries
+# ------------------------------------------------------------
+# Mean +/- 95% CI is used for the trend plots.
+# Boxplots show the complete run-to-run distribution.
+# ------------------------------------------------------------
+
+condition_df <- local_df %>%
+  group_by(model_quant, prompt_condition) %>%
+  summarise(
+    n = n(),
+    mean_prompt_tokens = mean(prompt_tokens, na.rm = TRUE),
+    mean_energy_j = mean(energy_j, na.rm = TRUE),
+    mean_efficiency = mean(energy_j_per_output_token, na.rm = TRUE),
+    sd_efficiency = sd(energy_j_per_output_token, na.rm = TRUE),
+    mean_tokens_per_joule = mean(output_tokens_per_joule, na.rm = TRUE),
+    mean_generation_time_s = mean(generation_time_s, na.rm = TRUE),
+    mean_throughput = mean(tokens_per_second, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    sd_efficiency = ifelse(is.na(sd_efficiency), 0, sd_efficiency),
+    se_efficiency = sd_efficiency / sqrt(pmax(n, 1)),
+    ci95_efficiency = ifelse(
+      n > 1,
+      qt(0.975, df = n - 1) * se_efficiency,
+      0
+    ),
+    lower95_efficiency = pmax(0, mean_efficiency - ci95_efficiency),
+    upper95_efficiency = mean_efficiency + ci95_efficiency
+  )
+
 # ============================================================
-# 1. Main relationship: prompt length vs total energy
+# FIGURE 1 — PRIMARY: ENERGY EFFICIENCY BOX PLOTS
+# ============================================================
+# This is the clearest figure for the current RQ1 stage.
+# Each panel = one prompt-length condition.
+# Each box = one model/quantization configuration.
+# Dots = individual runs.
+# Diamond = mean.
+# The reader can therefore see BOTH:
+#   1. prompt-length effect
+#   2. model/quantization effect at the same prompt length
 # ============================================================
 
-p1 <- ggplot(analysis_df, aes(x = prompt_tokens, y = energy_j)) +
-  geom_point(aes(color = model_quant), size = 2.7, alpha = 0.8) +
-  geom_smooth(aes(color = model_quant), method = "lm", se = FALSE, linewidth = 0.9) +
+p1 <- ggplot(
+  local_df,
+  aes(x = model_quant, y = energy_j_per_output_token, fill = model_quant)
+) +
+  geom_boxplot(
+    width = 0.62,
+    alpha = 0.55,
+    outlier.shape = NA,
+    linewidth = 0.5
+  ) +
+  geom_jitter(
+    aes(color = model_quant),
+    width = 0.13,
+    height = 0,
+    size = 2.0,
+    alpha = 0.65
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 23,
+    size = 3.2,
+    fill = "white",
+    color = "black",
+    stroke = 0.8
+  ) +
+  facet_wrap(~ prompt_condition, nrow = 1, scales = "free_x") +
   labs(
-    title = "Prompt Length vs Total Energy",
-    subtitle = "Each point represents one inference run",
-    x = "Prompt length (tokens)",
-    y = "Total energy (J)",
+    title = "Energy Efficiency by Prompt Length and Model",
+    subtitle = "Box = distribution of runs; dots = individual runs; diamond = mean",
+    x = "Model / quantization",
+    y = "Energy per output token (J/token)",
+    fill = "Model / quantization",
     color = "Model / quantization"
   ) +
-  plot_theme
+  plot_theme +
+  theme(
+    axis.text.x = element_text(angle = 25, hjust = 1),
+    legend.position = "none"
+  )
 
-save_plot(p1, "01_prompt_length_vs_total_energy.png")
+save_plot(p1, "01_PRIMARY_energy_efficiency_boxplots.png", width = 12, height = 6.8)
 
 # ============================================================
-# 2. PRIMARY RQ1 PLOT: prompt length vs energy efficiency
+# FIGURE 2 — MODEL EFFECT AT EACH PROMPT LENGTH
+# ============================================================
+# Same data, but arranged with MODEL on the x-axis and PROMPT
+# LENGTH as facets. This is the strongest visual for the question:
+# "Which model is more energy efficient at the same prompt length?"
 # ============================================================
 
-p2 <- ggplot(analysis_df, aes(x = prompt_tokens, y = energy_j_per_output_token)) +
-  geom_point(aes(color = model_quant), size = 2.9, alpha = 0.85) +
-  geom_smooth(aes(color = model_quant), method = "lm", se = TRUE, linewidth = 0.9) +
+p2 <- ggplot(
+  local_df,
+  aes(x = model_quant, y = energy_j_per_output_token, fill = model_quant)
+) +
+  geom_boxplot(
+    width = 0.62,
+    alpha = 0.60,
+    outlier.shape = NA,
+    linewidth = 0.5
+  ) +
+  geom_jitter(
+    aes(color = model_quant),
+    width = 0.13,
+    height = 0,
+    size = 2.1,
+    alpha = 0.60
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 23,
+    size = 3.2,
+    fill = "white",
+    color = "black"
+  ) +
+  facet_wrap(~ prompt_condition, nrow = 1, scales = "free_x") +
   labs(
-    title = "Prompt Length vs Energy Efficiency",
-    subtitle = "Primary RQ1 outcome: lower J/token means better energy efficiency",
-    x = "Prompt length (tokens)",
+    title = "Model and Quantization Effect on Energy Efficiency",
+    subtitle = "Direct comparison of configurations under the same prompt-length condition",
+    x = "Model / quantization",
+    y = "Energy per output token (J/token)"
+  ) +
+  plot_theme +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "none"
+  )
+
+save_plot(p2, "02_MODEL_effect_energy_efficiency.png", width = 12, height = 6.8)
+
+# ============================================================
+# FIGURE 3 — TOTAL ENERGY BOX PLOTS
+# ============================================================
+# Supporting result. Unlike J/token, total energy also reflects the
+# amount of generated output, so it is not the primary efficiency metric.
+# ============================================================
+
+p3 <- ggplot(
+  local_df,
+  aes(x = model_quant, y = energy_j, fill = model_quant)
+) +
+  geom_boxplot(
+    width = 0.62,
+    alpha = 0.55,
+    outlier.shape = NA,
+    linewidth = 0.5
+  ) +
+  geom_jitter(
+    aes(color = model_quant),
+    width = 0.13,
+    height = 0,
+    size = 2.0,
+    alpha = 0.65
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 23,
+    size = 3.0,
+    fill = "white",
+    color = "black"
+  ) +
+  facet_wrap(~ prompt_condition, nrow = 1, scales = "free_y") +
+  labs(
+    title = "Total Energy by Prompt Length and Model",
+    subtitle = "Supporting measure; individual runs are retained",
+    x = "Model / quantization",
+    y = "Total energy (J)"
+  ) +
+  plot_theme +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "none"
+  )
+
+save_plot(p3, "03_total_energy_boxplots.png", width = 12, height = 6.8)
+
+# ============================================================
+# FIGURE 4 — OUTPUT EFFICIENCY BOX PLOTS
+# ============================================================
+# Equivalent to J/token but with the intuitive direction:
+# higher tokens/J = better.
+# ============================================================
+
+p4 <- ggplot(
+  local_df,
+  aes(x = model_quant, y = output_tokens_per_joule, fill = model_quant)
+) +
+  geom_boxplot(
+    width = 0.62,
+    alpha = 0.55,
+    outlier.shape = NA,
+    linewidth = 0.5
+  ) +
+  geom_jitter(
+    aes(color = model_quant),
+    width = 0.13,
+    height = 0,
+    size = 2.0,
+    alpha = 0.65
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 23,
+    size = 3.0,
+    fill = "white",
+    color = "black"
+  ) +
+  facet_wrap(~ prompt_condition, nrow = 1, scales = "free_y") +
+  labs(
+    title = "Output Efficiency by Prompt Length and Model",
+    subtitle = "Higher tokens per joule indicates better energy efficiency",
+    x = "Model / quantization",
+    y = "Output tokens per joule (tokens/J)"
+  ) +
+  plot_theme +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "none"
+  )
+
+save_plot(p4, "04_output_efficiency_boxplots.png", width = 12, height = 6.8)
+
+# ============================================================
+# FIGURE 5 — GENERATION TIME BOX PLOTS
+# ============================================================
+
+p5 <- ggplot(
+  local_df,
+  aes(x = model_quant, y = generation_time_s, fill = model_quant)
+) +
+  geom_boxplot(
+    width = 0.62,
+    alpha = 0.55,
+    outlier.shape = NA,
+    linewidth = 0.5
+  ) +
+  geom_jitter(
+    aes(color = model_quant),
+    width = 0.13,
+    height = 0,
+    size = 2.0,
+    alpha = 0.65
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 23,
+    size = 3.0,
+    fill = "white",
+    color = "black"
+  ) +
+  facet_wrap(~ prompt_condition, nrow = 1, scales = "free_y") +
+  labs(
+    title = "Generation Time by Prompt Length and Model",
+    subtitle = "Supporting performance measure for interpreting energy differences",
+    x = "Model / quantization",
+    y = "Generation time (s)"
+  ) +
+  plot_theme +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "none"
+  )
+
+save_plot(p5, "05_generation_time_boxplots.png", width = 12, height = 6.8)
+
+# ============================================================
+# FIGURE 6 — GENERATION THROUGHPUT BOX PLOTS
+# ============================================================
+
+p6 <- ggplot(
+  local_df,
+  aes(x = model_quant, y = tokens_per_second, fill = model_quant)
+) +
+  geom_boxplot(
+    width = 0.62,
+    alpha = 0.55,
+    outlier.shape = NA,
+    linewidth = 0.5
+  ) +
+  geom_jitter(
+    aes(color = model_quant),
+    width = 0.13,
+    height = 0,
+    size = 2.0,
+    alpha = 0.65
+  ) +
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    shape = 23,
+    size = 3.0,
+    fill = "white",
+    color = "black"
+  ) +
+  facet_wrap(~ prompt_condition, nrow = 1, scales = "free_y") +
+  labs(
+    title = "Generation Throughput by Prompt Length and Model",
+    subtitle = "Supporting measure; higher tokens/s indicates faster generation",
+    x = "Model / quantization",
+    y = "Generation throughput (tokens/s)"
+  ) +
+  plot_theme +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "none"
+  )
+
+save_plot(p6, "06_generation_throughput_boxplots.png", width = 12, height = 6.8)
+
+# ============================================================
+# FIGURE 7 — PROMPT-LENGTH TREND WITH MEAN +/- 95% CI
+# ============================================================
+# This is the complementary figure to the boxplots.
+# It makes the prompt-length trend easy to see for every model.
+# No regression line is used because there are only a few deliberate
+# prompt-length conditions; connecting the experimental means is clearer.
+# ============================================================
+
+p7 <- ggplot(
+  condition_df,
+  aes(
+    x = mean_prompt_tokens,
+    y = mean_efficiency,
+    color = model_quant,
+    group = model_quant
+  )
+) +
+  geom_line(linewidth = 1.0) +
+  geom_point(size = 3.4) +
+  geom_errorbar(
+    aes(ymin = lower95_efficiency, ymax = upper95_efficiency),
+    width = 0,
+    linewidth = 0.7
+  ) +
+  labs(
+    title = "Energy Efficiency Trend Across Prompt Lengths",
+    subtitle = "Mean ± 95% CI; each line represents one model/quantization configuration",
+    x = "Mean prompt length (tokens)",
     y = "Energy per output token (J/token)",
     color = "Model / quantization"
   ) +
   plot_theme
 
-save_plot(p2, "02_PRIMARY_prompt_length_vs_energy_efficiency.png")
+save_plot(p7, "07_prompt_length_energy_efficiency_trend.png", width = 10.5, height = 6.8)
 
 # ============================================================
-# 3. Same efficiency result as tokens/J
-#    Useful because higher = better, which is intuitive.
+# FIGURE 8 — MODEL COMPARISON AT EACH CONDITION (POINT-RANGE)
+# ============================================================
+# A compact "candle-like" summary: mean point + 95% CI for each
+# model at each prompt condition. This is easier to read in a paper
+# than a very dense boxplot when the number of repeated runs grows.
 # ============================================================
 
-p3 <- ggplot(analysis_df, aes(x = prompt_tokens, y = output_tokens_per_joule)) +
-  geom_point(aes(color = model_quant), size = 2.9, alpha = 0.85) +
-  geom_smooth(aes(color = model_quant), method = "lm", se = TRUE, linewidth = 0.9) +
-  labs(
-    title = "Prompt Length vs Output Efficiency",
-    subtitle = "Higher output tokens per joule indicates better energy efficiency",
-    x = "Prompt length (tokens)",
-    y = "Output tokens per joule (tokens/J)",
-    color = "Model / quantization"
+p8 <- ggplot(
+  condition_df,
+  aes(x = model_quant, y = mean_efficiency, color = model_quant)
+) +
+  geom_errorbar(
+    aes(ymin = lower95_efficiency, ymax = upper95_efficiency),
+    width = 0.16,
+    linewidth = 0.8
   ) +
-  plot_theme
-
-save_plot(p3, "03_prompt_length_vs_tokens_per_joule.png")
-
-# ============================================================
-# 4. Supporting performance plot
-# ============================================================
-
-p4 <- ggplot(analysis_df, aes(x = prompt_tokens, y = generation_time_s)) +
-  geom_point(aes(color = model_quant), size = 2.7, alpha = 0.8) +
-  geom_smooth(aes(color = model_quant), method = "lm", se = FALSE, linewidth = 0.9) +
+  geom_point(size = 3.3) +
+  facet_wrap(~ prompt_condition, nrow = 1, scales = "free_x") +
   labs(
-    title = "Prompt Length vs Generation Time",
-    subtitle = "Supporting metric for interpreting energy differences",
-    x = "Prompt length (tokens)",
-    y = "Generation time (s)",
-    color = "Model / quantization"
+    title = "Model Energy Efficiency at Each Prompt Length",
+    subtitle = "Mean energy per output token with 95% confidence intervals",
+    x = "Model / quantization",
+    y = "Energy per output token (J/token)"
   ) +
-  plot_theme
-
-save_plot(p4, "04_prompt_length_vs_generation_time.png")
-
-# ============================================================
-# 5. Supporting throughput plot
-# ============================================================
-
-p5 <- ggplot(analysis_df, aes(x = prompt_tokens, y = tokens_per_second)) +
-  geom_point(aes(color = model_quant), size = 2.7, alpha = 0.8) +
-  geom_smooth(aes(color = model_quant), method = "lm", se = FALSE, linewidth = 0.9) +
-  labs(
-    title = "Prompt Length vs Generation Throughput",
-    subtitle = "Supporting metric: generated tokens per second",
-    x = "Prompt length (tokens)",
-    y = "Generation throughput (tokens/s)",
-    color = "Model / quantization"
-  ) +
-  plot_theme
-
-save_plot(p5, "05_prompt_length_vs_throughput.png")
-
-# ============================================================
-# 6. Condition-level plot
-# Useful when small/medium/large prompts were deliberately tested.
-# Error bars show +/- 1 SD across repeated runs.
-# ============================================================
-
-condition_df <- analysis_df %>%
-  group_by(model_quant, deployment, prompt_size) %>%
-  summarise(
-    mean_prompt_tokens = mean(prompt_tokens, na.rm = TRUE),
-    mean_energy_efficiency = mean(energy_j_per_output_token, na.rm = TRUE),
-    sd_energy_efficiency = sd(energy_j_per_output_token, na.rm = TRUE),
-    n = n(),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    sd_energy_efficiency = ifelse(is.na(sd_energy_efficiency), 0, sd_energy_efficiency)
+  plot_theme +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    legend.position = "none"
   )
 
-if (n_distinct(condition_df$prompt_size) > 1) {
-  p6 <- ggplot(
-    condition_df,
-    aes(x = mean_prompt_tokens, y = mean_energy_efficiency, color = model_quant, group = model_quant)
-  ) +
-    geom_line(linewidth = 0.9) +
-    geom_point(size = 3) +
-    geom_errorbar(
-      aes(
-        ymin = pmax(0, mean_energy_efficiency - sd_energy_efficiency),
-        ymax = mean_energy_efficiency + sd_energy_efficiency
-      ),
-      width = 0
-    ) +
-    labs(
-      title = "Energy Efficiency Across Prompt-Length Conditions",
-      subtitle = "Mean ± 1 SD across repeated runs",
-      x = "Mean prompt length (tokens)",
-      y = "Energy per output token (J/token)",
-      color = "Model / quantization"
-    ) +
-    plot_theme
-
-  save_plot(p6, "06_prompt_condition_energy_efficiency.png")
-}
+save_plot(p8, "08_model_comparison_point_range.png", width = 12, height = 6.8)
 
 # ============================================================
-# 7. Deployment comparison — ONLY after remote data exist.
-# This block creates no fake remote comparison for the current
-# on-device-only dataset.
+# NO REMOTE PLOTS AT THIS STAGE
+# ============================================================
+# Remote data can remain in the consolidated CSVs, but are not used
+# in the current figures. A separate deployment comparison can be
+# added once remote experiments are completed.
 # ============================================================
 
-if (n_deployments >= 2) {
-  deployment_df <- analysis_df %>%
-    group_by(deployment, model_quant, prompt_size) %>%
-    summarise(
-      mean_prompt_tokens = mean(prompt_tokens, na.rm = TRUE),
-      mean_energy_efficiency = mean(energy_j_per_output_token, na.rm = TRUE),
-      sd_energy_efficiency = sd(energy_j_per_output_token, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    mutate(sd_energy_efficiency = ifelse(is.na(sd_energy_efficiency), 0, sd_energy_efficiency))
-
-  p7 <- ggplot(
-    deployment_df,
-    aes(x = mean_prompt_tokens, y = mean_energy_efficiency, color = deployment, group = deployment)
-  ) +
-    geom_line(linewidth = 1) +
-    geom_point(size = 3) +
-    geom_errorbar(
-      aes(
-        ymin = pmax(0, mean_energy_efficiency - sd_energy_efficiency),
-        ymax = mean_energy_efficiency + sd_energy_efficiency
-      ),
-      width = 0
-    ) +
-    facet_wrap(~ model_quant) +
-    labs(
-      title = "On-Device vs Remote Energy Efficiency",
-      subtitle = "Generated only when both deployment types are present",
-      x = "Mean prompt length (tokens)",
-      y = "Energy per output token (J/token)",
-      color = "Deployment"
-    ) +
-    plot_theme
-
-  save_plot(p7, "07_deployment_energy_efficiency.png", width = 10, height = 6.5)
-}
-
-# ============================================================
-# 8. Model comparison summary — only if multiple model groups exist.
-# This is not the primary RQ plot, but prevents the second model
-# from being hidden in the analysis.
-# ============================================================
-
-if (n_models > 1) {
-  model_plot_df <- analysis_df %>%
-    group_by(model_quant, prompt_size) %>%
-    summarise(
-      mean_prompt_tokens = mean(prompt_tokens, na.rm = TRUE),
-      mean_energy_efficiency = mean(energy_j_per_output_token, na.rm = TRUE),
-      sd_energy_efficiency = sd(energy_j_per_output_token, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    mutate(sd_energy_efficiency = ifelse(is.na(sd_energy_efficiency), 0, sd_energy_efficiency))
-
-  p8 <- ggplot(
-    model_plot_df,
-    aes(x = mean_prompt_tokens, y = mean_energy_efficiency, group = model_quant, color = model_quant)
-  ) +
-    geom_line(linewidth = 1) +
-    geom_point(size = 3) +
-    geom_errorbar(
-      aes(
-        ymin = pmax(0, mean_energy_efficiency - sd_energy_efficiency),
-        ymax = mean_energy_efficiency + sd_energy_efficiency
-      ),
-      width = 0
-    ) +
-    labs(
-      title = "Energy Efficiency by Model Across Prompt Lengths",
-      subtitle = "Model/quantization differences are shown without combining models",
-      x = "Mean prompt length (tokens)",
-      y = "Energy per output token (J/token)",
-      color = "Model / quantization"
-    ) +
-    plot_theme
-
-  save_plot(p8, "08_model_energy_efficiency_comparison.png", width = 10, height = 6.5)
-}
+write_csv(
+  condition_df,
+  file.path(OUTPUT_DIR, "RQ1_on_device_condition_summary.csv"),
+  na = ""
+)
 
 # ============================================================
 # Final console report
