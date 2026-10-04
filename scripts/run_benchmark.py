@@ -13,6 +13,11 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 PROMPT_SIZES = {
     "small": "prompt_small.txt",
     "medium": "prompt_medium.txt",
@@ -32,8 +37,8 @@ BLOCK_COOLDOWN_SECONDS = 120
 ENERGYBRIDGE_INTERVAL_MS = 200
 MONITOR_INTERVAL_SECONDS = 0.2
 
-DEFAULT_SERVER_HOST = "127.0.0.1"
-DEFAULT_SERVER_PORT = 18080
+DEFAULT_SERVER_HOST = os.getenv("DEFAULT_SERVER_HOST")
+DEFAULT_SERVER_PORT = os.getenv("DEFAULT_LLAMA_PORT")
 
 
 def run_command(command, check=True):
