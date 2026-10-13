@@ -10,7 +10,7 @@ The repository contains the on device and remote benchmark scripts, the raw resu
 - Qwen3-8B Q8_0
 - Qwen3-16B-A3B Q4_K_M
 
-Each configuration was tested with small, medium, and large prompts, with 10 measured runs per prompt size, in three setups: on device, remote (baseline network), and remote with 100 ms added network delay.
+Each configuration was tested with small, medium, and large prompts, with 10 measured runs per prompt size, in four setups: on device, remote (baseline network), and remote with 100 ms and 500 ms of added one-way network delay.
 
 ## Hardware
 
@@ -94,7 +94,7 @@ The remote runner starts the model on the remote host over SSH and measures both
 python scripts/run_remote_benchmark.py --model models/Qwen3-8B-Q4_K_M.gguf --quantization Q4_K_M --architecture Dense --runs 10
 ```
 
-Results go to `results/raw/remote/`. For the 100 ms delay condition, see [Remote network delay](#remote-network-delay).
+Results go to `results/raw/remote/`. For the 100 ms and 500 ms delay conditions, see [Remote network delay](#remote-network-delay).
 
 ## Analyze results
 
@@ -112,7 +112,7 @@ The script reads `results/raw/` and writes CSV summaries to `results/consolidate
 | `run_table.csv` | One row per valid run, including energy, timing, grid intensity and carbon columns |
 | `data_quality.csv` | Every run with its validity flag |
 | `RQ1_summary.csv` … `RQ4_summary.csv` | Mean, SD, median and 95% CI per condition |
-| `RQ2_tests.csv` … `RQ4_tests.csv` | Wilcoxon rank-sum tests (Holm-corrected) and Cliff's delta |
+| `RQ1_tests.csv` … `RQ4_tests.csv` | Wilcoxon rank-sum tests (Holm-corrected within each RQ) and Cliff's delta |
 | `SCI_summary.csv`, `SCI_summary_by_prompt.csv` | Carbon footprint per setup and model, and for the whole experiment |
 | `SCI_assumptions.csv` | Embodied-carbon parameters for the central, low and high scenarios |
 
@@ -122,7 +122,7 @@ Main plots:
 - `RQ1_*`: on device vs remote (energy per token vs prompt length, total energy, energy breakdown, remote/on device ratio)
 - `RQ2_*`: Q4_K_M vs Q8_0 on device (all metrics, relative change)
 - `RQ3_*`: dense vs MoE on device, and the speed vs energy trade-off of every configuration
-- `RQ4_*`: effect of 100 ms network delay
+- `RQ4_*`: effect of 100 ms and 500 ms network delay
 - `SCI_*`: carbon per output token (operational vs embodied), carbon vs prompt length, and grid intensity during the runs
 
 The script needs R packages only; it reads the cached grid intensity file and downloads it from
@@ -142,6 +142,9 @@ python scripts/run_remote_benchmark.py \
 	--network-delay-ip 145.108.225.3 \
 	--network-delay-ms 100
 ```
+
+Run it once with `--network-delay-ms 100` and once with `--network-delay-ms 500`. The delay is
+applied one way only, to the benchmark agent's response port (server to client).
 
 Use `--agent-delay-script` when the wrapper is not in the remote user's home directory. The runner
 captures the wrapper PID and sends `kill -TERM <pid>` during cleanup, including when the benchmark is

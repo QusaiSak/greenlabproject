@@ -533,6 +533,10 @@ if (n_distinct(rq1_df$setup) == 2) {
                               c("prompt_tokens", "total_energy_j", "energy_j_per_output_token",
                                 "client_energy_j", "server_energy_j", "wall_time_s")),
             file.path(OUTPUT_DIR, "RQ1_summary.csv"), na = "")
+
+  rq1_tests <- pairwise_tests(rq1_df, "setup", c("config", "prompt_size"),
+                              c("total_energy_j", "energy_j_per_output_token", "wall_time_s"), "RQ1")
+  write_csv(rq1_tests, file.path(OUTPUT_DIR, "RQ1_tests.csv"), na = "")
 }
 
 # ============================================================
