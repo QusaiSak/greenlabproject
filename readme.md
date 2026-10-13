@@ -31,35 +31,70 @@ Each configuration was tested with small, medium, and large prompts, with 10 mea
 
 ## Setup
 
-The benchmark requires Python 3, llama.cpp (`llama-server`), EnergiBridge (`energibridge`), and GGUF model files. Install llama.cpp and EnergiBridge separately and make sure both commands are available on your PATH.
+Requirements:
+
+- Python 3
+- [llama.cpp](https://github.com/ggml-org/llama.cpp) (`llama-server` on your PATH)
+- [EnergiBridge](https://github.com/tdurieux/EnergiBridge) (`energibridge` on your PATH)
+- R (for the analysis)
+- The GGUF model files in `models/` (downloaded separately)
 
 Install the Python packages:
 
 ```bash
-python -m pip install psutil pandas matplotlib numpy
+python3 -m venv venv
+source venv/bin/activate
+pip install psutil python-dotenv
 ```
 
-Install the R packages used by the analysis script:
+Install the R packages:
 
 ```r
 install.packages(c("jsonlite", "readr", "dplyr", "purrr", "ggplot2", "tidyr"))
 ```
 
-The on device runner uses macOS tools for GPU monitoring. Model files must be downloaded separately.
+Create a `.env` file in the repository root with the server settings:
+
+```
+DEFAULT_SERVER_HOST=127.0.0.1
+DEFAULT_LLAMA_PORT=8080
+# remote runs only
+DEFAULT_REMOTE_HOST=...
+DEFAULT_REMOTE_MODEL_DIR=...
+DEFAULT_REMOTE_PROMPT_DIR=...
+DEFAULT_REMOTE_RESULTS_DIR=...
+DEFAULT_REMOTE_SCRIPT=...
+DEFAULT_AGENT_PORT=...
+DEFAULT_NETWORK_DELAY_IP=...
+```
 
 ## Run the benchmark
 
-From the repository root:
+All commands run from the repository root.
+
+### On device
+
+Run once per model:
 
 ```bash
 python scripts/run_benchmark.py --model models/Qwen3-8B-Q4_K_M.gguf --quantization Q4_K_M --architecture Dense --runs 10
+python scripts/run_benchmark.py --model models/Qwen3-8B-Q8_0.gguf --quantization Q8_0 --architecture Dense --runs 10
+python scripts/run_benchmark.py --model models/kalomaze_Qwen3-16B-A3B-Q4_K_M.gguf --quantization Q4_K_M --architecture MoE --runs 10
 ```
 
-Change the model path and quantization label for other models. Use `--architecture MoE` for Qwen3-16B-A3B.
+The runner starts `llama-server`, warms up each prompt size, waits 30 seconds, and then runs the prompts in shuffled order with a 10-second cooldown between requests. The default output limit is 1536 tokens. Results go to `results/raw/`; use `--results-dir` for new experiments to avoid overwriting existing runs.
 
-The runner warms up each prompt size, waits 30 seconds, and then runs the prompts in shuffled order with a 10-second cooldown between requests. The default output limit is 1536 tokens.
+The on device runner uses macOS tools for GPU monitoring.
 
-Use a different `--results-dir` for new experiments to avoid overwriting existing runs.
+### Remote
+
+The remote runner starts the model on the remote host over SSH and measures both sides:
+
+```bash
+python scripts/run_remote_benchmark.py --model models/Qwen3-8B-Q4_K_M.gguf --quantization Q4_K_M --architecture Dense --runs 10
+```
+
+Results go to `results/raw/remote/`. For the 100 ms delay condition, see [Remote network delay](#remote-network-delay).
 
 ## Analyze results
 
