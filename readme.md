@@ -17,7 +17,7 @@ Each configuration was tested with small, medium, and large prompts, with 10 mea
 | Role | Machine |
 |---|---|
 | On device / client | MacBook Air 13-inch, Apple M4, 24 GB unified memory, 256 GB SSD |
-| Remote server (`glg3`, S2 Green Lab cluster, VU Amsterdam) | Intel Core i9-11900KF (8C/16T), 62 GB RAM, NVIDIA GeForce RTX 3090 24 GB, ASUS ROG STRIX Z590-E, 2 TB + 1 TB SSD |
+| Remote server (`glg3`, S2 Green Lab cluster, VU Amsterdam) | Intel Core i9-11900KF (8C/16T), 62 GB RAM, NVIDIA GeForce RTX 3090 24 GB |
 
 ## Files
 
