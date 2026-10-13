@@ -1,0 +1,64 @@
+**Green IT and Systems-Performance Decision Framework for Large-Language-Model Inference Workloads**
+
+**1. Understanding the Complete Request Path**
+
+When a company decides whether to run large-language-model inference workloads locally or on a remote cloud server, it must consider the full lifecycle of the request — from the user's initial prompt to the final output. This includes the energy consumed by the user's device, the network infrastructure, the cloud server, and all supporting systems. The decision is not simply about speed or cost, but about the total environmental and operational impact of the request.
+
+**2. Local Inference: Model Storage, Quantization, and Device Memory**
+
+Local inference involves storing the model on a device, which could be a laptop, a phone, or a dedicated server. The model is loaded into memory, and each request uses the device's CPU and GPU to process the prompt and generate the output. The device's thermal limits, energy consumption, and hardware wear are all factors. If the device's memory is limited, the model may need to be heavily quantized, which can reduce the model's accuracy and increase the number of requests needed to achieve the same result. Local inference is preferable when privacy is a concern, when there's a need for offline reliability, or when network outages are a risk.
+
+**3. Remote Inference: Network Latency, Server Hardware, and Cooling**
+
+Remote inference involves sending the prompt through the network to a cloud server, which processes the request and sends the output back. This process involves network latency, the energy consumed by the request and response transfer, and the server's hardware and cooling systems. The server may have more memory and better processing capabilities, but it also consumes more energy for cooling, storage, and infrastructure. Remote inference is preferable when there's access to a larger memory, better model quality, centralized maintenance, or more efficient server hardware.
+
+**4. Trade-Offs in Decision-Making**
+
+- **Latency vs. Carbon-Aware Scheduling**: A faster response may consume more energy, while a slower, carbon-aware schedule may use cleaner energy.
+- **Privacy vs. Remote Processing**: Local processing protects data, but remote processing may offer better accuracy or efficiency.
+- **Accuracy vs. Model Size**: A larger model may be more accurate but consume more energy and memory.
+- **Network Energy vs. Local Computation**: Local computing may use more energy per request, but remote computing may use more energy overall due to network and server infrastructure.
+
+**5. Hardware Lifecycle and Replacement**
+
+Extending the device's life can reduce embodied carbon from manufacturing, but it may also lead to less efficient hardware and higher energy consumption. Replacing hardware can improve efficiency but may increase the total carbon impact over time.
+
+**6. Designing a Fair Experiment**
+
+To compare local and remote inference, a company should conduct a controlled experiment where the model, quantization, hardware, context size, temperature, seed, output limit, network route, and number of repetitions are fixed. Vary one factor at a time, such as prompt length, number of tokens, or network conditions. Measure direct energy use, estimate energy per token, and report total energy, latency, prompt-processing time, generation time, memory use, CPU and GPU utilization, and network traffic. Distinguish direct measurements from estimates.
+
+**7. Practical Decision Framework**
+
+A company should consider the following factors when making a decision:
+
+- **Energy**: Total energy consumed per request.
+- **Carbon Intensity**: The grid's carbon intensity at the time of processing.
+- **Emissions**: Total emissions from electricity and infrastructure.
+- **Privacy**: Data sensitivity and the need for local processing.
+- **Reliability**: Offline and network outage resilience.
+- **Cost**: Energy cost and hardware cost.
+- **Performance**: Speed, accuracy, and model quality.
+- **Hardware Lifecycle**: The expected lifespan and replacement frequency of devices.
+
+**8. The Causal Chain**
+
+On a local device, the model must be stored and loaded into memory, and each request uses local processors, which may increase heat, fan activity, battery drain, and device wear. The absence of network transfer can reduce communication energy and protect sensitive data, but a small device may need a heavily quantized model, produce tokens slowly, or have insufficient memory. On a remote service, the user device performs less computation, but the request crosses access networks and data-center networking equipment. The server may batch requests efficiently and use specialized accelerators, yet it also requires cooling, storage, power delivery, and capacity that may be idle between workloads.
+
+**9. Total Impact Should Include the Complete Request**
+
+Total impact should not be limited to the processor that generates the answer. It should include the energy consumed by the user's device, the network, the server, and all supporting infrastructure. Operational carbon can be calculated by multiplying electricity by the relevant grid carbon intensity. Embodied impacts from manufacturing the laptop, phone, server, accelerator, and network equipment should also be considered when comparing long-term deployment choices. A design that minimizes energy per request may not minimize lifecycle emissions if it causes early hardware replacement.
+
+**10. Workload Characteristics**
+
+- **Interactive Personal Assistant**: Value low latency and privacy.
+- **Batch Analysis of Industrial Records**: Can tolerate delay and may be scheduled for cleaner energy.
+- **Monitoring Device**: Needs local fallback for critical alerts but may send summaries for deeper analysis.
+- **Healthcare Equipment**: May require both local and remote capabilities depending on the context.
+
+**11. Fair Comparison Requires Repeated Measurements**
+
+A fair comparison requires repeated measurements under controlled conditions. Fix the task, model, quantization, hardware, output limit, temperature, seed, and number of runs. Measure warm-up separately, randomize run order, record background activity and thermal state, and report uncertainty rather than relying on one unusually fast or slow request. Energy per generated token can change with output length, so both total energy and normalized metrics are needed.
+
+**12. Conclusion**
+
+There is no one-size-fits-all solution for deciding between local and remote inference. The best decision depends on the specific context, including the company's operational needs, the environmental impact of the workload, and the hardware and network conditions. A fair experiment and a holistic decision framework are essential to making an informed and sustainable choice.

@@ -1,0 +1,100 @@
+{
+  "model": "Qwen3-8B-Q4_K_M",
+  "architecture": "Dense",
+  "model_path": "/home/gl_greenai/greenlabbench/models/Qwen3-8B-Q4_K_M.gguf",
+  "quantization": "Q4_K_M",
+  "prompt_size": "medium",
+  "prompt_file": "/home/gl_greenai/greenlabbench/prompts/prompt_medium.txt",
+  "run": 9,
+  "schedule_index": 24,
+  "order_seed": 42,
+  "requested_output_tokens": 1536,
+  "actual_output_tokens": 1536,
+  "deployment": "remote",
+  "runtime": "llama-server",
+  "llama_metrics": {
+    "prompt_tokens": 945,
+    "output_tokens": 1536,
+    "request_wall_time_s": 13.235402417019941,
+    "finish_reason": "length",
+    "output_token_count_source": "remote llama-server response usage",
+    "server_metrics_before": {
+      "llamacpp:prompt_tokens_total": 29349.0,
+      "llamacpp:prompt_tokens_cached_total": 0.0,
+      "llamacpp:prompt_seconds_total": 8.92737,
+      "llamacpp:tokens_predicted_total": 39240.0,
+      "llamacpp:tokens_predicted_seconds_total": 317.07,
+      "llamacpp:n_decode_total": 39285.0,
+      "llamacpp:n_tokens_max": 3638.0,
+      "llamacpp:spec_decode_num_draft_tokens_total": 0.0,
+      "llamacpp:spec_decode_num_accepted_tokens_total": 0.0,
+      "llamacpp:spec_decode_num_drafts_total": 0.0,
+      "llamacpp:prompt_tokens_seconds": 0.0,
+      "llamacpp:predicted_tokens_seconds": 0.0,
+      "llamacpp:requests_processing": 0.0,
+      "llamacpp:requests_deferred": 0.0,
+      "llamacpp:n_busy_slots_per_decode": 1.0
+    },
+    "server_metrics_after": {
+      "llamacpp:prompt_tokens_total": 30294.0,
+      "llamacpp:prompt_tokens_cached_total": 0.0,
+      "llamacpp:prompt_seconds_total": 9.26431,
+      "llamacpp:tokens_predicted_total": 40776.0,
+      "llamacpp:tokens_predicted_seconds_total": 329.607,
+      "llamacpp:n_decode_total": 40822.0,
+      "llamacpp:n_tokens_max": 3638.0,
+      "llamacpp:spec_decode_num_draft_tokens_total": 0.0,
+      "llamacpp:spec_decode_num_accepted_tokens_total": 0.0,
+      "llamacpp:spec_decode_num_drafts_total": 0.0,
+      "llamacpp:prompt_tokens_seconds": 2804.65,
+      "llamacpp:predicted_tokens_seconds": 122.435,
+      "llamacpp:requests_processing": 0.0,
+      "llamacpp:requests_deferred": 0.0,
+      "llamacpp:n_busy_slots_per_decode": 1.0
+    }
+  },
+  "system_metrics": {
+    "gpu_usage_avg_pct": 0.0,
+    "gpu_memory_mb": 5420.0
+  },
+  "client_energy_j": 23.255894747734065,
+  "network": {
+    "condition": "delay_100ms",
+    "delay_script": "./agent-delay",
+    "delay_target_ip": "145.108.225.3",
+    "delay_target_port": 38552,
+    "configured_delay_ms": 100,
+    "network_rtt_ms": 357.0072920410894,
+    "inference_request_wall_time_ms": 13235.402417019941,
+    "client_energy_file": "/Users/qusaisak/Documents/VU/greenlabproject/results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09/client_energy.csv",
+    "request_bytes": 5589,
+    "response_bytes": 9308,
+    "total_bytes": 14897
+  },
+  "energy_measurement": {
+    "source": "EnergiBridge on remote server",
+    "method": "Remote sampled system power during one remote HTTP inference request.",
+    "unit": "J"
+  },
+  "client_energy_measurement": {
+    "source": "EnergiBridge on the orchestrator MacBook",
+    "method": "Local sampled system power during the complete remote HTTP request and response wait.",
+    "file": "/Users/qusaisak/Documents/VU/greenlabproject/results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09/client_energy.csv",
+    "unit": "J"
+  },
+  "configuration": {
+    "architecture": "Dense",
+    "deployment": "remote",
+    "runtime": "llama-server",
+    "output_tokens": 1536,
+    "temperature": 0.6,
+    "seed": 42,
+    "reasoning": "off",
+    "prompt_cache_enabled": false,
+    "cache_ram_mb": 0,
+    "context_size": 4096,
+    "batch_size": 512,
+    "ubatch_size": 256,
+    "gpu_layers": 99
+  }
+}

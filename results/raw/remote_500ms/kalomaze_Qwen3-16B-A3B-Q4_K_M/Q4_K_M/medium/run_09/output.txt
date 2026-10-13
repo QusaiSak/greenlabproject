@@ -1,0 +1,101 @@
+**Green IT and Systems-Performance Decision Framework for Large-Language-Model Inference Workloads**
+
+**1. Understanding the Complete Request Path: Local vs. Remote Inference**
+
+**Local Inference Path:**
+- **Model Storage:** The model is stored on a local device, which may require physical storage (e.g., a laptop or server) and may be limited in capacity.
+- **Quantization:** The model may be heavily quantized (e.g., compressed into a smaller set of tokens) to fit within the device's memory.
+- **Device Memory Capacity:** The device's memory capacity determines how much of the model can be stored locally.
+- **CPU and GPU Computation:** The device's central and graphical processing units (CPUs and GPUs) perform the computation.
+- **Thermal Limits:** The device may generate heat, which may require cooling (e.g., fan activity) and may affect battery life or device wear.
+- **Privacy:** Local inference may protect sensitive data, as the model is not transmitted.
+- **Reliability During Network Outages:** The device may continue to operate during network outages.
+- **Absence of Network Traffic:** No network traffic or latency, which may be beneficial for real-time processing.
+
+**Remote Inference Path:**
+- **Network Latency:** The request may be delayed due to network traffic or routing.
+- **Request and Response Transfer:** The request is transmitted over the network to the cloud server, which processes the request and sends the response back.
+- **Server Hardware:** The cloud server's hardware (e.g., accelerators, memory systems) may affect performance.
+- **Queueing:** The server may batch requests or prioritize them, affecting response times.
+- **Server-Side Computation:** The server performs the computation, which may be more efficient or require more energy.
+- **Cooling and Infrastructure:** The server may require cooling systems, energy delivery, and infrastructure that may be idle between workloads.
+- **Energy Consumed by Communication and Computation:** The energy used for both communication (e.g., data transmission) and computation (e.g., processing).
+
+**2. Why Changing Network Conditions or Electricity Mix Can Change Which Design Has Lower Total Impact**
+
+- **Network Conditions:** If the network is congested, remote inference may be slower, increasing energy use.
+- **Electricity Mix:** If the electricity grid is dominated by renewable sources, remote inference may be more energy-efficient.
+- **Carbon Intensity:** The carbon intensity of the electricity grid affects the environmental impact of both local and remote inference.
+- **Hardware Efficiency:** The efficiency of the local device or remote server may affect the total energy use.
+
+**3. Analyzing How Prompt Length, Output Length, Model Size, Quantization Level, and Network Conditions Affect Execution Time, Memory Use, CPU and GPU Utilization, Electricity, Network Traffic, and Energy per Output Token**
+
+- **Prompt Length:** Longer prompts may require more memory and computation, increasing energy use.
+- **Output Length:** Longer outputs may require more processing, increasing energy use and network traffic.
+- **Model Size:** Larger models may require more memory and computation, increasing energy use.
+- **Quantization Level:** Higher quantization may reduce memory use but may affect model quality or require repeated requests.
+- **Network Conditions:** Network congestion may increase latency, affecting execution time and network traffic.
+
+**4. Distinguishing Prompt Processing from Token Generation**
+
+- **Prompt Processing:** The act of loading and processing the model to generate a response.
+- **Token Generation:** The output of the response, which may require additional processing.
+
+**5. Why a Faster Response Is Not Automatically More Energy Efficient**
+
+- **Energy Use:** A faster response may require more energy (e.g., more CPU or GPU utilization) or may be less efficient in terms of resource use.
+- **Latency:** A faster response may be less energy-efficient if it requires more processing or if the server is over-optimized for speed.
+
+**6. Why a Smaller Model May Produce Lower Energy per Request but Require Repeated Requests or Corrective Work**
+
+- **Energy per Request:** A smaller model may use less energy per request, but may require more frequent requests or corrections.
+- **Corrective Work:** If the model is too small, it may not be accurate, leading to more requests or corrections.
+
+**7. Concrete Examples from a Private Personal Assistant, Smart-City Sensor Processing, Healthcare Equipment, or Industrial Monitoring**
+
+- **Private Personal Assistant:** Privacy is critical, so local inference may be preferable, even if it's slower.
+- **Smart-City Sensor Processing:** Real-time data processing may require remote inference for efficiency, but may need local fallback for reliability.
+- **Healthcare Equipment:** Real-time processing may be critical, but data sensitivity may require local inference.
+- **Industrial Monitoring:** Batch processing may be more efficient, but may require remote inference for model quality or centralized maintenance.
+
+**8. When Local Inference is Preferable**
+
+- **Privacy:** To protect sensitive data.
+- **Latency:** To avoid network latency.
+- **Offline Reliability:** To ensure operation during network outages.
+- **Limited Connectivity:** To operate in areas with poor network connectivity.
+
+**9. When Remote Inference is Preferable**
+
+- **Available Memory:** To store larger models or more data.
+- **Model Quality:** To use more accurate or detailed models.
+- **Centralized Maintenance:** To have a single, efficient server.
+- **Server Efficiency:** To use more efficient hardware or energy sources.
+
+**10. Four Trade-Offs:**
+
+- **Latency vs. Carbon-Aware Scheduling:** A faster response may be less energy-efficient, but scheduling may reduce carbon use.
+- **Privacy vs. Remote Processing:** Local inference may protect privacy, but remote processing may be more efficient.
+- **Accuracy vs. Model Size:** A larger model may be more accurate, but may use more energy or memory.
+- **Network Energy vs. Local Computation:** Remote inference may use more network energy, but local computation may be more energy-intensive.
+
+**11. Hardware Replacement vs. Extending Device Lifetime**
+
+- **Hardware Replacement:** Replacing devices may have higher embodied carbon, but may improve efficiency.
+- **Extending Device Lifetime:** Using existing devices may reduce embodied carbon, but may increase energy use.
+
+**12. Designing a Fair Experiment**
+
+- **Fix the Model, Quantization, Hardware, Context Size, Temperature, Seed, Output Limit, Network Route, and Number of Repetitions:** Keep these variables constant to isolate the impact of each factor.
+- **Vary One Factor at a Time:** Change one variable at a time to study its impact.
+- **Use the Same Underlying Task:** Ensure that the task remains consistent when changing variables.
+- **Control the Number of Generated Tokens:** Keep the number of tokens consistent to measure energy use.
+- **Randomize Prompt-Size Order:** Reduce thermal bias by randomizing the order of prompts.
+- **Report Total Energy, Energy per Input Token, Energy per Output Token, Latency, Prompt-Processing Time, Generation Time, Memory, CPU and GPU Utilization, and Network Traffic:** Measure all relevant factors.
+- **Distinguish Direct Measurements from Estimates:** Use direct measurements where possible and estimate when necessary.
+
+**13. Practical Decision Framework**
+
+- **Energy:** Consider the energy used for both local and remote processing.
+- **Carbon Intensity:** Consider the carbon intensity of the electricity grid.
+- **Emissions:** Calculate emissions based on the electricity grid's carbon

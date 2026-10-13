@@ -1,0 +1,122 @@
+To determine whether a company should run a large-language-model (LLM) inference workload **locally** or on a **remote cloud server**, it's essential to approach the decision as a **Green IT and systems-performance problem**, rather than just a latency or cost comparison. The goal is to minimize **total environmental impact**, including **energy consumption**, **carbon emissions**, **device wear**, and **lifecycle emissions**, while also satisfying **performance, privacy, reliability, and cost constraints**.
+
+---
+
+## 🧠 **Complete Request Path for Both Designs**
+
+### 🔹 **Local Inference Path**
+
+1. **Model Storage & Loading**  
+   - The model must be stored on the local device and loaded into **RAM**, which is limited in embedded or mobile devices.
+   - **Quantization** is often used to reduce memory usage, but this may reduce model quality and increase processing time.
+   - **Memory constraints** can lead to model **chopping**, **out-of-memory errors**, or the need for **offloading** to external storage during inference.
+
+2. **Computation**  
+   - The **local CPU or GPU** processes the prompt and generates output tokens.
+   - **CPU utilization** may be low during prompt processing, but **GPU utilization** is high during token generation.
+   - **Thermal limits** are a concern, especially on mobile devices, leading to **fan activity**, **battery drain**, and **device wear**.
+
+3. **Privacy & Reliability**  
+   - No **network traffic** means **no data exposure** during inference.
+   - **Offline reliability** is guaranteed, even during network outages.
+   - **No dependency on cloud infrastructure** reduces the risk of service disruption.
+
+4. **Energy & Emissions**  
+   - **Lower network energy** due to no data transfer.
+   - **Higher device energy** due to local computation and cooling.
+   - **Battery drain** and **device lifespan** are impacted by frequent use.
+
+---
+
+### 🔹 **Remote Inference Path**
+
+1. **User Device Processing**  
+   - Minimal computation is done on the user device (e.g., tokenizing the prompt).
+   - **Low CPU/GPU utilization** on the edge device.
+
+2. **Network Latency & Transfer**  
+   - The request travels across **access networks** and **data center networks**, introducing **latency** and **network energy**.
+   - **Request and response transfer** consumes energy, especially over long distances.
+   - **Network congestion** or **unreliable connectivity** can cause **request delays** or **loss**.
+
+3. **Server Processing**  
+   - The cloud server processes the request using **specialized hardware** (e.g., TPUs, GPUs).
+   - **Batching** of requests improves server efficiency and reduces energy per token.
+   - **Queueing** and **server-side computation** can introduce **latency variance**.
+
+4. **Infrastructure & Cooling**  
+   - **Cooling systems** and **power delivery** are essential for server farms, contributing to **energy consumption** and **carbon footprint**.
+   - **Data center infrastructure** includes **storage, networking, and cooling**, all of which consume energy.
+
+5. **Energy & Emissions**  
+   - **Higher network energy** from long-distance transfer.
+   - **Lower device energy** due to minimal local computation.
+   - **Carbon intensity** of the **grid** (e.g., renewable vs. fossil) affects **total emissions**.
+   - **Embodied energy** from manufacturing servers, GPUs, and networking equipment must be considered in long-term comparisons.
+
+---
+
+## 📈 **Factors Affecting Execution Time and Energy Use**
+
+| Factor | Impact on Execution Time | Impact on Energy Use | Impact on Memory | Impact on CPU/GPU Utilization | Impact on Network Traffic |
+|--------|--------------------------|----------------------|------------------|-------------------------------|---------------------------|
+| **Prompt Length** | Longer prompts increase processing time | Higher energy for prompt processing | Increased memory usage | Higher CPU utilization | Higher network traffic |
+| **Output Length** | Longer outputs increase generation time | Higher energy per token | Increased memory usage | Higher GPU utilization | Higher network traffic |
+| **Model Size** | Larger models increase memory and computation | Higher energy consumption | Higher memory usage | Higher GPU/CPU utilization | No direct impact |
+| **Quantization Level** | Lower quantization increases processing time | Lower energy per token but higher processing time | Lower memory usage | Lower GPU utilization | No direct impact |
+| **Network Conditions** | Poor network increases latency and retransmissions | Higher network energy | No direct impact | No direct impact | Higher network traffic |
+
+---
+
+## 🧩 **Key Trade-offs**
+
+1. **Latency vs. Carbon-Aware Scheduling**  
+   - Local inference provides **low latency**, but remote inference can be optimized using **carbon-aware scheduling** to run during **low-carbon grid hours**.
+
+2. **Privacy vs. Remote Processing**  
+   - Local inference **preserves privacy**, but remote processing enables **centralized model updates** and **better accuracy**.
+
+3. **Accuracy vs. Model Size**  
+   - Larger models offer **higher accuracy**, but require **more memory** and **higher energy consumption** on the local device.
+
+4. **Network Energy vs. Local Computation**  
+   - Remote inference has **high network energy**, but **lower device energy**. The trade-off depends on **network conditions** and **grid carbon intensity**.
+
+---
+
+## 🧪 **Designing a Fair Experiment**
+
+To fairly compare local and remote inference, the experiment must:
+
+- **Fix all variables** except one (e.g., prompt length, model size, quantization).
+- **Use the same task** across all trials (e.g., question answering, classification).
+- **Control for temperature, background activity, and thermal bias**.
+- **Randomize prompt size order** to avoid thermal bias in repeated runs.
+- **Report**:
+  - **Total energy** (in kWh)
+  - **Energy per input token**
+  - **Energy per output token**
+  - **Latency** (ms)
+  - **Prompt-processing time**
+  - **Generation time**
+  - **Memory usage**
+  - **CPU and GPU utilization**
+  - **Network traffic** (MB)
+- **Distinguish direct measurements** (e.g., power meter readings) from **estimates** (e.g., carbon intensity from grid data).
+
+---
+
+## 🧠 **Practical Decision Framework**
+
+To make an informed decision, a company should evaluate the following criteria:
+
+| Criteria | Local Inference | Remote Inference |
+|---------|------------------|-------------------|
+| **Energy per Request** | High (due to local computation) | Low (due to minimal local computation) |
+| **Carbon Emissions** | Depends on grid carbon intensity | Depends on grid carbon intensity |
+| **Privacy** | High (no data transfer) | Low (data is sent over network) |
+| **Latency** | Low (no network delay) | High (depends on network and server load) |
+| **Reliability** | High (offline capable) | Low (depends on network and server availability) |
+| **Cost** | High (device maintenance, cooling, etc.) | Low (shared infrastructure) |
+| **Model Quality** | Lower (due to quantization) | Higher (larger, more accurate models) |
+| **

@@ -1,0 +1,51 @@
+The environmental impact of large language model (LLM) inference can be significantly reduced by carefully choosing where and how these models are run—whether locally, on the user’s device, or remotely, in the cloud. To understand the trade-offs, let’s compare the complete request paths for both types of inference, using a concrete example: a personal assistant system.
+
+### **Local Inference Path**
+1. **User Device**: The user interacts with a local device, such as a smartphone or a personal computer.
+2. **Locally Stored Model**: The large language model is stored locally, possibly on a device or a local server.
+3. **CPU or GPU Computation**: The model runs on the local device’s central processing unit (CPU) or a graphics processing unit (GPU), depending on the application.
+4. **Memory Use**: The model uses local memory, such as a device’s local storage or a local server.
+5. **Electricity Consumption**: The device consumes electricity to power the model.
+6. **Returned Response**: The model generates a response, which is returned to the user.
+
+### **Remote Inference Path**
+1. **User Device**: The user sends a request via their device.
+2. **Network Traffic**: The request travels through a network of servers and data paths.
+3. **Cloud Server**: The request reaches a remote cloud server, where the model is hosted.
+4. **Server Computation**: The model runs on the cloud server.
+5. **Latency**: There is some latency as the request travels through the network and the model processes it.
+6. **Response Transfer**: The processed response is returned to the user via the same network.
+
+### **Comparison of Designs**
+- **Latency**: Remote inference generally has higher latency due to network traffic and processing at a remote server. Local inference is faster, as the model is on the same device.
+- **CPU and GPU Work**: Local inference may require more local computational work, while remote inference offloads this to the cloud.
+- **Memory Use**: Local inference uses local memory, which is limited, while remote inference can use more extensive memory stored in the cloud.
+- **Electricity Consumption**: Local inference may consume more electricity per token, as the device is running the model. Remote inference may be more energy-efficient, as the cloud can distribute the load.
+- **Network Traffic**: Remote inference generates network traffic, which can impact the environment and the network's efficiency.
+- **Energy per Token**: Remote inference may have a higher energy per token due to network traffic and processing, but local inference may be more energy-intensive per token due to local device use.
+
+### **Concrete Example: Personal Assistant System**
+- **Local Inference**: A personal assistant app that runs on a user's smartphone. The model is stored locally, and the app processes requests quickly, using local memory and electricity.
+- **Remote Inference**: The same app could use a cloud-based model, processing requests through a network of servers, which may take longer but could be more energy-efficient.
+
+### **Situations Where Each Is Preferable**
+- **Local Inference is Preferable**: When speed and real-time interaction are critical, such as in a personal assistant app that needs to respond instantly to user requests.
+- **Remote Inference is Preferable**: When energy efficiency and scalability are priorities, such as in a large-scale industrial monitoring system that processes vast amounts of data.
+
+### **Trade-Offs**
+- **Privacy**: Local inference may offer more privacy, as the model is on the user's device, but remote inference may offer better data security through cloud infrastructure.
+- **Performance**: Local inference can be faster, but remote inference may offer more robust processing.
+- **Reliability**: Remote inference is often more reliable, as it can scale and handle more complex tasks.
+- **Cost**: Local inference may be cheaper in terms of infrastructure, but remote inference can be more cost-effective in the long run due to scalability.
+- **Energy**: Remote inference may be more energy-efficient, but local inference can be more energy-intensive.
+
+### **Measurements a Company Should Collect**
+Before deciding where to run inference, a company should measure:
+- **Total Joules**: The total energy consumed by the system.
+- **Response Time**: The time it takes for the model to return a response.
+- **Memory Use**: How much memory the model is using locally or in the cloud.
+- **Utilization**: The extent the model is being used.
+- **Tokens Generated**: The number of tokens processed, which can help measure the system's efficiency and environmental impact.
+
+### **Conclusion**
+Choosing between local and remote inference involves a careful balance of speed, energy efficiency, privacy, performance, and cost. Companies should measure the environmental impact of both approaches and choose the one that best aligns with their goals, whether that's speed, energy efficiency, or privacy.

@@ -1,0 +1,133 @@
+To determine whether a company should run a large-language-model (LLM) inference workload **locally** or on a **remote cloud server**, it is essential to consider the problem through the lens of **Green IT** and **systems performance**, rather than just response speed. This involves evaluating the **total energy consumption**, **carbon footprint**, **privacy**, **reliability**, **hardware lifecycle**, and **operational efficiency** of both approaches. Let's walk through this in a structured, causal chain, using concrete examples from **private personal assistants**, **smart-city sensors**, **healthcare equipment**, and **industrial monitoring**.
+
+---
+
+## 🧠 **Causal Chain Overview**
+
+### **Local Inference Design**
+- **Model Storage & Quantization**: The model must be stored on the device and loaded into memory. Heavy models may require significant storage and memory, so **quantization** (e.g., 8-bit, 4-bit) is often used to reduce memory usage.
+- **Device Memory Capacity**: Insufficient memory can lead to **out-of-memory errors**, requiring **model pruning** or **differential loading**.
+- **CPU & GPU Computation**: On-device inference requires local CPU/GPU processing. This can be slow for large models.
+- **Thermal Limits**: Local computation can increase **device heat**, leading to **fan activity**, **battery drain**, and **device wear**.
+- **Privacy**: No data leaves the device, reducing the risk of data breaches.
+- **Reliability During Outages**: No network dependency means the system remains functional during outages.
+- **No Network Traffic**: Eliminates communication energy and bandwidth usage.
+
+### **Remote Inference Design**
+- **User Device**: Performs minimal processing (e.g., tokenization).
+- **Network Latency**: Data travels through **access networks**, **core networks**, and **data center switches**, introducing delays.
+- **Request & Response Transfer**: Increases **network traffic** and **energy consumption**.
+- **Server Hardware**: High-performance GPUs/TPUs, often with **batch processing** capabilities and **specialized accelerators**.
+- **Queueing**: Requests may be queued, leading to **latency variability**.
+- **Cooling & Infrastructure**: Data centers require **cooling**, **power delivery**, and **redundant infrastructure**, which consumes significant energy.
+- **Energy Consumption**: Includes both **computation** and **communication** energy, plus **supporting infrastructure** (e.g., cooling, data center operations).
+
+---
+
+## 📌 **Key Factors Affecting Performance and Energy**
+
+| Factor | Impact on Local | Impact on Remote |
+|--------|------------------|------------------|
+| **Prompt Length** | Increases memory and CPU/GPU load | Increases network traffic and server load |
+| **Output Length** | Increases memory and computation | Increases server load and network traffic |
+| **Model Size** | Larger models need more memory and computation | Larger models can be more accurate but require more server resources |
+| **Quantization Level** | Reduces memory and computation but may reduce accuracy | Reduces server energy but may reduce model quality |
+| **Network Conditions** | Minimal impact | Directly affects latency and energy consumption |
+| **Prompt Processing vs. Token Generation** | Prompt processing is often faster but still computationally intensive | Prompt processing is negligible compared to token generation |
+
+---
+
+## 🚫 **Why Faster Response ≠ More Energy Efficient**
+
+- **Token generation** is the most energy-intensive part of inference. A faster response could be due to **better hardware**, **more parallelism**, or **better scheduling**, but it may not reduce **total energy** if the **model is larger** or **the network is slower**.
+- **Smaller models** may be more energy-efficient per request, but they may require **repeated requests** (e.g., for complex reasoning), leading to **higher total energy**.
+
+---
+
+## 📌 **Use Cases and Trade-offs**
+
+### **Local Inference is Preferable When:**
+- **Privacy is Critical** (e.g., personal assistants, healthcare equipment)
+- **Latency is Critical** (e.g., real-time alerts in industrial monitoring)
+- **Offline Reliability is Required** (e.g., remote sensors with limited connectivity)
+- **Limited Connectivity is a Constraint** (e.g., rural or low-bandwidth regions)
+
+### **Remote Inference is Preferable When:**
+- **Model Quality is Critical** (e.g., high-accuracy NLP or vision models)
+- **Memory is Limited on the Device** (e.g., IoT devices)
+- **Centralized Maintenance is Desired** (e.g., model updates, security patches)
+- **Server Efficiency is Prioritized** (e.g., batch processing, load balancing)
+
+---
+
+## 🔄 **Four Key Trade-offs**
+
+1. **Latency vs. Carbon-Aware Scheduling**  
+   - **Local**: Lower latency, but may use more energy due to inefficient hardware or poor thermal management.  
+   - **Remote**: Higher latency, but can use **carbon-aware scheduling** (e.g., running workloads during cleaner energy hours).
+
+2. **Privacy vs. Remote Processing**  
+   - **Local**: Better privacy but limited model quality and scalability.  
+   - **Remote**: Greater model quality and scalability but risks data exposure.
+
+3. **Accuracy vs. Model Size**  
+   - **Local**: Smaller models may be faster but less accurate.  
+   - **Remote**: Larger models can be more accurate but require more energy and memory.
+
+4. **Network Energy vs. Local Computation**  
+   - **Local**: No network energy but higher device energy.  
+   - **Remote**: Higher network energy but potentially lower device energy.
+
+---
+
+## 🧪 **Designing a Fair Experiment**
+
+To compare local and remote inference fairly:
+
+- **Fixed Parameters**:
+  - **Model**: Same LLM (e.g., LLaMA, GPT-3)
+  - **Quantization**: Same level (e.g., 4-bit)
+  - **Hardware**: Same device or server specs
+  - **Context Size**: Fixed
+  - **Temperature & Seed**: Fixed
+  - **Output Limit**: Fixed
+  - **Network Route**: Fixed
+  - **Number of Repetitions**: Fixed
+
+- **Vary One Factor at a Time**:
+  - **Prompt Length**
+  - **Output Length**
+  - **Model Size**
+  - **Quantization Level**
+  - **Network Conditions**
+
+- **Measurements**:
+  - **Total Energy** (direct)
+  - **Energy per Input Token**
+  - **Energy per Output Token**
+  - **Latency**
+  - **Prompt-Processing Time**
+  - **Generation Time**
+  - **Memory Usage**
+  - **CPU & GPU Utilization**
+  - **Network Traffic**
+
+- **Controlled Environment**:
+  - **Warm-up Separately**
+  - **Randomize Run Order**
+  - **Record Background Activity**
+  - **Thermal State**
+  - **Report Uncertainty**
+
+- **Normalization**:
+  - **Energy per generated token** changes with output length, so both **total energy** and **normalized metrics** are needed.
+
+---
+
+## 📊 **Decision Framework**
+
+To make a **practical, energy-aware decision**, a company should consider the following:
+
+| Criteria | Local Inference | Remote Inference |
+|----------|------------------|-------------------|
+| **Energy** |

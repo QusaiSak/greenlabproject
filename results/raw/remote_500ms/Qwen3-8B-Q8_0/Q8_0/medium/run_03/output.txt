@@ -1,0 +1,146 @@
+### **Green IT and Systems-Performance Decision Framework for Large-Language-Model Inference: Local vs. Remote Deployment**
+
+---
+
+## **Overview**
+
+The decision to run large-language-model (LLM) inference **locally** or **remotely** is not solely about speed or cost, but about **energy efficiency, carbon impact, privacy, reliability, and hardware lifecycle**. This analysis treats the problem as a **Green IT and systems-performance trade-off**, focusing on the **complete request path** and the **total energy and carbon impact** of both designs.
+
+---
+
+## **Complete Request Path Comparison**
+
+### **Local Inference**
+
+1. **Model Storage and Quantization**  
+   - The model must be stored on local storage (e.g., SSD, flash) and loaded into device memory.
+   - **Quantization** reduces memory footprint and computational load but may reduce accuracy.
+   - **Memory capacity** is constrained by device specs (e.g., smartphone, embedded device).
+
+2. **Device Memory and Computation**  
+   - The device must allocate memory for the model and input/output buffers.
+   - CPU and GPU (if available) perform inference.
+   - **CPU utilization** is higher if the device lacks dedicated hardware (e.g., no GPU or NPU).
+   - **GPU utilization** is better for large models, but not all devices have it.
+
+3. **Thermal Limits and Battery Drain**  
+   - Local inference increases **thermal load**, which may trigger cooling mechanisms (e.g., fans, throttling).
+   - **Battery drain** is significant on mobile devices, reducing device lifetime.
+
+4. **Privacy and Reliability**  
+   - **No network traffic** means **no data exposure** to third parties.
+   - **Offline reliability** is high—no dependency on network connectivity.
+   - **No request latency** from network delays.
+
+5. **No Communication Energy**  
+   - No data transfer between device and server, so **no network energy** is consumed.
+
+---
+
+### **Remote Inference**
+
+1. **User Device to Network**  
+   - The user device sends the request over **access networks** (Wi-Fi, 5G, etc.).
+   - **Network latency** depends on distance, congestion, and routing.
+
+2. **Request and Response Transfer**  
+   - The **request** is transmitted to the server.
+   - The **response** is sent back, often with large payloads (e.g., multiple tokens).
+
+3. **Server Hardware and Queueing**  
+   - The **server** processes the request using **specialized accelerators** (e.g., TPUs, GPUs).
+   - **Queueing** may occur if the server is overloaded, increasing **latency**.
+
+4. **Server-Side Computation**  
+   - The server uses **high-performance hardware** for faster inference.
+   - **GPU utilization** is typically higher than on local devices.
+
+5. **Cooling and Infrastructure**  
+   - **Cooling** is required to manage heat from server racks.
+   - **Infrastructure energy** includes power delivery, storage, and cooling systems.
+
+6. **Energy Consumption**  
+   - **Communication energy** is significant due to data transfer.
+   - **Computation energy** is high on the server, but may be **shared among multiple requests** via **batching**.
+
+---
+
+## **Factors Affecting Execution Time, Memory, and Energy**
+
+| Factor | Impact on Execution Time | Impact on Memory | Impact on CPU/GPU | Impact on Energy |
+|--------|--------------------------|------------------|-------------------|------------------|
+| **Prompt Length** | Longer prompts increase processing time | Higher memory usage | Higher CPU/GPU load | Higher energy consumption |
+| **Output Length** | Longer outputs increase generation time | Higher memory usage | Higher GPU load | Higher energy consumption |
+| **Model Size** | Larger models require more time and memory | Higher memory usage | Higher GPU load | Higher energy consumption |
+| **Quantization Level** | Lower quantization (e.g., 16-bit) reduces time and memory | Lower memory usage | Lower GPU load | Lower energy consumption |
+| **Network Conditions** | Poor connectivity increases latency | No direct impact | No direct impact | Higher energy due to retries/retransmissions |
+
+---
+
+## **Prompt Processing vs. Token Generation**
+
+- **Prompt Processing**: Involves tokenizing, embedding, and initial model setup.
+- **Token Generation**: The main computation, involving attention and output generation.
+- **Prompt processing** is generally **less energy-intensive** than token generation, but it still contributes to overall energy use.
+
+---
+
+## **Why Faster Response ≠ More Energy Efficient**
+
+- A **faster response** may result from **higher hardware utilization** (e.g., more parallel computation), which increases **energy consumption**.
+- **Smaller models** may be more **energy-efficient per request**, but they may require **multiple requests** or **corrections**, which can increase **total energy**.
+
+---
+
+## **Concrete Example: Smart-City Sensor Processing**
+
+**Use Case**: A **smart-city sensor network** collects environmental data (e.g., air quality, traffic) and uses an LLM to generate summaries or alerts.
+
+- **Local Inference**:
+  - Sensors can process data and generate alerts locally.
+  - **Privacy** is preserved (no data sent to cloud).
+  - **Offline reliability** is better for critical alerts.
+  - **Limited connectivity** in remote areas makes local processing essential.
+
+- **Remote Inference**:
+  - Centralized processing allows for **higher model quality** and **batching**.
+  - **Centralized maintenance** simplifies updates and training.
+  - **Server efficiency** allows for better utilization of hardware resources.
+
+---
+
+## **Key Trade-Offs**
+
+1. **Latency vs. Carbon-Aware Scheduling**  
+   - **Local** offers low latency but may use more energy.
+   - **Remote** can be optimized for **cleaner electricity** during off-peak hours.
+
+2. **Privacy vs. Remote Processing**  
+   - **Local** protects sensitive data.
+   - **Remote** may offer more **model quality** at the cost of **data exposure**.
+
+3. **Accuracy vs. Model Size**  
+   - **Larger models** offer higher accuracy but may be too large for local devices.
+   - **Smaller models** are energy-efficient but may require **repeated requests**.
+
+4. **Network Energy vs. Local Computation**  
+   - **Remote** has higher communication energy but can be more efficient in computation.
+   - **Local** has no communication energy but may be limited by **device capabilities**.
+
+5. **Hardware Replacement vs. Device Lifetime**  
+   - **Local** may require **frequent hardware upgrades** due to heat and wear.
+   - **Remote** allows **longer device lifetime** by offloading computation.
+
+---
+
+## **Designing a Fair Experiment**
+
+### **Controlled Variables**
+- **Model**: Fixed (e.g., LLaMA 7B)
+- **Quantization**: Fixed (e.g., 4-bit)
+- **Hardware**: Fixed (e.g., a Raspberry Pi 4 or similar)
+- **Context Size**: Fixed (e.g., 2048 tokens)
+- **Temperature**: Fixed (e.g., 0.7)
+- **Seed**: Fixed
+- **Output Limit**: Fixed (e.g., 50 tokens)
+- **Network

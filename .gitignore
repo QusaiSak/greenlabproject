@@ -3,3 +3,6 @@ models/
 venv/
 .env
 consolidate.py
+.claude
+__pycache__/
+.DS_Store
