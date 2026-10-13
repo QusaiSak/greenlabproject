@@ -14,10 +14,14 @@ Each configuration was tested with small, medium, and large prompts, with 10 mea
 
 ## Hardware
 
-| Role | Machine |
-|---|---|
-| On device / client | MacBook Air 13-inch, Apple M4, 24 GB unified memory, 256 GB SSD |
-| Remote server (`glg3`, S2 Green Lab cluster, VU Amsterdam) | Intel Core i9-11900KF (8C/16T), 62 GB RAM, NVIDIA GeForce RTX 3090 24 GB |
+
+| Role                                                       | Machine                                                                  |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------ |
+| On device / client                                         | MacBook Air 13-inch, Apple M4, 24 GB unified memory, 256 GB SSD          |
+| Remote server (`glg3`, S2 Green Lab cluster, VU Amsterdam) | Intel Core i9-11900KF (8C/16T), 64 GB RAM, NVIDIA GeForce RTX 3090 24 GB |
+
+
+
 
 ## Files
 
@@ -28,6 +32,8 @@ Each configuration was tested with small, medium, and large prompts, with 10 mea
 - `data/carbon_intensity_nl.csv`: Netherlands grid carbon intensity (15-minute values) for the experiment period, used for the SCI calculation
 - `results/raw/`: measurements and responses from individual runs
 - `results/consolidated/`: CSV summaries and plots
+
+
 
 ## Setup
 
@@ -68,6 +74,8 @@ DEFAULT_AGENT_PORT=...
 DEFAULT_NETWORK_DELAY_IP=...
 ```
 
+
+
 ## Run the benchmark
 
 All commands run from the repository root.
@@ -107,14 +115,16 @@ Rscript scripts/Consolidate.R
 The script reads `results/raw/` and writes CSV summaries to `results/consolidated/`, with plots in
 `results/consolidated/plots/`.
 
-| Output | Content |
-|---|---|
-| `run_table.csv` | One row per valid run, including energy, timing, grid intensity and carbon columns |
-| `data_quality.csv` | Every run with its validity flag |
-| `RQ1_summary.csv` … `RQ4_summary.csv` | Mean, SD, median and 95% CI per condition |
-| `RQ1_tests.csv` … `RQ4_tests.csv` | Wilcoxon rank-sum tests (Holm-corrected within each RQ) and Cliff's delta |
-| `SCI_summary.csv`, `SCI_summary_by_prompt.csv` | Carbon footprint per setup and model, and for the whole experiment |
-| `SCI_assumptions.csv` | Embodied-carbon parameters for the central, low and high scenarios |
+
+| Output                                         | Content                                                                            |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `run_table.csv`                                | One row per valid run, including energy, timing, grid intensity and carbon columns |
+| `data_quality.csv`                             | Every run with its validity flag                                                   |
+| `RQ1_summary.csv` … `RQ4_summary.csv`          | Mean, SD, median and 95% CI per condition                                          |
+| `RQ1_tests.csv` … `RQ4_tests.csv`              | Wilcoxon rank-sum tests (Holm-corrected within each RQ) and Cliff's delta          |
+| `SCI_summary.csv`, `SCI_summary_by_prompt.csv` | Carbon footprint per setup and model, and for the whole experiment                 |
+| `SCI_assumptions.csv`                          | Embodied-carbon parameters for the central, low and high scenarios                 |
+
 
 Main plots:
 
@@ -168,16 +178,18 @@ SCI = ((E × I) + M) per R
 M   = TE × (TiR / EL) × (RR / ToR)
 ```
 
-| Term | Value in this project | Source | Type |
-|---|---|---|---|
-| E | Measured energy per run (`total_energy_j`); remote = client Mac + server CPU, DRAM and GPU | EnergiBridge | Measured |
-| I | Netherlands grid intensity in the 15-minute slot each run started (about 520–630 g CO2e/kWh during the runs) | [Fraunhofer Energy-Charts](https://api.energy-charts.info/) | Published data |
-| R | One output token | llama.cpp token count | Measured |
-| TE laptop | 90 kg CO2e (120 kg lifecycle × ~75 % non-use share) | [Apple M4 MacBook Air PER, March 2025](https://www.apple.com/environment/pdf/products/notebooks/M4_MacBook_Air_PER_March2025.pdf) | Published |
-| TE server | 690 kg CO2e (540 kg for CPU, RAM, SSDs and chassis + ~150 kg for the RTX 3090) | [Boavizta API](https://api.boavizta.org/); GPU figure assumed | Estimate |
-| TiR | Wall time of each run | Benchmark | Measured |
-| EL | 4 years for both machines | Apple PER; common server practice | Convention |
-| RR / ToR | 1 (dedicated laptop; `glg3` is exclusive during booked slots) | Cluster policy | — |
+
+| Term      | Value in this project                                                                                        | Source                                                                                                                            | Type           |
+| --------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| E         | Measured energy per run (`total_energy_j`); remote = client Mac + server CPU, DRAM and GPU                   | EnergiBridge                                                                                                                      | Measured       |
+| I         | Netherlands grid intensity in the 15-minute slot each run started (about 520–630 g CO2e/kWh during the runs) | [Fraunhofer Energy-Charts](https://api.energy-charts.info/)                                                                       | Published data |
+| R         | One output token                                                                                             | llama.cpp token count                                                                                                             | Measured       |
+| TE laptop | 90 kg CO2e (120 kg lifecycle × ~75 % non-use share)                                                          | [Apple M4 MacBook Air PER, March 2025](https://www.apple.com/environment/pdf/products/notebooks/M4_MacBook_Air_PER_March2025.pdf) | Published      |
+| TE server | 690 kg CO2e (540 kg for CPU, RAM, SSDs and chassis + ~150 kg for the RTX 3090)                               | [Boavizta API](https://api.boavizta.org/); GPU figure assumed                                                                     | Estimate       |
+| TiR       | Wall time of each run                                                                                        | Benchmark                                                                                                                         | Measured       |
+| EL        | 4 years for both machines                                                                                    | Apple PER; common server practice                                                                                                 | Convention     |
+| RR / ToR  | 1 (dedicated laptop; `glg3` is exclusive during booked slots)                                                | Cluster policy                                                                                                                    | —              |
+
 
 Remote runs carry the embodied share of both the server and the client laptop, because both are in use.
 
@@ -198,4 +210,3 @@ Generative AI tools were used during the development of this project to support 
 AI assistance was used to help refine code, identify and resolve programming errors, improve data-analysis and visualization approaches, and improve the clarity of project documentation. The experimental setup, benchmark execution, measurements, and final interpretation of the results remain the responsibility of the us.
 
 AI-generated suggestions were reviewed and adapted before being incorporated into the project. No experimental measurements were generated by AI; measurements were obtained from the benchmark hardware and software described in this repository.
-
