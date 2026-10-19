@@ -25,7 +25,7 @@ unlink(list.files(PLOTS_DIR, pattern = "\\.png$", full.names = TRUE))
 # Hardware the CPU / GPU metrics come from.
 #   On-device: MacBook Air M4 (Mac16,12), Apple M4 SoC = 10-core CPU (4P + 6E) + 10-core integrated GPU.
 #     EnergiBridge reports only whole-system power on macOS, so Mac energy is not split into CPU / GPU.
-#   Remote (glg3): Intel Core i9-11900KF CPU (RAPL package + DRAM) + NVIDIA GeForce RTX 3090 GPU (NVML power).
+#   Remote server: Intel Core i9-11900KF CPU (RAPL package + DRAM) + NVIDIA GeForce RTX 3090 GPU (NVML power).
 HARDWARE <- tibble(
   deployment = c("on-device", "remote"),
   cpu_model = c("Apple M4 (10-core CPU)", "Intel Core i9-11900KF"),
@@ -262,16 +262,16 @@ runs <- runs %>%
 
 HOURS_PER_YEAR <- 365 * 24
 
-# Server PUE. glg3 is a single on-premise workstation in a regular room (no data-centre cooling
+# Server PUE. The remote server is a single on-premise workstation in a regular room (no data-centre cooling
 # or UPS overhead), so PUE = 1.0. The Mac is a personal device and has no PUE.
 SERVER_PUE <- 1.0
 
 # Embodied footprints (kg CO2e, production + transport + end-of-life, use phase excluded).
 # Laptop: Apple Product Environmental Report, MacBook Air M4 (March 2025): 13-inch 256 GB = 120 kg
 #   lifecycle, of which ~75 % is non-use (production 71 %, transport 3 %, EoL <1 %).
-# Server (glg3): Boavizta API estimate for i9-11900KF, 2x32 GB RAM, 2 TB + 1 TB SSD = 540 kg
+# Remote server: Boavizta API estimate for i9-11900KF, 2x32 GB RAM, 2 TB + 1 TB SSD = 540 kg
 #   (range 415-931), plus an assumed ~150 kg for the RTX 3090 (no vendor figure published).
-# RR/ToR = 1 for both: the laptop was dedicated and glg3 is exclusive during booked slots.
+# RR/ToR = 1 for both: the laptop was dedicated and the server is exclusive during booked slots.
 SCI_SCENARIOS <- list(
   central = list(laptop_te_kg = 120 * 0.75, server_te_kg = 540 + 150, lifetime_years = 4),
   low     = list(laptop_te_kg = 120 * 0.75, server_te_kg = 415 + 100, lifetime_years = 6),

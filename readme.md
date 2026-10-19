@@ -18,7 +18,7 @@ Each configuration was tested with small, medium, and large prompts, with 10 mea
 | Role                                                       | Machine                                                                  |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------ |
 | On device / client                                         | MacBook Air 13-inch, Apple M4, 24 GB unified memory, 256 GB SSD          |
-| Remote server (`glg3`, S2 Green Lab cluster, VU Amsterdam) | Intel Core i9-11900KF (8C/16T), 64 GB RAM, NVIDIA GeForce RTX 3090 24 GB |
+| Remote server | Intel Core i9-11900KF (8C/16T), 64 GB RAM, NVIDIA GeForce RTX 3090 24 GB |
 
 
 
@@ -43,7 +43,7 @@ What you need depends on what you want to do:
 | ---- | ------ |
 | Reproduce the analysis, tables and figures from the included raw data | R 4.x and the R packages below |
 | Run the on device benchmark | macOS on Apple Silicon (tested on an M4 MacBook Air, 24 GB), Python 3.10+, llama.cpp, EnergiBridge, the GGUF models |
-| Run the remote benchmark | Everything above, plus SSH access to a Linux server with an NVIDIA GPU, llama.cpp and EnergiBridge installed there, and the `agent-delay` wrapper for the delay conditions |
+| Run the remote benchmark | Everything above, plus a Linux server with an NVIDIA GPU prepared as in [Remote server setup](#remote-server-setup) |
 
 Tools:
 
@@ -69,8 +69,8 @@ also be available on the server in `DEFAULT_REMOTE_MODEL_DIR`.
 1. Clone the repository and go to its root:
 
    ```bash
-   git clone https://github.com/QusaiSak/greenlabproject.git
-   cd greenlabproject
+   git clone <repository-url>
+   cd <repository-folder>
    ```
 
 2. Install the R packages (needed for the analysis):
@@ -100,6 +100,7 @@ also be available on the server in `DEFAULT_REMOTE_MODEL_DIR`.
    DEFAULT_REMOTE_PROMPT_DIR=...
    DEFAULT_REMOTE_RESULTS_DIR=...
    DEFAULT_REMOTE_SCRIPT=...
+   DEFAULT_REMOTE_LLAMA_SERVER=...
    DEFAULT_AGENT_PORT=...
    DEFAULT_NETWORK_DELAY_IP=...
    ```
@@ -120,6 +121,116 @@ reproduced without the benchmark hardware. Only R and the R packages are needed:
 ```bash
 Rscript scripts/Consolidate.R
 ```
+
+## Remote server setup
+
+The remote runner (`scripts/run_remote_benchmark.py`) is started on the MacBook. Over SSH it starts
+`llama-server` on the server, starts a small benchmark agent there (the same script, run with
+`--agent`) under EnergiBridge, and forwards the llama-server and agent ports to the MacBook through an
+SSH tunnel. The server therefore needs its own copy of the runner, the prompts and the models. The
+steps below use `<remote-host>` for the SSH host alias and `~/greenlabbench` as the working directory;
+replace `<user>` with your account name on the server.
+
+1. **Passwordless SSH from the MacBook.** The runner calls `ssh` and `scp` without a terminal, so
+   key-based login must work without prompts. Add the host to `~/.ssh/config` on the MacBook:
+
+   ```
+   Host <remote-host>
+       HostName <server address>
+       User <user>
+       IdentityFile ~/.ssh/id_ed25519
+   ```
+
+   Check it with `ssh <remote-host> nvidia-smi`, which must print the GPU without asking for a password.
+
+2. **Create the working directory on the server:**
+
+   ```bash
+   ssh <remote-host> 'mkdir -p ~/greenlabbench/scripts ~/greenlabbench/prompts ~/greenlabbench/models ~/greenlabbench/results'
+   ```
+
+3. **Copy the runner and the prompts to the server** (from the repository root on the MacBook):
+
+   ```bash
+   scp scripts/run_remote_benchmark.py requirements.txt <remote-host>:~/greenlabbench/scripts/
+   scp prompts/prompt_small.txt prompts/prompt_medium.txt prompts/prompt_large.txt <remote-host>:~/greenlabbench/prompts/
+   ```
+
+4. **Create the Python environment on the server.** The runner activates the virtual environment
+   one level above the script folder, i.e. `~/greenlabbench/venv`:
+
+   ```bash
+   ssh <remote-host>
+   cd ~/greenlabbench
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install psutil python-dotenv
+   ```
+
+5. **Build llama.cpp with CUDA on the server.** The runner starts
+   `llama-server` from a CUDA build of llama.cpp. Its absolute path is read from
+   `DEFAULT_REMOTE_LLAMA_SERVER` in `.env` (step 9). Building it in your home directory as below gives
+   `/home/<user>/llama.cpp/build-cuda/bin/llama-server`:
+
+   ```bash
+   cd ~
+   git clone https://github.com/ggml-org/llama.cpp.git
+   cd llama.cpp
+   cmake -B build-cuda -DGGML_CUDA=ON
+   cmake --build build-cuda --config Release -j
+   ```
+
+   This needs the NVIDIA driver, the CUDA toolkit and CMake on the server.
+
+6. **Install EnergiBridge on the server** and make sure `energibridge` is on the `PATH` of
+   non-interactive SSH sessions (for example by installing it in `/usr/local/bin`). On Linux it reads
+   the CPU and DRAM energy counters (RAPL) and the GPU power through NVML; follow the EnergiBridge
+   README to give your user read access to the RAPL counters.
+
+7. **Copy the models to the server** with the same file names as on the MacBook (or download them
+   there directly):
+
+   ```bash
+   scp models/Qwen3-8B-Q4_K_M.gguf models/Qwen3-8B-Q8_0.gguf \
+       models/kalomaze_Qwen3-16B-A3B-Q4_K_M.gguf <remote-host>:~/greenlabbench/models/
+   ```
+
+   The runner looks for `<DEFAULT_REMOTE_MODEL_DIR>/<local model file name>` and checks the GGUF
+   header and file size before starting the server.
+
+8. **Network delay (only for the +100 ms and +500 ms conditions).** The `agent-delay` wrapper must be
+   in your home directory on the server (or pass its path with `--agent-delay-script`), and your user
+   must be allowed to run `sudo -n /usr/local/bin/agent-delay-clear` without a password. On a shared
+   lab server, ask the administrators to provide both.
+
+9. **Fill in the remote settings in `.env` on the MacBook:**
+
+   ```
+   DEFAULT_SERVER_HOST=127.0.0.1
+   DEFAULT_LLAMA_PORT=8080
+   DEFAULT_AGENT_PORT=8090
+   DEFAULT_REMOTE_HOST=<remote-host>
+   DEFAULT_REMOTE_MODEL_DIR=/home/<user>/greenlabbench/models
+   DEFAULT_REMOTE_PROMPT_DIR=/home/<user>/greenlabbench/prompts
+   DEFAULT_REMOTE_RESULTS_DIR=/home/<user>/greenlabbench/results
+   DEFAULT_REMOTE_SCRIPT=/home/<user>/greenlabbench/scripts/run_remote_benchmark.py
+   DEFAULT_REMOTE_LLAMA_SERVER=/home/<user>/llama.cpp/build-cuda/bin/llama-server
+   DEFAULT_NETWORK_DELAY_IP=<IP address used by agent-delay>
+   ```
+
+   Use absolute paths. The two ports only need to be free on both machines; they are forwarded
+   through the SSH tunnel, so no firewall ports have to be opened.
+
+10. **Check the server before a full run:**
+
+    ```bash
+    ssh <remote-host> 'ls ~/greenlabbench/prompts ~/greenlabbench/models; \
+      ~/llama.cpp/build-cuda/bin/llama-server --version; \
+      command -v energibridge; ~/greenlabbench/venv/bin/python -c "import psutil"'
+    ```
+
+During a run the server writes its measurements to `~/greenlabbench/results/`; the runner copies
+each run's files back to `results/raw/remote/` on the MacBook with `scp`.
 
 ## Run the benchmark
 
@@ -147,7 +258,7 @@ The remote runner starts the model on the remote host over SSH and measures both
 python scripts/run_remote_benchmark.py --model models/Qwen3-8B-Q4_K_M.gguf --quantization Q4_K_M --architecture Dense --runs 10
 ```
 
-Results go to `results/raw/remote/`. For the 100 ms and 500 ms delay conditions, see [Remote network delay](#remote-network-delay).
+Prepare the server first (see [Remote server setup](#remote-server-setup)). Results go to `results/raw/remote/`. For the 100 ms and 500 ms delay conditions, see [Remote network delay](#remote-network-delay).
 
 ## Analyze results
 
@@ -201,7 +312,7 @@ python scripts/run_remote_benchmark.py \
 	--model models/Qwen3-8B-Q4_K_M.gguf \
 	--quantization Q4_K_M \
 	--architecture Dense \
-	--network-delay-ip 145.108.225.3 \
+	--network-delay-ip <target-ip> \
 	--network-delay-ms 100
 ```
 
@@ -240,7 +351,7 @@ M   = TE × (TiR / EL) × (RR / ToR)
 | TE server | 690 kg CO2e (540 kg for CPU, RAM, SSDs and chassis + ~150 kg for the RTX 3090)                               | [Boavizta API](https://api.boavizta.org/); GPU figure assumed                                                                     | Estimate       |
 | TiR       | Wall time of each run                                                                                        | Benchmark                                                                                                                         | Measured       |
 | EL        | 4 years for both machines                                                                                    | Apple PER; common server practice                                                                                                 | Convention     |
-| RR / ToR  | 1 (dedicated laptop; `glg3` is exclusive during booked slots)                                                | Cluster policy                                                                                                                    | —              |
+| RR / ToR  | 1 (dedicated laptop; the server is used exclusively during booked slots)                                                | Server booking                                                                                                                      | —              |
 
 
 Remote runs carry the embodied share of both the server and the client laptop, because both are in use.

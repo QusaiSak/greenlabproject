@@ -37,6 +37,8 @@ DEFAULT_REMOTE_MODEL_DIR = os.getenv("DEFAULT_REMOTE_MODEL_DIR")
 DEFAULT_REMOTE_PROMPT_DIR = os.getenv("DEFAULT_REMOTE_PROMPT_DIR")
 DEFAULT_REMOTE_RESULTS_DIR = os.getenv("DEFAULT_REMOTE_RESULTS_DIR")
 DEFAULT_REMOTE_SCRIPT = os.getenv("DEFAULT_REMOTE_SCRIPT")
+# Absolute path of the CUDA llama-server binary on the remote host.
+DEFAULT_REMOTE_LLAMA_SERVER = os.getenv("DEFAULT_REMOTE_LLAMA_SERVER")
 DEFAULT_AGENT_DELAY_SCRIPT = os.getenv("DEFAULT_AGENT_DELAY_SCRIPT", "./agent-delay")
 DEFAULT_NETWORK_DELAY_IP = os.getenv("DEFAULT_NETWORK_DELAY_IP")
 DEFAULT_NETWORK_DELAY_MS = 0
@@ -400,7 +402,7 @@ def remote_ssh_peer_ports(args):
 
 def find_tunnel_port(args, ports_before):
     # Inside the tunnel the agent port only exists on the remote loopback, so
-    # agent-delay (which filters on enp6s0) must target the tunnel's SSH
+    # agent-delay (which filters on the server's network interface) must target the tunnel's SSH
     # connection instead: remote:22 -> <delay ip>:<ephemeral port>.
     new_ports = remote_ssh_peer_ports(args) - ports_before
     if len(new_ports) != 1:
@@ -535,7 +537,7 @@ def close_ssh_tunnel(process):
 
 def remote_start_server(args):
     """Start llama-server detached from SSH and verify that its process survives."""
-    binary = "/home/gl_greenai/llama.cpp/build-cuda/bin/llama-server"
+    binary = args.remote_llama_server
     log_path = args.remote_root / "llama-server.log"
     pid_path = args.remote_root / "llama-server.pid"
 
@@ -603,13 +605,14 @@ def remote_start_server(args):
 
 def remote_stop_server(args):
     """Stop only this script's llama-server executable, without matching the SSH shell."""
+    pattern = shlex.quote("^" + args.remote_llama_server)
     command = (
-        "pids=$(pgrep -f '^/home/gl_greenai/llama.cpp/build-cuda/bin/llama-server' || true); "
+        f"pids=$(pgrep -f {pattern} || true); "
         "if [ -n \"$pids\" ]; then "
         "  echo \"[server-stop] Stopping llama-server PID(s): $pids\"; "
         "  kill $pids 2>/dev/null || true; "
         "  sleep 2; "
-        "  remaining=$(pgrep -f '^/home/gl_greenai/llama.cpp/build-cuda/bin/llama-server' || true); "
+        f"  remaining=$(pgrep -f {pattern} || true); "
         "  if [ -n \"$remaining\" ]; then "
         "    echo \"[server-stop] Force-stopping remaining PID(s): $remaining\"; "
         "    kill -KILL $remaining 2>/dev/null || true; "
@@ -890,7 +893,7 @@ def run_remote(args):
             )
             diagnostic_command = (
                 f"echo '--- process check ---'; "
-                f"pgrep -af '^/home/gl_greenai/llama.cpp/build-cuda/bin/llama-server' || true; "
+                f"pgrep -af {shlex.quote('^' + args.remote_llama_server)} || true; "
                 f"echo '--- listening port ---'; "
                 f"(ss -ltnp 2>/dev/null | grep -E ':{args.llama_port}\\b' || true); "
                 f"echo '--- llama-server log (last 120 lines) ---'; "
@@ -999,6 +1002,11 @@ def parse_args():
         "--remote-script",
         default=DEFAULT_REMOTE_SCRIPT,
     )
+    parser.add_argument(
+        "--remote-llama-server",
+        default=DEFAULT_REMOTE_LLAMA_SERVER,
+        help="Absolute path of llama-server on the remote host (DEFAULT_REMOTE_LLAMA_SERVER).",
+    )
     parser.add_argument("--results-dir", default="results/raw/remote")
     parser.add_argument("--runs", type=int, default=DEFAULT_RUNS)
     parser.add_argument("--output-tokens", type=int, default=DEFAULT_OUTPUT_TOKENS)
@@ -1048,6 +1056,7 @@ def main():
         "quantization",
         "architecture",
         "remote_host",
+        "remote_llama_server",
     ]
 
     missing = [name for name in required if getattr(args, name) is None]
