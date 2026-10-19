@@ -1,37 +1,37 @@
 setup,prompt_size,metric,comparison,test,shapiro_p,p_holm,effect,effect_size
-On-device,Short,energy_j_per_output_token,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.582,Cliff's delta,0.8
+On-device,Short,energy_j_per_output_token,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.748,Cliff's delta,0.8
 Remote (baseline),Short,energy_j_per_output_token,Q8_0 vs Q4_K_M,paired t,0.152,9.48e-12,Cohen's d,18.49
-On-device,Medium,energy_j_per_output_token,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.582,Cliff's delta,0.8
-Remote (baseline),Medium,energy_j_per_output_token,Q8_0 vs Q4_K_M,paired t,0.122,1.07e-14,Cohen's d,40.81
+On-device,Medium,energy_j_per_output_token,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.748,Cliff's delta,0.8
+Remote (baseline),Medium,energy_j_per_output_token,Q8_0 vs Q4_K_M,paired t,0.122,1.18e-14,Cohen's d,40.81
 On-device,Long,energy_j_per_output_token,Q8_0 vs Q4_K_M,paired t,0.159,1.06e-7,Cohen's d,6.83
-Remote (baseline),Long,energy_j_per_output_token,Q8_0 vs Q4_K_M,paired t,0.632,5.86e-13,Cohen's d,25.71
-On-device,Short,total_energy_j,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.415,Cliff's delta,0.8
+Remote (baseline),Long,energy_j_per_output_token,Q8_0 vs Q4_K_M,paired t,0.632,6.19e-13,Cohen's d,25.71
+On-device,Short,total_energy_j,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.539,Cliff's delta,0.8
 Remote (baseline),Short,total_energy_j,Q8_0 vs Q4_K_M,paired t,0.079,1.83e-7,Cohen's d,5.9
-On-device,Medium,total_energy_j,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.582,Cliff's delta,0.8
-Remote (baseline),Medium,total_energy_j,Q8_0 vs Q4_K_M,paired t,0.122,1.07e-14,Cohen's d,40.81
+On-device,Medium,total_energy_j,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.748,Cliff's delta,0.8
+Remote (baseline),Medium,total_energy_j,Q8_0 vs Q4_K_M,paired t,0.122,1.18e-14,Cohen's d,40.81
 On-device,Long,total_energy_j,Q8_0 vs Q4_K_M,paired t,0.159,1.06e-7,Cohen's d,6.83
-Remote (baseline),Long,total_energy_j,Q8_0 vs Q4_K_M,paired t,0.632,5.86e-13,Cohen's d,25.71
-On-device,Short,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.211,1.11e-5,Cohen's d,3.92
-Remote (baseline),Short,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.143,5.93e-8,Cohen's d,6.78
-On-device,Medium,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.19,6.79e-6,Cohen's d,4.2
-Remote (baseline),Medium,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.071,6.4e-17,Cohen's d,73.21
-On-device,Long,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.102,1.16e-5,Cohen's d,3.88
-Remote (baseline),Long,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.364,3.52e-15,Cohen's d,46.67
-On-device,Short,memory_avg_mb,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.101,Cliff's delta,1
+Remote (baseline),Long,total_energy_j,Q8_0 vs Q4_K_M,paired t,0.632,6.19e-13,Cohen's d,25.71
+On-device,Short,wall_time_s,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.001,0.581,Cliff's delta,0.8
+Remote (baseline),Short,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.22,8.35e-8,Cohen's d,6.52
+On-device,Medium,wall_time_s,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.748,Cliff's delta,0.8
+Remote (baseline),Medium,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.48,5.5e-15,Cohen's d,44.62
+On-device,Long,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.103,1.33e-5,Cohen's d,3.86
+Remote (baseline),Long,wall_time_s,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.019,0.0237,Cliff's delta,1
+On-device,Short,memory_avg_mb,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.113,Cliff's delta,1
 Remote (baseline),Short,memory_avg_mb,Q8_0 vs Q4_K_M,paired t,0.425,0.384,Cohen's d,0.45
 On-device,Medium,memory_avg_mb,Q8_0 vs Q4_K_M,paired t,0.844,5.92e-11,Cohen's d,15.88
 Remote (baseline),Medium,memory_avg_mb,Q8_0 vs Q4_K_M,paired t,0.413,0.268,Cohen's d,-0.6
-On-device,Long,memory_avg_mb,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.026,0.101,Cliff's delta,1
+On-device,Long,memory_avg_mb,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.026,0.113,Cliff's delta,1
 Remote (baseline),Long,memory_avg_mb,Q8_0 vs Q4_K_M,paired t,0.975,0.968,Cohen's d,0.01
-On-device,Short,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.534,0.582,Cohen's d,0.59
+On-device,Short,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.534,0.748,Cohen's d,0.59
 Remote (baseline),Short,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.995,4.87e-10,Cohen's d,11.72
-On-device,Medium,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.764,0.532,Cohen's d,0.66
+On-device,Medium,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.764,0.665,Cohen's d,0.66
 Remote (baseline),Medium,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.621,2.76e-11,Cohen's d,16.29
-On-device,Long,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.995,0.582,Cohen's d,0.51
-Remote (baseline),Long,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.463,1.16e-12,Cohen's d,23.52
-On-device,Short,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.188,0.408,Cohen's d,0.81
-Remote (baseline),Short,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.218,0.00355,Cohen's d,1.7
-On-device,Medium,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.051,0.582,Cohen's d,0.4
-Remote (baseline),Medium,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.194,0.0202,Cohen's d,1.25
-On-device,Long,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.001,0.408,Cliff's delta,0.6
-Remote (baseline),Long,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.268,0.00515,Cohen's d,1.58
+On-device,Long,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.995,0.748,Cohen's d,0.51
+Remote (baseline),Long,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.463,1.24e-12,Cohen's d,23.52
+On-device,Short,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.188,0.503,Cohen's d,0.81
+Remote (baseline),Short,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.218,0.004,Cohen's d,1.7
+On-device,Medium,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.051,0.748,Cohen's d,0.4
+Remote (baseline),Medium,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.194,0.0168,Cohen's d,1.25
+On-device,Long,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.001,0.503,Cliff's delta,0.6
+Remote (baseline),Long,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.268,0.00531,Cohen's d,1.58

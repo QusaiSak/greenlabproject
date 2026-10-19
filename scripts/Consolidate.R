@@ -106,6 +106,15 @@ server_energy_parts <- function(path) {
   out
 }
 
+# EnergiBridge measurement window (s): sum of the sampling intervals.
+energy_window_s <- function(path) {
+  e <- read_energy_csv(path)
+  if (is.null(e) || !"Delta" %in% names(e)) return(NA_real_)
+  dt <- num_col(e, "Delta")
+  if (!any(is.finite(dt))) return(NA_real_)
+  sum(dt[is.finite(dt) & dt >= 0]) / 1000
+}
+
 # Run start time (Unix seconds) from the first EnergiBridge sample.
 energy_start_s <- function(path) {
   e <- read_energy_csv(path)
@@ -139,7 +148,14 @@ process_run <- function(metadata_path) {
   output_tokens <- first_finite(safe_num(lm$output_tokens), safe_num(meta$actual_output_tokens))
   prompt_tokens <- safe_num(lm$prompt_tokens)
 
-  wall_time_s <- first_finite(safe_num(lm$request_wall_time_s), safe_num(meta$wall_clock_time_s))
+  # Execution time = EnergiBridge window on the Mac (client window for remote runs, which includes the network).
+  request_time_s <- first_finite(safe_num(lm$request_wall_time_s), safe_num(meta$wall_clock_time_s))
+  wall_time_s <- if (deployment == "on-device") {
+    energy_window_s(file.path(run_dir, "energy.csv"))
+  } else {
+    energy_window_s(file.path(run_dir, "client_energy.csv"))
+  }
+  wall_time_s <- first_finite(wall_time_s, request_time_s)
 
   run_start_unix_s <- if (deployment == "on-device") {
     energy_start_s(file.path(run_dir, "energy.csv"))
@@ -159,7 +175,7 @@ process_run <- function(metadata_path) {
     server <- server_energy_parts(file.path(run_dir, "energy.csv"))
     server_energy_j <- if (all(is.na(server))) NA_real_ else sum(server, na.rm = TRUE)
     total_energy_j <- client_energy_j + server_energy_j
-    network_condition <- safe_chr(net$condition)
+    network_condition <- sub("^basline$", "baseline", safe_chr(net$condition))
     delay_ms <- first_finite(safe_num(net$configured_delay_ms), 0)
   }
 
@@ -180,6 +196,7 @@ process_run <- function(metadata_path) {
     output_tokens = output_tokens,
     finish_reason = safe_chr(lm$finish_reason),
     wall_time_s = wall_time_s,
+    request_time_s = request_time_s,
     prompt_eval_time_s = safe_num(lm$prompt_eval_time_ms) / 1000,
     generation_time_s = safe_num(lm$generation_time_ms) / 1000,
     tokens_per_second = first_finite(

@@ -23,18 +23,18 @@ On-device,total_energy_j,Long,Qwen3-8B (Dense),1804,1797,48,2263,1749,1914
 On-device,total_energy_j,Long,Qwen3-16B-A3B (MoE),1169,1039,321,103300,1022,2038
 Remote (baseline),total_energy_j,Long,Qwen3-8B (Dense),6202,6266,188,35470,5685,6315
 Remote (baseline),total_energy_j,Long,Qwen3-16B-A3B (MoE),4410,4459,155,24080,3972,4501
-On-device,wall_time_s,Short,Qwen3-8B (Dense),89,89.5,9.1,83.55,68.3,100.1
-On-device,wall_time_s,Short,Qwen3-16B-A3B (MoE),35.4,34.6,5.6,31.69,25.9,43.7
-Remote (baseline),wall_time_s,Short,Qwen3-8B (Dense),10.3,10.2,0.8,0.6499,9.2,11.7
-Remote (baseline),wall_time_s,Short,Qwen3-16B-A3B (MoE),5.5,5.3,1,0.9965,4.2,7.7
-On-device,wall_time_s,Medium,Qwen3-8B (Dense),103.1,107.5,12.3,152,84.7,119.6
-On-device,wall_time_s,Medium,Qwen3-16B-A3B (MoE),53.4,53.4,1.6,2.51,51,56.2
-Remote (baseline),wall_time_s,Medium,Qwen3-8B (Dense),12.8,12.9,0.3,0.08261,12.2,13
-Remote (baseline),wall_time_s,Medium,Qwen3-16B-A3B (MoE),8.6,8.8,0.5,0.2225,7.4,9
-On-device,wall_time_s,Long,Qwen3-8B (Dense),126,122.8,8.4,70.58,118.3,147.1
-On-device,wall_time_s,Long,Qwen3-16B-A3B (MoE),62.5,63.3,4.8,22.68,50.8,70.2
-Remote (baseline),wall_time_s,Long,Qwen3-8B (Dense),13.1,13.2,0.1,0.01955,12.8,13.3
-Remote (baseline),wall_time_s,Long,Qwen3-16B-A3B (MoE),9.2,9.2,0.1,0.006442,9,9.3
+On-device,wall_time_s,Short,Qwen3-8B (Dense),103.7,89.7,46.8,2186,68.1,234.3
+On-device,wall_time_s,Short,Qwen3-16B-A3B (MoE),35.5,34.6,5.6,31.42,26,43.7
+Remote (baseline),wall_time_s,Short,Qwen3-8B (Dense),10.5,10.4,0.8,0.6878,9.3,11.8
+Remote (baseline),wall_time_s,Short,Qwen3-16B-A3B (MoE),5.7,5.4,1,1.095,4.3,7.9
+On-device,wall_time_s,Medium,Qwen3-8B (Dense),157.7,107.3,177.6,31530,84.6,662
+On-device,wall_time_s,Medium,Qwen3-16B-A3B (MoE),53.4,53.4,1.6,2.411,51,56.1
+Remote (baseline),wall_time_s,Medium,Qwen3-8B (Dense),12.9,13,0.3,0.07888,12.4,13.2
+Remote (baseline),wall_time_s,Medium,Qwen3-16B-A3B (MoE),8.8,9,0.5,0.2347,7.5,9.2
+On-device,wall_time_s,Long,Qwen3-8B (Dense),125.7,122.4,8.4,70.19,118,146.7
+On-device,wall_time_s,Long,Qwen3-16B-A3B (MoE),77.4,63.3,50.1,2509,50.8,219.5
+Remote (baseline),wall_time_s,Long,Qwen3-8B (Dense),13.3,13.4,0.1,0.01939,13,13.4
+Remote (baseline),wall_time_s,Long,Qwen3-16B-A3B (MoE),9.3,9.4,0.1,0.003552,9.2,9.4
 On-device,memory_avg_mb,Short,Qwen3-8B (Dense),14584,14572,45,2012,14541,14685
 On-device,memory_avg_mb,Short,Qwen3-16B-A3B (MoE),16787,16771,68,4691,16695,16901
 Remote (baseline),memory_avg_mb,Short,Qwen3-8B (Dense),2386,2376,31,989.6,2351,2455
