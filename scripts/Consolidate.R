@@ -22,10 +22,6 @@ dir.create(PLOTS_DIR, recursive = TRUE, showWarnings = FALSE)
 # Start from an empty plots folder so no stale figures from older versions remain.
 unlink(list.files(PLOTS_DIR, pattern = "\\.png$", full.names = TRUE))
 
-# Figures used in the paper (results.tex) are copied here.
-REPORT_FIG_DIR <- "reportTemplate/figures"
-dir.create(REPORT_FIG_DIR, recursive = TRUE, showWarnings = FALSE)
-
 # Hardware the CPU / GPU metrics come from.
 #   On-device: MacBook Air M4 (Mac16,12), Apple M4 SoC = 10-core CPU (4P + 6E) + 10-core integrated GPU.
 #     EnergiBridge reports only whole-system power on macOS, so Mac energy is not split into CPU / GPU.
@@ -595,9 +591,9 @@ qq_figure <- function(data, factor_col, ref, others, metric, title, filename, wi
 }
 
 # ------------------------------------------------------------
-# Paper figures: drawn at single-column size (3.4 in wide, 8 pt text) so they are readable in the
-# two-column report without scaling. Titles and the hardware note go into the LaTeX caption instead.
-# Files are saved as plots/paper_*.png and copied to reportTemplate/figures.
+# Compact figures: drawn at single-column size (3.4 in wide, 8 pt text) so they stay readable when
+# placed in a two-column document without scaling. They have no title or hardware note.
+# Files are saved as plots/paper_*.png.
 # ------------------------------------------------------------
 
 PAPER_W <- 3.4
@@ -918,8 +914,7 @@ p <- ggplot() +
 save_plot(p, "SCI_03_grid_intensity_timeline.png", 13, 5)
 
 # ============================================================
-# Paper tables: one CSV per table in results.tex (results/consolidated/paper_table_*.csv),
-# rounded as printed in the paper. Figures used in the paper are copied to reportTemplate/figures.
+# Compact summary tables (results/consolidated/paper_table_*.csv), rounded for presentation.
 # ============================================================
 
 CFG_ORDER <- c("Qwen3-8B (Dense) Q4_K_M", "Qwen3-8B (Dense) Q8_0", "Qwen3-16B-A3B (MoE) Q4_K_M")
@@ -1003,11 +998,6 @@ paper_csv(bind_rows(sci_by_config %>% mutate(across(c(setup, config), as.charact
                       sci_mg_per_token = round(sci_mg_per_token, 3), sci_low = round(sci_low_mg_per_token, 2),
                       sci_high = round(sci_high_mg_per_token, 2), total_g = round(total_g, 1)), "sci")
 
-# Figures referenced in results.tex.
-# Only the column-width paper_*.png versions are used in the report.
-unlink(list.files(REPORT_FIG_DIR, pattern = "^(RQ|SCI|paper_).*\\.png$", full.names = TRUE))
-REPORT_FIGURES <- list.files(PLOTS_DIR, pattern = "^paper_.*\\.png$")
-invisible(file.copy(file.path(PLOTS_DIR, REPORT_FIGURES), REPORT_FIG_DIR, overwrite = TRUE))
 
 # ============================================================
 # Final console report
@@ -1022,4 +1012,4 @@ print(count(df, setup, config, prompt_size), n = Inf)
 cat(sprintf("Carbon footprint: %.1f g CO2e total (%.1f operational + %.1f embodied), see SCI_summary.csv\n",
             sci_total$total_g, sci_total$operational_g, sci_total$embodied_g))
 cat("Plots: ", normalizePath(PLOTS_DIR, mustWork = FALSE), "\n", sep = "")
-cat("Paper tables: ", normalizePath(OUTPUT_DIR, mustWork = FALSE), "/paper_table_*.csv | figures: ", normalizePath(REPORT_FIG_DIR, mustWork = FALSE), "\n", sep = "")
+cat("Paper tables: ", normalizePath(OUTPUT_DIR, mustWork = FALSE), "/paper_table_*.csv | paper figures: plots/paper_*.png\n", sep = "")
