@@ -89,273 +89,273 @@ results/raw/Qwen3-8B-Q8_0/Q8_0/small/run_07,On-device,Qwen3-8B (Dense) Q8_0,Shor
 results/raw/Qwen3-8B-Q8_0/Q8_0/small/run_08,On-device,Qwen3-8B (Dense) Q8_0,Short,8,1393,stop,2103.947976969716,TRUE
 results/raw/Qwen3-8B-Q8_0/Q8_0/small/run_09,On-device,Qwen3-8B (Dense) Q8_0,Short,9,1536,length,2181.5560088953966,TRUE
 results/raw/Qwen3-8B-Q8_0/Q8_0/small/run_10,On-device,Qwen3-8B (Dense) Q8_0,Short,10,1393,stop,2087.8890370416652,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_01,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,1,1536,length,4270.070203413663,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_02,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,2,1536,length,4483.076214025688,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_03,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,3,1536,length,4521.38047738144,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_04,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,4,1536,length,4432.077331651054,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_05,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,5,1536,length,4483.164608316193,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_06,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,6,1536,length,4565.458163918349,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_07,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,7,1536,length,4490.004781140848,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_08,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,8,1536,length,4525.978598149438,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_09,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,9,1536,length,4541.094623109889,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_10,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,10,1536,length,4488.00043496716,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_01,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,1,1536,length,4060.0366030516043,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_02,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,2,1536,length,4220.592396468243,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_03,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,3,1281,stop,3745.867351773218,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_04,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,4,1536,length,4474.816023197642,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_05,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,5,1536,length,4124.060286150742,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_06,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,6,1536,length,4235.574739282303,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_07,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,7,1536,length,4234.313100035298,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_08,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,8,1536,length,4242.380798474805,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_09,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,9,1536,length,4250.446074555952,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_10,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,10,1536,length,4301.08723674686,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_01,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,1,991,stop,2856.2818545386267,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_02,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,2,874,stop,2580.2816945593736,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_03,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,3,832,stop,2357.645028244158,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_04,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,4,1074,stop,3113.7149932424936,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_05,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,5,868,stop,2647.48136250328,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_06,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,6,1078,stop,3111.110655008259,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_07,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,7,846,stop,2524.9250413791947,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_08,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,8,1354,stop,3669.5294610544447,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_09,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,9,728,stop,2181.2631632960324,TRUE
-results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_10,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,10,1050,stop,2758.6252977807108,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_01,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,1,1536,length,5914.134661972527,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_02,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,2,1536,length,6271.851600536837,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_03,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,3,1536,length,6344.085292601166,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_04,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,4,1536,length,6353.337227936236,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_05,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,5,1536,length,6258.576014718807,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_06,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,6,1536,length,6299.383472251658,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_07,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,7,1536,length,6382.378615587237,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_08,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,8,1536,length,6242.502853122933,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_09,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,9,1536,length,6294.3998507156,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_10,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,10,1536,length,6303.515654793553,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_01,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,1,1536,length,5874.159725860739,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_02,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,2,1536,length,6056.175061185817,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_03,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,3,1536,length,6030.487079005813,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_04,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,4,1536,length,6087.86647910804,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_05,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,5,1536,length,6300.801754927826,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_06,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,6,1536,length,5870.544849244474,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_07,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,7,1536,length,6287.418278335233,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_08,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,8,1536,length,6301.641130261355,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,9,1536,length,6289.496811286796,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_10,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,10,1536,length,6227.349136229949,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_01,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,1,1435,stop,5525.809211072239,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_02,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,2,1353,stop,5401.13957922281,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_03,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,3,1229,stop,4886.514087994746,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_04,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,4,1212,stop,4890.340733968958,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_05,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,5,1117,stop,4383.361791447633,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_06,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,6,1353,stop,5343.333742643039,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_07,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,7,1229,stop,4926.839615266811,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_08,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,8,1229,stop,4933.846240989502,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_09,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,9,1212,stop,4903.873864519658,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_10,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,10,1117,stop,4467.402990509072,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_01,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,1,1536,length,8221.949517137238,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_02,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,2,1536,length,8546.59803953561,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_03,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,3,1536,length,8500.933551442758,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_04,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,4,1536,length,8707.137924156132,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_05,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,5,1536,length,8666.681632056954,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_06,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,6,1536,length,8626.259617323569,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_07,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,7,1536,length,8421.00574137331,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_08,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,8,1536,length,8540.711624409445,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_09,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,9,1536,length,8584.461876654983,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_10,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,10,1536,length,8629.793497558074,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_01,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,1,1536,length,8170.7194241253965,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_02,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,2,1536,length,8462.96909198289,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_03,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,3,1536,length,8336.755536606552,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_04,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,4,1536,length,8442.838283742398,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_05,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,5,1536,length,8482.803525600599,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_06,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,6,1536,length,8263.409319866394,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_07,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,7,1536,length,8404.9376058275,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_08,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,8,1536,length,8436.77645119524,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_09,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,9,1536,length,8424.63988245174,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_10,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,10,1536,length,8465.94035857005,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_01,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,1,1536,length,8403.753061548558,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_02,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,2,1440,stop,7931.274060663895,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_03,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,3,1536,length,8432.915965398606,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_04,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,4,1490,stop,8159.517794625086,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_05,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,5,1536,length,8235.746801153093,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_06,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,6,1440,stop,8039.936195727372,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_07,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,7,1536,length,8458.796896243863,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_08,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,8,1536,length,8495.425455429731,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_09,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,9,1536,length,8426.581509659465,TRUE
-results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_10,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,10,1536,length,8463.006611767145,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_01,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,1,1536,length,4290.476472711316,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_02,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,2,1536,length,4526.098123618383,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_03,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,3,1536,length,4507.277149342889,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_04,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,4,1536,length,4502.484864818979,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_05,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,5,1536,length,4486.1678880008085,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_06,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,6,1536,length,4575.717186625212,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_07,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,7,1536,length,4514.052482831976,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_08,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,8,1536,length,4553.598442445555,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_09,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,9,1536,length,4536.965942181346,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_10,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,10,1536,length,4545.556603766413,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_01,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,1,1536,length,4215.180363743925,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_02,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,2,1536,length,4218.664751947679,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_03,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,3,1281,stop,3817.1562804500295,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_04,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,4,1536,length,4352.980259321297,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_05,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,5,1536,length,4242.693588094078,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_06,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,6,1536,length,4241.308905487463,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_07,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,7,1536,length,4431.021300597901,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_08,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,8,1536,length,4501.408034282563,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_09,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,9,1536,length,4212.747526253733,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_10,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,10,1536,length,4340.953126574716,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_01,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,1,991,stop,2853.463644705803,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_02,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,2,874,stop,2602.0168275102956,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_03,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,3,832,stop,2517.663190433989,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_04,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,4,1074,stop,3139.45233937923,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_05,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,5,868,stop,2667.708887280797,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_06,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,6,1078,stop,3157.703143339136,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_07,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,7,846,stop,2491.640594377537,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_08,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,8,1354,stop,3805.7030582991406,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_09,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,9,728,stop,2216.406821573222,TRUE
-results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_10,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,10,1050,stop,2895.2049372678925,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_01,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,1,1536,length,6046.450536542381,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_02,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,2,1536,length,6286.731677108317,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_03,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,3,1536,length,6235.661838756563,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_04,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,4,1536,length,6227.544481781057,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_05,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,5,1536,length,6318.648071103119,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_06,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,6,1536,length,6364.487369435331,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_07,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,7,1536,length,6350.141777870502,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_08,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,8,1536,length,6295.61380100461,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_09,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,9,1536,length,6282.09675130117,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_10,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,10,1536,length,6348.635162506533,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_01,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,1,1536,length,5734.049389873329,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_02,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,2,1536,length,6067.963909788923,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_03,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,3,1536,length,6103.0266208136245,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_04,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,4,1536,length,6187.124573247681,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_05,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,5,1536,length,6099.411609212074,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_06,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,6,1536,length,5902.168379766466,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_07,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,7,1536,length,6205.22868509003,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_08,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,8,1536,length,6116.570400847798,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,9,1536,length,6163.697194715135,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_10,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,10,1536,length,6177.9104964058415,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_01,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,1,1435,stop,5546.0238341357235,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_02,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,2,1353,stop,5468.08998255413,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_03,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,3,1229,stop,4934.312199511801,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_04,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,4,1212,stop,4678.828243494469,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_05,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,5,1117,stop,4405.9608804248855,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_06,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,6,1353,stop,5441.013775974909,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_07,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,7,1229,stop,4972.70235658032,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_08,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,8,1229,stop,4962.797938942617,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_09,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,9,1212,stop,4950.518996167383,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_10,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,10,1117,stop,4417.686790117139,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_01,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,1,1536,length,8444.793349957567,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_02,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,2,1536,length,8767.62739659224,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_03,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,3,1536,length,8460.072928393456,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_04,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,4,1536,length,8643.525825678884,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_05,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,5,1536,length,8653.536844670696,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_06,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,6,1536,length,8666.590833218961,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_07,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,7,1536,length,8462.462079137653,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_08,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,8,1536,length,8622.172197730722,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_09,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,9,1536,length,8734.917471108598,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_10,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,10,1536,length,8713.227839436939,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_01,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,1,1536,length,8324.6391121098,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_02,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,2,1536,length,8455.58991961469,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_03,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,3,1536,length,8675.798599032627,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_04,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,4,1536,length,8496.69109638375,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_05,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,5,1536,length,8475.717900458341,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_06,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,6,1536,length,8202.577494650432,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_07,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,7,1536,length,8484.287899810688,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_08,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,8,1536,length,8481.893249950297,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_09,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,9,1536,length,8646.138495445737,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_10,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,10,1536,length,8450.664563600045,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_01,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,1,1536,length,8439.980618714106,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_02,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,2,1440,stop,8029.590102826185,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_03,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,3,1536,length,8447.95972760366,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_04,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,4,1490,stop,8287.280045365109,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_05,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,5,1536,length,8447.425734967122,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_06,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,6,1440,stop,7997.305530559189,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_07,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,7,1536,length,8453.770820983682,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_08,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,8,1536,length,8541.780547074184,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_09,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,9,1536,length,8463.900123816094,TRUE
-results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_10,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,10,1536,length,8437.496958983025,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_01,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,1,1536,length,3971.1807179570346,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_02,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,2,1536,length,4355.3465552612,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_03,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,3,1536,length,4415.58543505414,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_04,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,4,1536,length,4446.061205041516,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_05,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,5,1536,length,4468.727531860337,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_06,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,6,1536,length,4437.783887628655,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_07,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,7,1536,length,4455.902095780425,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_08,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,8,1536,length,4467.057837272082,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_09,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,9,1536,length,4140.257953360718,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_10,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,10,1536,length,4088.2337851006628,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_01,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,1,1536,length,3982.271998344321,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_02,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,2,1536,length,4135.908886631236,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_03,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,3,1281,stop,3538.4103800377943,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_04,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,4,1536,length,4217.263238335276,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_05,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,5,1536,length,4196.435458444486,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_06,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,6,1536,length,4026.163139653692,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_07,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,7,1536,length,4167.769848773918,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_08,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,8,1536,length,4213.298240736396,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_09,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,9,1536,length,3924.412352966448,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_10,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,10,1536,length,4031.998547284515,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_01,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,1,991,stop,2636.9852520711233,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_02,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,2,874,stop,2326.7667778909636,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_03,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,3,832,stop,2362.3190885977106,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_04,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,4,1074,stop,2962.0324711107364,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_05,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,5,868,stop,2373.988343952526,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_06,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,6,1078,stop,3074.092249408832,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_07,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,7,846,stop,2330.4449133780013,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_08,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,8,1354,stop,3764.0121699082233,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_09,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,9,728,stop,2150.440020935679,TRUE
-results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_10,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,10,1050,stop,2606.4032513724464,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_01,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,1,1536,length,5689.933114918375,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_02,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,2,1536,length,6201.895290810941,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_03,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,3,1536,length,6229.901475114024,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_04,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,4,1536,length,6235.233604054021,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_05,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,5,1536,length,6226.878062648542,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_06,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,6,1536,length,6256.9424115647225,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_07,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,7,1536,length,6267.4996306190105,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_08,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,8,1536,length,6268.245344929272,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_09,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,9,1536,length,6286.349852386266,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_10,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,10,1536,length,6270.305009398476,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_01,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,1,1536,length,5744.9103755836995,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_02,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,2,1536,length,5922.109962078666,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_03,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,3,1536,length,5961.0027959248555,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_04,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,4,1536,length,5931.762477266092,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_05,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,5,1536,length,5968.58464281077,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_06,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,6,1536,length,5821.7433818688005,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_07,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,7,1536,length,6014.889180049884,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_08,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,8,1536,length,6027.148742365352,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,9,1536,length,6029.156690536457,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_10,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,10,1536,length,6025.611104777741,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_01,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,1,1435,stop,5432.84963877316,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_02,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,2,1353,stop,5206.379645817232,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_03,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,3,1229,stop,4876.225526768876,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_04,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,4,1212,stop,4626.594874569998,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_05,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,5,1117,stop,4457.165806637783,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_06,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,6,1353,stop,5337.187872065588,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_07,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,7,1229,stop,4909.725777883828,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_08,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,8,1229,stop,4922.1839449118515,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_09,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,9,1212,stop,4637.872960851424,TRUE
-results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_10,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,10,1117,stop,4459.827786408717,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_01,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,1,1536,length,8091.525512321779,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_02,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,2,1536,length,8607.0967667703,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_03,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,3,1536,length,8402.739297852519,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_04,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,4,1536,length,8604.37767919044,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_05,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,5,1536,length,8645.147632472057,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_06,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,6,1536,length,8655.841808430778,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_07,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,7,1536,length,8487.415788387962,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_08,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,8,1536,length,8597.712636439157,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_09,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,9,1536,length,8646.801505410438,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_10,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,10,1536,length,8456.292277824588,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_01,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,1,1536,length,8132.350337805238,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_02,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,2,1536,length,8419.573425946897,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_03,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,3,1536,length,8423.024821640096,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_04,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,4,1536,length,8446.555232023618,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_05,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,5,1536,length,8441.165557801914,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_06,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,6,1536,length,8241.681920487594,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_07,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,7,1536,length,8431.183188890438,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_08,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,8,1536,length,8471.189104345089,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_09,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,9,1536,length,8505.955620752386,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_10,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,10,1536,length,8375.321154744232,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_01,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,1,1536,length,8154.728062117658,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_02,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,2,1440,stop,7863.266970857319,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_03,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,3,1536,length,8420.065742898587,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_04,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,4,1490,stop,8145.201525537196,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_05,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,5,1536,length,8430.831455251617,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_06,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,6,1440,stop,8014.380177387159,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_07,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,7,1536,length,8395.22462417269,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_08,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,8,1536,length,8452.65205206149,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_09,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,9,1536,length,8458.036789921507,TRUE
-results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_10,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,10,1536,length,8495.97552340098,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_01,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,1,1536,length,4011.7601423657966,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_02,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,2,1536,length,4500.436508253651,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_03,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,3,1536,length,4475.566268329159,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_04,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,4,1536,length,4451.939638354665,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_05,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,5,1536,length,4512.456178682201,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_06,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,6,1536,length,4492.563922207148,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_07,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,7,1536,length,4499.476987081031,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_08,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,8,1536,length,4478.065967084189,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_09,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,9,1536,length,4522.081121417421,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_10,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,10,1536,length,4550.5503171348855,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_01,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,1,1536,length,3985.34367932416,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_02,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,2,1536,length,4150.094568508104,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_03,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,3,1281,stop,3686.0704928658392,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_04,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,4,1536,length,4469.076416863815,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_05,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,5,1536,length,4218.804655188388,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_06,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,6,1536,length,4091.786441078617,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_07,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,7,1536,length,4281.559307914631,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_08,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,8,1536,length,4505.9206401774645,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_09,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,9,1536,length,4472.373927264982,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_10,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,10,1536,length,4149.610692101706,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_01,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,1,991,stop,2820.7290809257993,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_02,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,2,874,stop,2548.1243494184832,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_03,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,3,832,stop,2353.6967495768704,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_04,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,4,1074,stop,3093.277371256711,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_05,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,5,868,stop,2637.38669990472,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_06,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,6,1078,stop,3072.58965863488,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_07,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,7,846,stop,2377.3488943577267,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_08,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,8,1354,stop,3700.384383602852,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_09,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,9,728,stop,2147.576659762023,TRUE
+results/raw/remote_100ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_10,Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,10,1050,stop,2876.119287257428,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_01,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,1,1536,length,5726.586942735229,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_02,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,2,1536,length,6198.568548669265,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_03,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,3,1536,length,6275.165794422215,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_04,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,4,1536,length,6324.678208277549,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_05,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,5,1536,length,6293.121509194857,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_06,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,6,1536,length,6250.402705453306,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_07,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,7,1536,length,6290.026230560479,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_08,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,8,1536,length,6321.495345964932,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_09,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,9,1536,length,6264.3555800987115,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_10,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Long,10,1536,length,6252.929314786098,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_01,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,1,1536,length,5758.876496471905,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_02,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,2,1536,length,5978.19035189302,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_03,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,3,1536,length,5925.335505103249,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_04,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,4,1536,length,6021.822302046213,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_05,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,5,1536,length,6032.409523876414,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_06,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,6,1536,length,5874.7019304796195,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_07,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,7,1536,length,6051.435512996864,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_08,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,8,1536,length,6024.260996504558,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,9,1536,length,6058.657336767858,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_10,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Medium,10,1536,length,6251.885621433797,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_01,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,1,1435,stop,5510.134510101003,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_02,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,2,1353,stop,5314.1251754009645,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_03,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,3,1229,stop,4872.7605686061825,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_04,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,4,1212,stop,4848.772246326173,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_05,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,5,1117,stop,4454.889603531275,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_06,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,6,1353,stop,5377.286141926705,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_07,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,7,1229,stop,4950.345334618354,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_08,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,8,1229,stop,4905.197528309562,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_09,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,9,1212,stop,4925.1568099481165,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_10,Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,Short,10,1117,stop,4440.790104673014,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_01,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,1,1536,length,8023.5002662722845,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_02,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,2,1536,length,8510.52635925063,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_03,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,3,1536,length,8382.192472029972,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_04,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,4,1536,length,8612.496841797094,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_05,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,5,1536,length,8490.740097806402,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_06,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,6,1536,length,8583.021252644112,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_07,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,7,1536,length,8456.758193292013,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_08,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,8,1536,length,8592.51811090584,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_09,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,9,1536,length,8614.990511967007,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/large/run_10,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Long,10,1536,length,8682.085499344477,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_01,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,1,1536,length,8129.067995243266,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_02,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,2,1536,length,8317.117571818353,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_03,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,3,1536,length,8303.654905983753,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_04,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,4,1536,length,8438.014573064724,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_05,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,5,1536,length,8411.57179008756,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_06,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,6,1536,length,8147.041613995888,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_07,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,7,1536,length,8346.017451296862,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_08,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,8,1536,length,8415.637898622703,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_09,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,9,1536,length,8384.810235672678,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/medium/run_10,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Medium,10,1536,length,8415.206302367264,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_01,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,1,1536,length,8259.713500876707,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_02,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,2,1440,stop,7931.394044923273,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_03,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,3,1536,length,8388.686883557917,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_04,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,4,1490,stop,8110.729560072721,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_05,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,5,1536,length,8342.39453068199,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_06,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,6,1440,stop,7876.53109090489,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_07,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,7,1536,length,8372.917096089175,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_08,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,8,1536,length,8438.123879962395,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_09,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,9,1536,length,8399.910927389325,TRUE
+results/raw/remote_100ms/Qwen3-8B-Q8_0/Q8_0/small/run_10,Remote +100 ms,Qwen3-8B (Dense) Q8_0,Short,10,1536,length,8458.310542509518,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_01,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,1,1536,length,4427.938174720457,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_02,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,2,1536,length,4557.812774830221,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_03,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,3,1536,length,4486.68188238543,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_04,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,4,1536,length,4476.322613447068,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_05,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,5,1536,length,4501.486246646369,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_06,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,6,1536,length,4596.048027463388,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_07,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,7,1536,length,4504.703835542543,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_08,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,8,1536,length,4514.582242803297,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_09,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,9,1536,length,4550.475134707036,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_10,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Long,10,1536,length,4584.333978064442,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_01,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,1,1536,length,3990.9767063775457,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_02,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,2,1536,length,4213.088814132056,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_03,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,3,1281,stop,3638.666886050125,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_04,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,4,1536,length,4359.387058274144,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_05,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,5,1536,length,4231.319418850588,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_06,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,6,1536,length,4217.477815342266,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_07,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,7,1536,length,4465.32127758874,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_08,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,8,1536,length,4273.245750647677,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_09,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,9,1536,length,4293.417791383506,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_10,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Medium,10,1536,length,4238.1015241613095,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_01,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,1,991,stop,2904.4442951841374,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_02,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,2,874,stop,2648.2363879679183,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_03,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,3,832,stop,2508.9854711012213,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_04,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,4,1074,stop,3118.184667131754,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_05,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,5,868,stop,2567.3604150064566,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_06,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,6,1078,stop,3129.6672206591247,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_07,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,7,846,stop,2410.9867918344535,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_08,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,8,1354,stop,3805.5243142301047,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_09,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,9,728,stop,2223.8821304341905,TRUE
+results/raw/remote_500ms/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_10,Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,Short,10,1050,stop,2842.852423329609,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_01,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,1,1536,length,6000.790405544606,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_02,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,2,1536,length,6233.143347876798,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_03,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,3,1536,length,6205.868899730381,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_04,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,4,1536,length,6259.902502619476,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_05,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,5,1536,length,6276.254210548425,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_06,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,6,1536,length,6309.6274012307695,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_07,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,7,1536,length,6259.510339250025,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_08,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,8,1536,length,6296.563183729548,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_09,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,9,1536,length,6284.505872725256,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_10,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Long,10,1536,length,6210.684851785351,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_01,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,1,1536,length,5752.276805454056,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_02,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,2,1536,length,5891.073861446962,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_03,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,3,1536,length,6086.591916344541,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_04,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,4,1536,length,6072.619067762196,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_05,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,5,1536,length,6063.411734401469,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_06,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,6,1536,length,5847.924654714307,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_07,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,7,1536,length,6169.324151691391,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_08,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,8,1536,length,6002.506573887971,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,9,1536,length,6093.64515952473,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_10,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Medium,10,1536,length,6050.527698643509,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_01,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,1,1435,stop,5549.6487576808495,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_02,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,2,1353,stop,5253.885387967396,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_03,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,3,1229,stop,4868.675235805443,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_04,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,4,1212,stop,4692.755852248288,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_05,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,5,1117,stop,4465.138019419872,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_06,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,6,1353,stop,5397.691939069028,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_07,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,7,1229,stop,4846.668723646334,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_08,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,8,1229,stop,4868.121674499817,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_09,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,9,1212,stop,4685.376643929949,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_10,Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,Short,10,1117,stop,4504.648509004228,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_01,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,1,1536,length,8335.230120124033,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_02,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,2,1536,length,8585.568467152829,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_03,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,3,1536,length,8463.452346752993,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_04,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,4,1536,length,8656.831081203949,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_05,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,5,1536,length,8701.668739011511,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_06,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,6,1536,length,8722.647075475392,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_07,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,7,1536,length,8531.221120585516,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_08,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,8,1536,length,8677.197610526046,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_09,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,9,1536,length,8735.267737183327,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/large/run_10,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Long,10,1536,length,8754.787931531198,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_01,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,1,1536,length,8162.905453304353,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_02,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,2,1536,length,8386.619899425843,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_03,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,3,1536,length,8427.645216785697,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_04,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,4,1536,length,8506.92599406239,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_05,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,5,1536,length,8458.714907653812,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_06,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,6,1536,length,8296.633716693053,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_07,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,7,1536,length,8472.617880109474,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_08,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,8,1536,length,8412.472478384441,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_09,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,9,1536,length,8521.56326513626,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/medium/run_10,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Medium,10,1536,length,8517.215811409256,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_01,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,1,1536,length,8347.991036388225,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_02,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,2,1440,stop,8023.291651023616,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_03,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,3,1536,length,8448.65451417797,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_04,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,4,1490,stop,8137.185491969515,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_05,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,5,1536,length,8444.186324172602,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_06,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,6,1440,stop,8005.417021787026,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_07,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,7,1536,length,8462.862463956251,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_08,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,8,1536,length,8461.460446746676,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_09,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,9,1536,length,8506.874706979233,TRUE
+results/raw/remote_500ms/Qwen3-8B-Q8_0/Q8_0/small/run_10,Remote +500 ms,Qwen3-8B (Dense) Q8_0,Short,10,1536,length,8454.766847001169,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_01,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,1,1536,length,3972.0607873955955,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_02,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,2,1536,length,4421.339392434436,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_03,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,3,1536,length,4447.317032151325,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_04,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,4,1536,length,4448.426272707139,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_05,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,5,1536,length,4463.475649730388,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_06,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,6,1536,length,4463.826550912304,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_07,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,7,1536,length,4463.829517307111,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_08,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,8,1536,length,4501.121268588423,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_09,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,9,1536,length,4463.802158519726,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/large/run_10,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Long,10,1536,length,4455.168361710279,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_01,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,1,1536,length,3962.16605548003,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_02,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,2,1536,length,4156.505571702943,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_03,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,3,1281,stop,3523.6684318996604,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_04,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,4,1536,length,4193.582760796175,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_05,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,5,1536,length,4213.6524942258075,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_06,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,6,1536,length,4033.1106676210507,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_07,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,7,1536,length,4220.594844099324,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_08,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,8,1536,length,4195.406897747717,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_09,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,9,1536,length,4227.615490277175,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/medium/run_10,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Medium,10,1536,length,4204.954981890151,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_01,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,1,991,stop,2625.7775176174105,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_02,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,2,874,stop,2378.731823415721,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_03,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,3,832,stop,2359.6686708526404,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_04,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,4,1074,stop,2825.2707470759515,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_05,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,5,868,stop,2416.0053578684433,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_06,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,6,1078,stop,3065.342927587506,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_07,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,7,846,stop,2370.936518717246,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_08,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,8,1354,stop,3725.7855801186424,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_09,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,9,728,stop,2114.481769930677,TRUE
+results/raw/remote/kalomaze_Qwen3-16B-A3B-Q4_K_M/Q4_K_M/small/run_10,Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,Short,10,1050,stop,2810.563476510982,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_01,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,1,1536,length,5684.502300472069,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_02,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,2,1536,length,6220.818591989697,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_03,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,3,1536,length,6267.712032843865,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_04,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,4,1536,length,6302.381531102367,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_05,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,5,1536,length,6284.640222400196,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_06,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,6,1536,length,6175.692113051453,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_07,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,7,1536,length,6187.7111643157,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_08,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,8,1536,length,6264.711635420945,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_09,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,9,1536,length,6315.213275303082,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/large/run_10,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Long,10,1536,length,6312.268766368045,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_01,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,1,1536,length,5747.803030537926,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_02,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,2,1536,length,5912.349068922616,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_03,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,3,1536,length,5969.012612733886,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_04,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,4,1536,length,6003.8111628098295,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_05,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,5,1536,length,5993.054745603558,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_06,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,6,1536,length,5846.18841938306,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_07,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,7,1536,length,6012.720530336338,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_08,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,8,1536,length,6015.93093455759,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_09,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,9,1536,length,6034.526545317024,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/medium/run_10,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Medium,10,1536,length,6024.0183299640885,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_01,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,1,1435,stop,5454.022013896607,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_02,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,2,1353,stop,5310.265036663695,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_03,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,3,1229,stop,4916.801372048546,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_04,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,4,1212,stop,4638.995282818928,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_05,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,5,1117,stop,4452.301009332432,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_06,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,6,1353,stop,5381.287474978218,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_07,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,7,1229,stop,4917.335755949189,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_08,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,8,1229,stop,4912.928999031292,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_09,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,9,1212,stop,4654.88100256388,TRUE
+results/raw/remote/Qwen3-8B-Q4_K_M/Q4_K_M/small/run_10,Remote (baseline),Qwen3-8B (Dense) Q4_K_M,Short,10,1117,stop,4440.720445052986,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_01,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,1,1536,length,8028.810483064777,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_02,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,2,1536,length,8504.374002273324,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_03,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,3,1536,length,8396.083158466618,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_04,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,4,1536,length,8552.613307194242,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_05,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,5,1536,length,8558.720419168223,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_06,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,6,1536,length,8587.938713906728,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_07,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,7,1536,length,8442.3354536047,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_08,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,8,1536,length,8615.905775879317,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_09,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,9,1536,length,8622.218474146946,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/large/run_10,Remote (baseline),Qwen3-8B (Dense) Q8_0,Long,10,1536,length,8455.479655532918,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_01,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,1,1536,length,8002.851546040602,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_02,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,2,1536,length,8307.769662666722,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_03,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,3,1536,length,8357.616808862324,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_04,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,4,1536,length,8413.785449124865,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_05,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,5,1536,length,8384.58140926125,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_06,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,6,1536,length,8175.367625914097,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_07,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,7,1536,length,8399.593669494243,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_08,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,8,1536,length,8474.722080731457,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_09,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,9,1536,length,8476.94481041791,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/medium/run_10,Remote (baseline),Qwen3-8B (Dense) Q8_0,Medium,10,1536,length,8445.936360332578,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_01,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,1,1536,length,8060.4750582834495,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_02,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,2,1440,stop,7877.809846866932,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_03,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,3,1536,length,8353.452820664752,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_04,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,4,1490,stop,8116.330909329939,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_05,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,5,1536,length,8382.289502537864,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_06,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,6,1440,stop,7881.228359569212,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_07,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,7,1536,length,8333.22042603424,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_08,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,8,1536,length,8322.243738148572,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_09,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,9,1536,length,8438.405053798586,TRUE
+results/raw/remote/Qwen3-8B-Q8_0/Q8_0/small/run_10,Remote (baseline),Qwen3-8B (Dense) Q8_0,Short,10,1536,length,8424.956241798753,TRUE

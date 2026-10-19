@@ -19,6 +19,24 @@ OUTPUT_DIR <- "results/consolidated"
 PLOTS_DIR <- file.path(OUTPUT_DIR, "plots")
 
 dir.create(PLOTS_DIR, recursive = TRUE, showWarnings = FALSE)
+# Start from an empty plots folder so no stale figures from older versions remain.
+unlink(list.files(PLOTS_DIR, pattern = "\\.png$", full.names = TRUE))
+
+# Figures used in the paper (results.tex) are copied here.
+REPORT_FIG_DIR <- "reportTemplate/figures"
+dir.create(REPORT_FIG_DIR, recursive = TRUE, showWarnings = FALSE)
+
+# Hardware the CPU / GPU metrics come from.
+#   On-device: MacBook Air M4 (Mac16,12), Apple M4 SoC = 10-core CPU (4P + 6E) + 10-core integrated GPU.
+#     EnergiBridge reports only whole-system power on macOS, so Mac energy is not split into CPU / GPU.
+#   Remote (glg3): Intel Core i9-11900KF CPU (RAPL package + DRAM) + NVIDIA GeForce RTX 3090 GPU (NVML power).
+HARDWARE <- tibble(
+  deployment = c("on-device", "remote"),
+  cpu_model = c("Apple M4 (10-core CPU)", "Intel Core i9-11900KF"),
+  gpu_model = c("Apple M4 (10-core integrated GPU)", "NVIDIA GeForce RTX 3090")
+)
+HW_NOTE <- paste0("Hardware - on-device: MacBook Air, Apple M4 CPU + integrated GPU | ",
+                  "remote: Intel Core i9-11900KF CPU + NVIDIA GeForce RTX 3090 GPU")
 
 # ============================================================
 # Helpers
@@ -195,10 +213,14 @@ if (nrow(runs) == 0) stop("No readable runs were found.")
 # ============================================================
 
 runs <- runs %>%
+  left_join(HARDWARE, by = "deployment") %>%
+  relocate(cpu_model, gpu_model, .after = deployment) %>%
   mutate(
     energy_j_per_output_token = ifelse(output_tokens > 0, total_energy_j / output_tokens, NA_real_),
     client_j_per_output_token = ifelse(output_tokens > 0, client_energy_j / output_tokens, NA_real_),
     server_j_per_output_token = ifelse(output_tokens > 0, server_energy_j / output_tokens, NA_real_),
+    server_cpu_j_per_output_token = ifelse(output_tokens > 0, server_cpu_energy_j / output_tokens, NA_real_),
+    server_gpu_j_per_output_token = ifelse(output_tokens > 0, server_gpu_energy_j / output_tokens, NA_real_),
     avg_power_w = total_energy_j / wall_time_s,
     prompt_size = factor(prompt_size, levels = c("small", "medium", "large"), labels = c("Short", "Medium", "Long")),
     model_family = case_when(
@@ -233,9 +255,19 @@ runs <- runs %>%
 #   SCI = ((E * I) + M) per R
 #   E = measured energy (kWh), I = grid carbon intensity at run time (gCO2e/kWh),
 #   M = embodied emissions = TE * (TiR / EL) * (RR / ToR), R = one output token.
+# Location-based: 15-minute Netherlands grid mix, no market instruments (RECs, offsets).
+# Boundary (included): client Mac whole-system energy (EnergiBridge), server CPU package + DRAM (RAPL)
+#   + GPU (NVML), embodied emissions of the Mac and of the server.
+# Boundary (excluded): server PSU / motherboard / fans / storage power not covered by RAPL + NVML,
+#   network equipment and transmission, model download and storage, idle time between runs.
+# Each sub-component is computed per run and summed, with the same R (output token) and time window.
 # ============================================================
 
 HOURS_PER_YEAR <- 365 * 24
+
+# Server PUE. glg3 is a single on-premise workstation in a regular room (no data-centre cooling
+# or UPS overhead), so PUE = 1.0. The Mac is a personal device and has no PUE.
+SERVER_PUE <- 1.0
 
 # Embodied footprints (kg CO2e, production + transport + end-of-life, use phase excluded).
 # Laptop: Apple Product Environmental Report, MacBook Air M4 (March 2025): 13-inch 256 GB = 120 kg
@@ -249,46 +281,57 @@ SCI_SCENARIOS <- list(
   high    = list(laptop_te_kg = 120 * 0.75, server_te_kg = 931 + 300, lifetime_years = 3)
 )
 
-# Embodied emission rate (g CO2e per hour of use) for a deployment.
-embodied_g_per_h <- function(deployment, sc) {
-  te_kg <- sc$laptop_te_kg + ifelse(deployment == "remote", sc$server_te_kg, 0)
-  te_kg * 1000 / (sc$lifetime_years * HOURS_PER_YEAR)
-}
+# Embodied emission rate (g CO2e per hour of use) of one device.
+embodied_g_per_h <- function(te_kg, sc) te_kg * 1000 / (sc$lifetime_years * HOURS_PER_YEAR)
 
 # Netherlands grid carbon intensity (15-min resolution, Fraunhofer Energy-Charts).
-# Cached in data/; downloaded only when the cache file is missing.
+# Cached in data/; (re-)downloaded when the cache does not cover every run.
 load_carbon_intensity <- function(start_s, end_s) {
-  if (!file.exists(CARBON_INTENSITY_FILE)) {
+  cached <- if (file.exists(CARBON_INTENSITY_FILE)) read_csv(CARBON_INTENSITY_FILE, show_col_types = FALSE) else
+    tibble(unix_s = numeric(), g_co2eq_per_kwh = numeric())
+  covered <- nrow(cached) > 0 && min(cached$unix_s) <= start_s && max(cached$unix_s) >= end_s
+  if (!covered) {
     fmt <- function(t) format(as.POSIXct(t, origin = "1970-01-01", tz = "UTC"), "%Y-%m-%dT%H:%MZ", tz = "UTC")
     url <- sprintf("https://api.energy-charts.info/co2eq?country=nl&start=%s&end=%s",
                    fmt(start_s - 86400), fmt(end_s + 86400))
     j <- fromJSON(url)
     ci <- tibble(unix_s = as.numeric(j$unix_seconds), g_co2eq_per_kwh = as.numeric(j$co2eq)) %>%
       filter(is.finite(g_co2eq_per_kwh))
+    cached <- bind_rows(cached, ci) %>% distinct(unix_s, .keep_all = TRUE)
     dir.create(dirname(CARBON_INTENSITY_FILE), recursive = TRUE, showWarnings = FALSE)
-    write_csv(ci, CARBON_INTENSITY_FILE)
+    write_csv(cached %>% arrange(unix_s), CARBON_INTENSITY_FILE)
   }
-  read_csv(CARBON_INTENSITY_FILE, show_col_types = FALSE) %>% arrange(unix_s)
+  cached %>% arrange(unix_s)
 }
 
 carbon_intensity <- load_carbon_intensity(min(runs$run_start_unix_s, na.rm = TRUE),
-                                          max(runs$run_start_unix_s, na.rm = TRUE))
+                                          max(runs$run_start_unix_s + runs$wall_time_s, na.rm = TRUE))
 
-# Each run gets the intensity of the 15-minute slot it started in.
+# Each run gets the intensity of the 15-minute slot it started in (no value = NA, never the last slot).
 ci_index <- findInterval(runs$run_start_unix_s, carbon_intensity$unix_s)
 ci_index[ci_index == 0 | !is.finite(runs$run_start_unix_s)] <- NA
+stale <- !is.na(ci_index) & runs$run_start_unix_s - carbon_intensity$unix_s[ci_index] > 900
+ci_index[stale] <- NA
 runs$grid_g_co2eq_per_kwh <- carbon_intensity$g_co2eq_per_kwh[ci_index]
 if (any(is.na(runs$grid_g_co2eq_per_kwh))) {
   warning(sum(is.na(runs$grid_g_co2eq_per_kwh)), " run(s) have no carbon intensity; delete ",
           CARBON_INTENSITY_FILE, " to re-download for the full experiment period.")
 }
 
+z0 <- function(x) ifelse(is.finite(x), x, 0)
+emb_g <- function(wall_s, te_kg, sc) wall_s / 3600 * embodied_g_per_h(te_kg, sc)
+is_remote <- runs$deployment == "remote"
+
 runs <- runs %>%
   mutate(
-    carbon_operational_g = total_energy_j / 3.6e6 * grid_g_co2eq_per_kwh,
-    carbon_embodied_g = wall_time_s / 3600 * embodied_g_per_h(deployment, SCI_SCENARIOS$central),
-    carbon_embodied_low_g = wall_time_s / 3600 * embodied_g_per_h(deployment, SCI_SCENARIOS$low),
-    carbon_embodied_high_g = wall_time_s / 3600 * embodied_g_per_h(deployment, SCI_SCENARIOS$high),
+    carbon_client_op_g = client_energy_j / 3.6e6 * grid_g_co2eq_per_kwh,
+    carbon_server_op_g = z0(server_energy_j) * SERVER_PUE / 3.6e6 * grid_g_co2eq_per_kwh,
+    carbon_operational_g = carbon_client_op_g + carbon_server_op_g,
+    carbon_emb_laptop_g = emb_g(wall_time_s, SCI_SCENARIOS$central$laptop_te_kg, SCI_SCENARIOS$central),
+    carbon_emb_server_g = ifelse(is_remote, emb_g(wall_time_s, SCI_SCENARIOS$central$server_te_kg, SCI_SCENARIOS$central), 0),
+    carbon_embodied_g = carbon_emb_laptop_g + carbon_emb_server_g,
+    carbon_embodied_low_g = emb_g(wall_time_s, SCI_SCENARIOS$low$laptop_te_kg + ifelse(is_remote, SCI_SCENARIOS$low$server_te_kg, 0), SCI_SCENARIOS$low),
+    carbon_embodied_high_g = emb_g(wall_time_s, SCI_SCENARIOS$high$laptop_te_kg + ifelse(is_remote, SCI_SCENARIOS$high$server_te_kg, 0), SCI_SCENARIOS$high),
     carbon_total_g = carbon_operational_g + carbon_embodied_g,
     sci_mg_per_output_token = ifelse(output_tokens > 0, 1000 * carbon_total_g / output_tokens, NA_real_)
   )
@@ -309,12 +352,18 @@ remote_base <- remote_df %>% filter(setup == "Remote (baseline)")
 # Summary + stats helpers
 # ============================================================
 
+# Descriptive statistics of one sample (mean +/- 95% CI in lo / hi).
 mean_ci <- function(x) {
   x <- x[is.finite(x)]
   n <- length(x)
+  if (n == 0) return(tibble(n = 0L, mean = NA_real_, sd = NA_real_, var = NA_real_, median = NA_real_,
+                            q1 = NA_real_, q3 = NA_real_, min = NA_real_, max = NA_real_, lo = NA_real_, hi = NA_real_))
   m <- mean(x)
-  h <- if (n > 1) qt(0.975, n - 1) * sd(x) / sqrt(n) else 0
-  tibble(n = n, mean = m, sd = if (n > 1) sd(x) else NA_real_, median = median(x), lo = m - h, hi = m + h)
+  s <- if (n > 1) sd(x) else NA_real_
+  h <- if (n > 1) qt(0.975, n - 1) * s / sqrt(n) else 0
+  tibble(n = n, mean = m, sd = s, var = s^2, median = median(x),
+         q1 = unname(quantile(x, 0.25)), q3 = unname(quantile(x, 0.75)),
+         min = min(x), max = max(x), lo = m - h, hi = m + h)
 }
 
 summarise_metrics <- function(data, groups, metrics) {
@@ -325,41 +374,75 @@ summarise_metrics <- function(data, groups, metrics) {
     summarise(mean_ci(value), .groups = "drop")
 }
 
-# Cliff's delta: effect size for two independent samples (|d| >= 0.474 = large).
+# Cliff's delta of a vs b (|d| >= 0.474 = large).
 cliffs_delta <- function(a, b) {
   a <- a[is.finite(a)]; b <- b[is.finite(b)]
   if (!length(a) || !length(b)) return(NA_real_)
   mean(sign(outer(a, b, "-")))
 }
 
-# Wilcoxon rank-sum test of every level of `factor_col` against the first (reference) level, per stratum.
+# Paired comparison of two levels of `factor_col`, per stratum. Runs are paired by repetition number.
+# Shapiro-Wilk on the paired differences decides the test: paired t-test (+ Cohen's d) when normal,
+# Wilcoxon signed-rank (+ Cliff's delta) otherwise. Both effect sizes are always reported.
+pairwise_test_two <- function(data, factor_col, lv, strata, metrics) {
+  data %>%
+    filter(.data[[factor_col]] %in% lv) %>%
+    select(all_of(c(factor_col, strata, "run", metrics))) %>%
+    pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
+    group_by(across(all_of(c(strata, "metric")))) %>%
+    group_modify(function(g, key) {
+      a <- g[g[[factor_col]] == lv[1], c("run", "value")]
+      b <- g[g[[factor_col]] == lv[2], c("run", "value")]
+      p <- inner_join(a, b, by = "run", suffix = c("_a", "_b")) %>% filter(is.finite(value_a), is.finite(value_b))
+      if (nrow(p) < 3) return(tibble())
+      d <- p$value_b - p$value_a
+      sw <- if (length(unique(d)) >= 3) shapiro.test(d)$p.value else NA_real_
+      normal <- is.finite(sw) && sw > 0.05
+      p_t <- if (sd(d) > 0) t.test(p$value_b, p$value_a, paired = TRUE)$p.value else 1
+      p_w <- if (any(d != 0)) suppressWarnings(wilcox.test(p$value_b, p$value_a, paired = TRUE, exact = FALSE)$p.value) else 1
+      tibble(
+        group_a = lv[1], group_b = lv[2], n_pairs = nrow(p),
+        median_a = median(p$value_a), median_b = median(p$value_b),
+        pct_change_b_vs_a = 100 * (median(p$value_b) - median(p$value_a)) / median(p$value_a),
+        shapiro_p_diff = sw, normal_diff = normal,
+        test = ifelse(normal, "paired t", "Wilcoxon signed-rank"),
+        p_value = ifelse(normal, p_t, p_w),
+        cohens_d = ifelse(sd(d) > 0, mean(d) / sd(d), NA_real_),
+        cliffs_delta_b_vs_a = cliffs_delta(p$value_b, p$value_a)
+      )
+    }) %>%
+    ungroup()
+}
+
+# Every level of `factor_col` against the first (reference) level; Holm correction over the whole RQ.
 pairwise_tests <- function(data, factor_col, strata, metrics, rq) {
   lv <- levels(droplevels(factor(data[[factor_col]])))
   if (length(lv) < 2) return(tibble())
   map_dfr(lv[-1], function(other) pairwise_test_two(data, factor_col, c(lv[1], other), strata, metrics)) %>%
-    mutate(rq = rq, p_holm = p.adjust(wilcox_p, "holm"), .before = 1)
+    mutate(rq = rq, p_holm = p.adjust(p_value, "holm"), .before = 1)
 }
 
-pairwise_test_two <- function(data, factor_col, lv, strata, metrics) {
+# Friedman test (paired, k levels) per stratum; blocks = repetition number.
+friedman_tests <- function(data, factor_col, strata, metrics, rq) {
   data %>%
-    filter(.data[[factor_col]] %in% lv) %>%
-    select(all_of(c(factor_col, strata, metrics))) %>%
+    select(all_of(c(factor_col, strata, "run", metrics))) %>%
     pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
     group_by(across(all_of(c(strata, "metric")))) %>%
     group_modify(function(g, key) {
-      a <- g$value[g[[factor_col]] == lv[1]]
-      b <- g$value[g[[factor_col]] == lv[2]]
-      a <- a[is.finite(a)]; b <- b[is.finite(b)]
-      if (length(a) < 2 || length(b) < 2) return(tibble())
-      tibble(
-        group_a = lv[1], group_b = lv[2],
-        median_a = median(a), median_b = median(b),
-        pct_change_b_vs_a = 100 * (median(b) - median(a)) / median(a),
-        wilcox_p = suppressWarnings(wilcox.test(a, b, exact = FALSE)$p.value),
-        cliffs_delta_b_vs_a = -cliffs_delta(a, b)
-      )
+      w <- g %>% transmute(run, lvl = as.character(.data[[factor_col]]), value) %>%
+        pivot_wider(names_from = lvl, values_from = value) %>% na.omit()
+      if (nrow(w) < 3) return(tibble())
+      ft <- friedman.test(as.matrix(w[, -1]))
+      tibble(n_blocks = nrow(w), chi2 = unname(ft$statistic), df = unname(ft$parameter), p_value = ft$p.value)
     }) %>%
-    ungroup()
+    ungroup() %>%
+    mutate(rq = rq, p_holm = p.adjust(p_value, "holm"), .before = 1)
+}
+
+# Share of paired-difference cells that pass Shapiro-Wilk, per metric.
+normality_summary <- function(tests) {
+  tests %>% group_by(rq, group_b, metric) %>%
+    summarise(cells = n(), normal = sum(normal_diff), non_normal = cells - normal, .groups = "drop")
 }
 
 # ============================================================
@@ -367,6 +450,7 @@ pairwise_test_two <- function(data, factor_col, lv, strata, metrics) {
 # ============================================================
 
 save_plot <- function(plot, filename, width = 11, height = 6.5) {
+  plot <- plot + labs(caption = HW_NOTE) + theme(plot.caption = element_text(size = 9, colour = "grey40", hjust = 0))
   ggsave(file.path(PLOTS_DIR, filename), plot, width = width, height = height, dpi = 300, bg = "white")
 }
 
@@ -397,12 +481,12 @@ dodged_box <- function(data, x, y, group, pal) {
     geom_boxplot(width = 0.7, alpha = 0.55, outlier.shape = NA, position = pd, linewidth = 0.4) +
     geom_point(aes(colour = .data[[group]]), position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8, seed = 1),
                size = 1.4, alpha = 0.6, show.legend = FALSE) +
-    stat_summary(fun = mean, geom = "point", shape = 23, size = 2.4, fill = "white", colour = "black", position = pd,
+    stat_summary(aes(group = .data[[group]]), fun = mean, geom = "point", shape = 23, size = 2.4, fill = "white",
+                 colour = "black", position = pd,
                  show.legend = FALSE) +
     fill_scale(pal) + colour_scale(pal)
 }
 
-# Multi-metric small multiples: one panel per metric, free y-scale.
 metric_labels <- c(
   total_energy_j = "Total energy (J)",
   energy_j_per_output_token = "Energy per output token (J/token)",
@@ -412,46 +496,94 @@ metric_labels <- c(
   cpu_usage_avg_pct = "CPU usage, mean (%)",
   gpu_usage_avg_pct = "GPU usage, mean (%)",
   memory_avg_mb = "Memory used, mean (MB)",
+  output_tokens = "Output tokens",
   client_energy_j = "Client (Mac) energy (J)",
   server_energy_j = "Server energy (J)",
   client_j_per_output_token = "Client energy per token (J/token)",
   server_j_per_output_token = "Server energy per token (J/token)",
+  server_cpu_energy_j = "Server CPU energy, i9-11900KF (J)",
+  server_gpu_energy_j = "Server GPU energy, RTX 3090 (J)",
+  server_cpu_j_per_output_token = "Server CPU (i9-11900KF) energy per token (J/token)",
+  server_gpu_j_per_output_token = "Server GPU (RTX 3090) energy per token (J/token)",
   network_rtt_ms = "Measured RTT (ms)",
   sci_mg_per_output_token = "SCI (mg CO2e/token)"
 )
 
-metric_panel <- function(data, metrics, x, group, pal, title, subtitle) {
+BOX_NOTE <- "Box = IQR of runs, dots = individual runs, diamond = mean (value printed above each box)"
+VIOLIN_NOTE <- "Violin = density of the 10 runs, box = median and IQR, dots = individual runs"
+
+# Mean value printed above each box so exact numbers are readable.
+mean_label <- function(group) {
+  stat_summary(aes(group = .data[[group]]),
+               fun.data = function(v) data.frame(y = max(v, na.rm = TRUE), label = format(signif(mean(v, na.rm = TRUE), 3))),
+               geom = "text", position = position_dodge(width = 0.8), vjust = -0.7, size = 2.9, colour = "grey15")
+}
+
+# One image per metric: panels = levels of `by`, one row.
+metric_files <- function(data, metrics, group, pal, by, prefix, title_prefix) {
+  for (i in seq_along(metrics)) {
+    m <- metrics[i]
+    d <- data %>% filter(is.finite(.data[[m]]))
+    if (!nrow(d)) next
+    p <- dodged_box(d, "prompt_size", m, group, pal) +
+      mean_label(group) +
+      facet_wrap(vars(.data[[by]]), nrow = 1, scales = "free_y") +
+      scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +
+      labs(title = paste(title_prefix, "·", metric_labels[[m]]), subtitle = BOX_NOTE,
+           x = "Prompt length", y = metric_labels[[m]], fill = NULL)
+    save_plot(p, sprintf("%s_%02d_%s.png", prefix, i, m), 13, 5.5)
+  }
+}
+
+# Violin + box + runs for several metrics in one image. Rows = metrics; columns = levels of `by` (optional).
+dist_figure <- function(data, metrics, group, pal, title, filename, by = NULL, ncol = 2, width = 9, height = 10) {
   long <- data %>%
-    select(all_of(c(x, group, metrics))) %>%
+    select(all_of(c("prompt_size", group, by, metrics))) %>%
     pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
     filter(is.finite(value)) %>%
     mutate(metric = factor(metric, levels = metrics, labels = metric_labels[metrics]))
-  dodged_box(long, x, "value", group, pal) +
-    facet_wrap(~ metric, scales = "free_y", ncol = 3) +
-    labs(title = title, subtitle = subtitle, x = "Prompt length", y = NULL, fill = NULL)
+  pd <- position_dodge(width = 0.8)
+  # Metric names are drawn on the left as y-axis titles (strip switched to the outside of the axis).
+  facet <- if (is.null(by)) facet_wrap(~ metric, scales = "free_y", ncol = ncol, strip.position = "left",
+                                       labeller = label_wrap_gen(30)) else
+    facet_grid(rows = vars(metric), cols = vars(.data[[by]]), scales = "free_y", switch = "y",
+               labeller = labeller(metric = label_wrap_gen(22), .default = label_wrap_gen(28)))
+  p <- ggplot(long, aes(prompt_size, value, fill = .data[[group]])) +
+    geom_violin(position = pd, width = 0.75, alpha = 0.35, scale = "width", linewidth = 0.3, trim = TRUE) +
+    geom_boxplot(position = pd, width = 0.22, alpha = 0.85, outlier.shape = NA, linewidth = 0.35) +
+    geom_point(aes(colour = .data[[group]]), position = position_jitterdodge(jitter.width = 0.06, dodge.width = 0.8, seed = 1),
+               size = 0.8, alpha = 0.6, show.legend = FALSE) +
+    facet + fill_scale(pal) + colour_scale(pal) +
+    scale_y_continuous(expand = expansion(mult = c(0.05, 0.12))) +
+    labs(title = title, subtitle = VIOLIN_NOTE, x = "Prompt length", y = NULL, fill = NULL) +
+    theme(strip.placement = "outside",
+          strip.text.y.left = element_text(angle = 90, face = "bold", size = 10),
+          strip.background.y = element_blank())
+  save_plot(p, filename, width, height)
 }
 
-BOX_NOTE <- "Box = IQR of runs, dots = individual runs, diamond = mean"
-
-# ============================================================
-# Overview — every setup and model on one page
-# ============================================================
-
-overview <- df %>%
-  group_by(setup, config, prompt_size) %>%
-  summarise(mean_ci(energy_j_per_output_token), .groups = "drop")
-
-p <- ggplot(overview, aes(x = mean, y = config, colour = setup)) +
-  geom_linerange(aes(xmin = lo, xmax = hi), linewidth = 0.8, position = position_dodge(width = 0.6)) +
-  geom_point(size = 3, position = position_dodge(width = 0.6)) +
-  facet_wrap(~ prompt_size, nrow = 1) +
-  colour_scale(PAL_SETUP) +
-  scale_y_discrete(limits = rev) +
-  expand_limits(x = 0) +
-  labs(title = "Overview · Energy per output token for every configuration",
-       subtitle = "Mean ± 95% CI over runs. Further left = more energy-efficient. Remote = client + server energy",
-       x = "Energy per output token (J/token)", y = NULL, colour = NULL)
-save_plot(p, "00_overview_energy_per_token.png", 13, 5)
+# Normal Q-Q plots of the standardised paired differences (level - reference) for one metric.
+qq_figure <- function(data, factor_col, ref, others, metric, title, filename, width = 9, height = 6.5) {
+  d <- map_dfr(others, function(o) {
+    data %>% filter(.data[[factor_col]] %in% c(ref, o)) %>%
+      transmute(config, prompt_size, run, lvl = ifelse(.data[[factor_col]] == ref, "a", "b"), value = .data[[metric]]) %>%
+      pivot_wider(names_from = lvl, values_from = value) %>%
+      mutate(diff = b - a, comparison = paste(o, "-", ref))
+  }) %>%
+    filter(is.finite(diff)) %>%
+    group_by(config, prompt_size, comparison) %>%
+    mutate(z = if (sd(diff) > 0) (diff - mean(diff)) / sd(diff) else 0) %>%
+    ungroup()
+  p <- ggplot(d, aes(sample = z, colour = comparison)) +
+    stat_qq(size = 1.2, alpha = 0.8) +
+    stat_qq_line(linewidth = 0.4) +
+    facet_grid(rows = vars(config), cols = vars(prompt_size), labeller = labeller(config = label_wrap_gen(16))) +
+    labs(title = title, subtitle = paste("Standardised paired differences of", metric_labels[[metric]],
+                                         "; points on the line = normal"),
+         x = "Theoretical quantiles", y = "Sample quantiles", colour = NULL)
+  if (length(others) == 1) p <- p + scale_colour_manual(values = "#457b9d", guide = "none")
+  save_plot(p, filename, width, height)
+}
 
 # ============================================================
 # RQ1 — On-device vs remote across prompt lengths
@@ -459,93 +591,35 @@ save_plot(p, "00_overview_energy_per_token.png", 13, 5)
 # ============================================================
 
 rq1_df <- df %>% filter(setup %in% c("On-device", "Remote (baseline)")) %>% droplevels()
+RQ1_METRICS <- c("total_energy_j", "energy_j_per_output_token", "wall_time_s", "output_tokens")
 
 if (n_distinct(rq1_df$setup) == 2) {
-  # Fig 1: J/token vs actual prompt tokens, mean +/- 95% CI per condition.
-  rq1_trend <- rq1_df %>%
-    group_by(setup, config, prompt_size) %>%
-    summarise(prompt_tokens = mean(prompt_tokens), mean_ci(energy_j_per_output_token), .groups = "drop")
-
-  p <- ggplot(rq1_trend, aes(prompt_tokens, mean, colour = setup, group = setup)) +
-    geom_line(linewidth = 0.9) +
-    geom_errorbar(aes(ymin = lo, ymax = hi), width = 0, linewidth = 0.7) +
-    geom_point(size = 2.8) +
-    facet_wrap(~ config, nrow = 1) +
-    colour_scale(PAL_SETUP) +
-    expand_limits(y = 0) +
-    labs(
-      title = "RQ1 · Energy per output token vs prompt length",
-      subtitle = "Mean ± 95% CI over runs. Remote = client (Mac) + server energy, baseline network",
-      x = "Prompt length (input tokens)", y = "Energy per output token (J/token)", colour = NULL
-    )
-  save_plot(p, "RQ1_01_energy_per_token_vs_prompt_tokens.png", 13, 5.5)
-
-  # Fig 2: same for total energy, distribution view.
-  p <- dodged_box(rq1_df, "prompt_size", "total_energy_j", "setup", PAL_SETUP) +
-    facet_wrap(~ config, nrow = 1) +
-    expand_limits(y = 0) +
-    labs(title = "RQ1 · Total energy per request", subtitle = BOX_NOTE,
-         x = "Prompt length", y = "Total energy (J)", fill = NULL)
-  save_plot(p, "RQ1_02_total_energy_boxplots.png", 13, 5.5)
-
-  # Fig 3: where the energy goes — stacked components.
-  rq1_parts <- rq1_df %>%
-    transmute(setup, config, prompt_size,
-              `Client / on-device Mac` = client_energy_j,
-              `Server CPU package` = server_cpu_energy_j,
-              `Server DRAM` = server_dram_energy_j,
-              `Server GPU` = server_gpu_energy_j) %>%
-    pivot_longer(-c(setup, config, prompt_size), names_to = "component", values_to = "j") %>%
-    group_by(setup, config, prompt_size, component) %>%
-    summarise(j = mean(j, na.rm = TRUE), .groups = "drop") %>%
-    filter(is.finite(j)) %>%
-    mutate(component = factor(component, levels = c("Server GPU", "Server DRAM", "Server CPU package", "Client / on-device Mac")))
-
-  p <- ggplot(rq1_parts, aes(x = setup, y = j, fill = component)) +
-    geom_col(width = 0.7) +
-    facet_grid(config ~ prompt_size, scales = "free_y") +
-    scale_fill_manual(values = c("Client / on-device Mac" = "#2a6fdb", "Server CPU package" = "#f4a261",
-                                 "Server DRAM" = "#e9c46a", "Server GPU" = "#e76f51")) +
-    labs(title = "RQ1 · Energy breakdown per request (mean)",
-         subtitle = "On-device = Mac only; remote = Mac waiting for reply + server CPU, DRAM and GPU",
-         x = NULL, y = "Mean energy (J)", fill = NULL)
-  save_plot(p, "RQ1_03_energy_breakdown.png", 11, 9)
-
-  # Fig 4: ratio remote / on-device (how many times more energy remote costs end-to-end).
-  rq1_ratio <- rq1_df %>%
-    group_by(setup, config, prompt_size) %>%
-    summarise(jpt = mean(energy_j_per_output_token), .groups = "drop") %>%
-    pivot_wider(names_from = setup, values_from = jpt) %>%
-    mutate(ratio = `Remote (baseline)` / `On-device`)
-
-  p <- ggplot(rq1_ratio, aes(prompt_size, ratio, fill = config)) +
-    geom_col(position = position_dodge(0.8), width = 0.7) +
-    geom_text(aes(label = sprintf("%.1f×", ratio)), position = position_dodge(0.8), vjust = -0.4, size = 3.3) +
-    geom_hline(yintercept = 1, linetype = "dashed") +
-    fill_scale(PAL_CONFIG) +
-    expand_limits(y = 0) +
-    labs(title = "RQ1 · Remote energy relative to on-device (per output token)",
-         subtitle = "Bar = how many times more energy per generated token remote uses (client + server). Dashed line = equal",
-         x = "Prompt length", y = "Remote / on-device (J/token)", fill = NULL)
-  save_plot(p, "RQ1_04_remote_vs_on_device_ratio.png", 10, 6)
+  dist_figure(rq1_df, c("energy_j_per_output_token", "total_energy_j", "wall_time_s"), "setup", PAL_SETUP,
+              "RQ1 · On-device vs remote (client + server)", "RQ1_01_distributions.png", by = "config",
+              width = 12, height = 10)
+  qq_figure(rq1_df, "setup", "On-device", "Remote (baseline)", "energy_j_per_output_token",
+            "RQ1 · Normality of paired differences", "RQ1_02_qq_energy_per_token.png")
 
   write_csv(summarise_metrics(rq1_df, c("setup", "config", "prompt_size"),
-                              c("prompt_tokens", "total_energy_j", "energy_j_per_output_token",
-                                "client_energy_j", "server_energy_j", "wall_time_s")),
+                              c("prompt_tokens", RQ1_METRICS, "client_energy_j", "server_energy_j",
+                                "server_cpu_energy_j", "server_dram_energy_j", "server_gpu_energy_j",
+                                "cpu_usage_avg_pct", "gpu_usage_avg_pct")) %>%
+              left_join(HARDWARE %>% mutate(setup = ifelse(deployment == "remote", "Remote (baseline)", "On-device")) %>%
+                          select(-deployment), by = "setup"),
             file.path(OUTPUT_DIR, "RQ1_summary.csv"), na = "")
 
-  rq1_tests <- pairwise_tests(rq1_df, "setup", c("config", "prompt_size"),
-                              c("total_energy_j", "energy_j_per_output_token", "wall_time_s"), "RQ1")
+  rq1_tests <- pairwise_tests(rq1_df, "setup", c("config", "prompt_size"), RQ1_METRICS, "RQ1")
   write_csv(rq1_tests, file.path(OUTPUT_DIR, "RQ1_tests.csv"), na = "")
 }
 
 # ============================================================
-# RQ2 — Quantization (Qwen3-8B Q4_K_M vs Q8_0, on-device)
+# RQ2 — Quantization (Qwen3-8B Q4_K_M vs Q8_0), on-device
 # ============================================================
 
-RESOURCE_METRICS <- c("total_energy_j", "energy_j_per_output_token", "avg_power_w",
-                      "wall_time_s", "tokens_per_second", "cpu_usage_avg_pct",
-                      "gpu_usage_avg_pct", "memory_avg_mb")
+RESOURCE_METRICS <- c("total_energy_j", "energy_j_per_output_token", "wall_time_s", "cpu_usage_avg_pct",
+                      "gpu_usage_avg_pct", "memory_avg_mb", "avg_power_w", "tokens_per_second")
+PLOT_METRICS <- c("energy_j_per_output_token", "total_energy_j", "wall_time_s",
+                  "memory_avg_mb", "cpu_usage_avg_pct", "gpu_usage_avg_pct")
 
 rq2_df <- local_df %>% filter(model_family == "Qwen3-8B (Dense)") %>% droplevels()
 
@@ -553,32 +627,19 @@ if (n_distinct(rq2_df$quantization) >= 2) {
   rq2_df$quantization <- factor(rq2_df$quantization, levels = c("Q4_K_M", "Q8_0"))
   pal_q <- c(Q4_K_M = "#2a9d8f", Q8_0 = "#264653")
 
-  p <- metric_panel(rq2_df, RESOURCE_METRICS, "prompt_size", "quantization", pal_q,
-                    "RQ2 · Effect of quantization on on-device Qwen3-8B", BOX_NOTE)
-  save_plot(p, "RQ2_01_quantization_all_metrics.png", 13, 10)
+  dist_figure(rq2_df, PLOT_METRICS, "quantization", pal_q, "RQ2 · Qwen3-8B Q4_K_M vs Q8_0 (on-device)",
+              "RQ2_01_distributions.png")
+  qq_figure(rq2_df %>% mutate(config = "Qwen3-8B"), "quantization", "Q4_K_M", "Q8_0", "energy_j_per_output_token",
+            "RQ2 · Normality of paired differences (Q8_0 - Q4_K_M)", "RQ2_02_qq_energy_per_token.png", height = 3.8)
 
-  # Relative change Q8_0 vs Q4_K_M (median-based), one bar per metric x prompt.
   rq2_tests <- pairwise_tests(rq2_df, "quantization", "prompt_size", RESOURCE_METRICS, "RQ2")
   write_csv(rq2_tests, file.path(OUTPUT_DIR, "RQ2_tests.csv"), na = "")
-
-  p <- ggplot(rq2_tests %>% mutate(metric = factor(metric, levels = rev(RESOURCE_METRICS), labels = metric_labels[rev(RESOURCE_METRICS)])),
-              aes(pct_change_b_vs_a, metric, fill = prompt_size)) +
-    geom_col(position = position_dodge(0.8), width = 0.75) +
-    geom_vline(xintercept = 0) +
-    scale_fill_manual(values = c(Short = "#a8dadc", Medium = "#457b9d", Long = "#1d3557")) +
-    labs(title = "RQ2 · Q8_0 relative to Q4_K_M",
-         subtitle = "Change in median; positive = Q8_0 higher. Significance in RQ2_tests.csv",
-         x = "Change vs Q4_K_M (%)", y = NULL, fill = "Prompt")
-  save_plot(p, "RQ2_02_quantization_relative_change.png", 10, 6)
-
   write_csv(summarise_metrics(rq2_df, c("quantization", "prompt_size"), RESOURCE_METRICS),
             file.path(OUTPUT_DIR, "RQ2_summary.csv"), na = "")
 }
 
 # ============================================================
-# RQ3 — Model choice on-device
-# Fair comparison at equal quantization (Q4_K_M): Dense 8B vs MoE 16B-A3B.
-# The Q8_0 variant is still shown in the overview figure for context.
+# RQ3 — Model choice on-device at equal quantization (Q4_K_M): Dense 8B vs MoE 16B-A3B
 # ============================================================
 
 rq3_df <- local_df %>% filter(quantization == "Q4_K_M") %>% droplevels()
@@ -587,34 +648,15 @@ if (n_distinct(rq3_df$model_family) >= 2) {
   pal_m <- c("Qwen3-8B (Dense)" = "#2a9d8f", "Qwen3-16B-A3B (MoE)" = "#e9c46a")
   rq3_df$model_family <- factor(rq3_df$model_family, levels = names(pal_m))
 
-  p <- metric_panel(rq3_df, RESOURCE_METRICS, "prompt_size", "model_family", pal_m,
-                    "RQ3 · Model comparison on-device (both Q4_K_M)", BOX_NOTE)
-  save_plot(p, "RQ3_01_models_all_metrics.png", 13, 10)
+  dist_figure(rq3_df, PLOT_METRICS, "model_family", pal_m, "RQ3 · Dense vs MoE, Q4_K_M (on-device)",
+              "RQ3_01_distributions.png")
+  qq_figure(rq3_df %>% mutate(config = "Q4_K_M"), "model_family", "Qwen3-8B (Dense)", "Qwen3-16B-A3B (MoE)",
+            "energy_j_per_output_token", "RQ3 · Normality of paired differences (MoE - Dense)",
+            "RQ3_02_qq_energy_per_token.png", height = 3.8)
 
   rq3_tests <- pairwise_tests(rq3_df, "model_family", "prompt_size", RESOURCE_METRICS, "RQ3")
   write_csv(rq3_tests, file.path(OUTPUT_DIR, "RQ3_tests.csv"), na = "")
-
-  # Trade-off: speed vs energy efficiency for every on-device config.
-  # Trade-off: speed vs energy efficiency for every configuration and setup.
-  tradeoff <- df %>%
-    group_by(setup, config, config_short) %>%
-    summarise(tps = mean(tokens_per_second, na.rm = TRUE),
-              jpt = mean(energy_j_per_output_token, na.rm = TRUE), .groups = "drop")
-
-  p <- ggplot(tradeoff, aes(tps, jpt, colour = config, shape = setup)) +
-    geom_point(size = 4, alpha = 0.9) +
-    geom_text(aes(label = config_short), vjust = -1.1, size = 3.2, show.legend = FALSE) +
-    colour_scale(PAL_CONFIG) +
-    scale_shape_manual(values = c("On-device" = 16, "Remote (baseline)" = 17, "Remote +100 ms" = 15, "Remote +500 ms" = 18)) +
-    scale_x_log10() +
-    expand_limits(y = 0) +
-    labs(title = "Speed vs energy trade-off of every configuration",
-         subtitle = "Mean over all prompt lengths and runs. Bottom-right is best: fast and low energy per token (log x-axis)",
-         x = "Generation throughput (tokens/s, log scale)", y = "Energy per output token (J/token)",
-         colour = NULL, shape = NULL)
-  save_plot(p, "RQ3_02_speed_energy_tradeoff.png", 10.5, 6.5)
-
-  write_csv(summarise_metrics(local_df, c("config", "prompt_size"), RESOURCE_METRICS),
+  write_csv(summarise_metrics(rq3_df, c("model_family", "prompt_size"), RESOURCE_METRICS),
             file.path(OUTPUT_DIR, "RQ3_summary.csv"), na = "")
 }
 
@@ -624,37 +666,43 @@ if (n_distinct(rq3_df$model_family) >= 2) {
 
 if (n_distinct(remote_df$setup) >= 2) {
   pal_net <- PAL_SETUP[levels(droplevels(remote_df$setup))]
-  NET_METRICS <- c("energy_j_per_output_token", "client_j_per_output_token", "server_j_per_output_token",
-                   "total_energy_j", "wall_time_s", "network_rtt_ms")
+  NET_METRICS <- c("energy_j_per_output_token", "total_energy_j", "wall_time_s", "client_j_per_output_token",
+                   "server_j_per_output_token", "network_rtt_ms")
 
-  p <- metric_panel(remote_df, NET_METRICS, "prompt_size", "setup", pal_net,
-                    "RQ4 · Effect of added network delay on remote generation",
-                    paste(BOX_NOTE, "· all remote models pooled; see RQ4_02 per model"))
-  save_plot(p, "RQ4_01_delay_all_metrics.png", 13, 8)
+  dist_figure(remote_df, c("energy_j_per_output_token", "wall_time_s", "client_j_per_output_token", "network_rtt_ms"),
+              "setup", pal_net, "RQ4 · Remote generation under added network delay", "RQ4_01_distributions.png",
+              by = "config", width = 12, height = 11)
+  delay_lv <- levels(droplevels(remote_df$setup))
+  qq_figure(remote_df, "setup", delay_lv[1], delay_lv[-1], "energy_j_per_output_token",
+            "RQ4 · Normality of paired differences vs baseline", "RQ4_02_qq_energy_per_token.png")
 
-  p <- dodged_box(remote_df, "prompt_size", "wall_time_s", "setup", pal_net) +
-    facet_wrap(~ config, nrow = 1, scales = "free_y") +
-    labs(title = "RQ4 · Execution time per model and delay", subtitle = BOX_NOTE,
-         x = "Prompt length", y = "Request wall time (s)", fill = NULL)
-  save_plot(p, "RQ4_02_delay_time_per_model.png", 13, 5.5)
-
-  p <- dodged_box(remote_df, "prompt_size", "client_j_per_output_token", "setup", pal_net) +
-    facet_wrap(~ config, nrow = 1, scales = "free_y") +
-    labs(title = "RQ4 · Client-side energy per output token",
-         subtitle = paste("The client waits longer under delay, so delay cost lands mainly here.", BOX_NOTE),
-         x = "Prompt length", y = "Client energy per token (J/token)", fill = NULL)
-  save_plot(p, "RQ4_03_delay_client_energy_per_model.png", 13, 5.5)
-
+  rq4_friedman <- friedman_tests(remote_df, "setup", c("config", "prompt_size"), NET_METRICS, "RQ4")
+  write_csv(rq4_friedman, file.path(OUTPUT_DIR, "RQ4_friedman.csv"), na = "")
   rq4_tests <- pairwise_tests(remote_df, "setup", c("config", "prompt_size"), NET_METRICS, "RQ4")
   write_csv(rq4_tests, file.path(OUTPUT_DIR, "RQ4_tests.csv"), na = "")
   write_csv(summarise_metrics(remote_df, c("setup", "config", "prompt_size"), NET_METRICS),
             file.path(OUTPUT_DIR, "RQ4_summary.csv"), na = "")
 }
 
+# Outliers (planning: IQR rule per metric, and execution time > 2x the group median = throttling).
+iqr_out <- function(x) { q <- quantile(x, c(0.25, 0.75), na.rm = TRUE); h <- 1.5 * diff(q); sum(x < q[1] - h | x > q[2] + h, na.rm = TRUE) }
+outliers <- df %>%
+  group_by(setup, config, prompt_size) %>%
+  summarise(n = n(),
+            iqr_energy_per_token = iqr_out(energy_j_per_output_token),
+            iqr_total_energy = iqr_out(total_energy_j),
+            iqr_wall_time = iqr_out(wall_time_s),
+            time_over_2x_median = sum(wall_time_s > 2 * median(wall_time_s)), .groups = "drop")
+write_csv(outliers, file.path(OUTPUT_DIR, "outliers.csv"), na = "")
+
+all_tests <- bind_rows(mget(c("rq1_tests", "rq2_tests", "rq3_tests", "rq4_tests"), ifnotfound = list(NULL)))
+write_csv(normality_summary(all_tests), file.path(OUTPUT_DIR, "normality_summary.csv"), na = "")
+
 # ============================================================
 # Carbon footprint (SCI) — summaries and figures
 # ============================================================
 
+# Sub-components are summed per run first, then aggregated: R (output token) and window stay the same.
 sci_summary <- function(data, groups) {
   data %>%
     group_by(across(all_of(groups))) %>%
@@ -662,14 +710,26 @@ sci_summary <- function(data, groups) {
       n_runs = n(),
       output_tokens = sum(output_tokens),
       energy_kwh = sum(total_energy_j) / 3.6e6,
+      client_kwh = sum(client_energy_j) / 3.6e6,
+      server_kwh = sum(z0(server_energy_j)) * SERVER_PUE / 3.6e6,
       runtime_h = sum(wall_time_s) / 3600,
       grid_g_per_kwh_weighted = sum(carbon_operational_g) / energy_kwh,
+      grid_g_per_kwh_min = min(grid_g_co2eq_per_kwh),
+      grid_g_per_kwh_max = max(grid_g_co2eq_per_kwh),
+      client_op_g = sum(carbon_client_op_g),
+      server_op_g = sum(carbon_server_op_g),
       operational_g = sum(carbon_operational_g),
+      laptop_emb_g = sum(carbon_emb_laptop_g),
+      server_emb_g = sum(carbon_emb_server_g),
       embodied_g = sum(carbon_embodied_g),
       embodied_low_g = sum(carbon_embodied_low_g),
       embodied_high_g = sum(carbon_embodied_high_g),
       total_g = operational_g + embodied_g,
       embodied_share_pct = 100 * embodied_g / total_g,
+      sci_client_op_mg = 1000 * client_op_g / output_tokens,
+      sci_server_op_mg = 1000 * server_op_g / output_tokens,
+      sci_laptop_emb_mg = 1000 * laptop_emb_g / output_tokens,
+      sci_server_emb_mg = 1000 * server_emb_g / output_tokens,
       sci_mg_per_token = 1000 * total_g / output_tokens,
       sci_low_mg_per_token = 1000 * (operational_g + embodied_low_g) / output_tokens,
       sci_high_mg_per_token = 1000 * (operational_g + embodied_high_g) / output_tokens,
@@ -684,17 +744,22 @@ write_csv(bind_rows(sci_by_config %>% mutate(across(c(setup, config), as.charact
 write_csv(sci_summary(df, c("setup", "config", "prompt_size")),
           file.path(OUTPUT_DIR, "SCI_summary_by_prompt.csv"), na = "")
 write_csv(
-  bind_rows(lapply(names(SCI_SCENARIOS), function(nm) as_tibble(SCI_SCENARIOS[[nm]]) %>% mutate(scenario = nm, .before = 1))),
+  bind_rows(lapply(names(SCI_SCENARIOS), function(nm) as_tibble(SCI_SCENARIOS[[nm]]) %>% mutate(scenario = nm, .before = 1))) %>%
+    mutate(server_pue = SERVER_PUE),
   file.path(OUTPUT_DIR, "SCI_assumptions.csv"), na = ""
 )
 
-# Fig SCI 1: SCI per token split into operational and embodied, with sensitivity range.
+# Fig SCI 1: SCI per token split into its four sub-components (composition, so stacked bars),
+# whiskers = low / high embodied scenario.
+SCI_PARTS <- c("Client operational" = "#2a6fdb", "Server operational" = "#e07b39",
+               "Laptop embodied" = "#a8dadc", "Server embodied" = "#f4c095")
 sci_parts <- sci_by_config %>%
   transmute(setup, config,
-            `Operational (E × I)` = 1000 * operational_g / output_tokens,
-            `Embodied (M)` = 1000 * embodied_g / output_tokens) %>%
+            `Client operational` = sci_client_op_mg, `Server operational` = sci_server_op_mg,
+            `Laptop embodied` = sci_laptop_emb_mg, `Server embodied` = sci_server_emb_mg) %>%
   pivot_longer(-c(setup, config), names_to = "part", values_to = "mg") %>%
-  mutate(part = factor(part, levels = c("Embodied (M)", "Operational (E × I)")))
+  filter(mg > 0) %>%
+  mutate(part = factor(part, levels = rev(names(SCI_PARTS))))
 
 p <- ggplot(sci_parts, aes(x = config, y = mg)) +
   geom_col(aes(fill = part), width = 0.65) +
@@ -703,30 +768,17 @@ p <- ggplot(sci_parts, aes(x = config, y = mg)) +
   geom_text(data = sci_by_config, aes(y = sci_high_mg_per_token, label = sprintf("%.2f", sci_mg_per_token)),
             vjust = -0.6, size = 3.4) +
   facet_wrap(~ setup, nrow = 1) +
-  scale_fill_manual(values = c("Operational (E × I)" = "#457b9d", "Embodied (M)" = "#a8dadc")) +
+  scale_fill_manual(values = SCI_PARTS, breaks = names(SCI_PARTS)) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +
-  labs(title = "Carbon intensity of generation (SCI per output token)",
-       subtitle = "SCI = (E × I + M) / tokens. Whiskers = embodied sensitivity range (low/high hardware footprint and lifetime)",
+  labs(title = "SCI per output token by sub-component",
+       subtitle = "SCI = (E × I + M) / R, R = one output token. Whiskers = low / high embodied scenario",
        x = NULL, y = "SCI (mg CO2e per output token)", fill = NULL) +
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+  theme(axis.text.x = element_text(angle = 25, hjust = 1))
 save_plot(p, "SCI_01_per_token_breakdown.png", 13, 6.5)
 
-# Fig SCI 2: SCI per token vs prompt length (per-run distribution).
-sci_trend <- df %>%
-  group_by(setup, config, prompt_size) %>%
-  summarise(mean_ci(sci_mg_per_output_token), .groups = "drop")
-
-p <- ggplot(sci_trend, aes(prompt_size, mean, colour = setup, group = setup)) +
-  geom_line(linewidth = 0.9) +
-  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.08, linewidth = 0.7) +
-  geom_point(size = 2.8) +
-  facet_wrap(~ config, nrow = 1) +
-  colour_scale(PAL_SETUP) +
-  expand_limits(y = 0) +
-  labs(title = "SCI per output token across prompt lengths",
-       subtitle = "Mean ± 95% CI over runs, central embodied scenario",
-       x = "Prompt length", y = "SCI (mg CO2e per output token)", colour = NULL)
-save_plot(p, "SCI_02_per_token_vs_prompt.png", 13, 5.5)
+# Fig SCI 2: per-run SCI distribution.
+dist_figure(df, "sci_mg_per_output_token", "setup", PAL_SETUP, "SCI per output token, per run",
+            "SCI_02_per_token_distribution.png", by = "config", width = 12, height = 4.8)
 
 # Fig SCI 3: grid carbon intensity during the experiment, with run windows.
 to_time <- function(t) as.POSIXct(t, origin = "1970-01-01", tz = "UTC")
@@ -754,6 +806,100 @@ p <- ggplot() +
 save_plot(p, "SCI_03_grid_intensity_timeline.png", 13, 5)
 
 # ============================================================
+# Paper tables: one CSV per table in results.tex (results/consolidated/paper_table_*.csv),
+# rounded as printed in the paper. Figures used in the paper are copied to reportTemplate/figures.
+# ============================================================
+
+CFG_ORDER <- c("Qwen3-8B (Dense) Q4_K_M", "Qwen3-8B (Dense) Q8_0", "Qwen3-16B-A3B (MoE) Q4_K_M")
+PROMPT_ORDER <- c("Short", "Medium", "Long")
+SETUP_ORDER <- c("On-device", "Remote (baseline)", "Remote +100 ms", "Remote +500 ms")
+PAPER_METRICS <- c("energy_j_per_output_token", "total_energy_j", "wall_time_s", "memory_avg_mb",
+                   "cpu_usage_avg_pct", "gpu_usage_avg_pct")
+DIGITS <- c(energy_j_per_output_token = 3, total_energy_j = 0, wall_time_s = 1, memory_avg_mb = 0,
+            cpu_usage_avg_pct = 2, gpu_usage_avg_pct = 2, output_tokens = 0, client_j_per_output_token = 3)
+
+paper_csv <- function(d, name) write_csv(d, file.path(OUTPUT_DIR, paste0("paper_table_", name, ".csv")), na = "")
+sort_paper <- function(d) {
+  d %>% mutate(.c = if ("config" %in% names(d)) match(as.character(config), CFG_ORDER) else 0,
+               .p = match(as.character(prompt_size), PROMPT_ORDER),
+               .s = if ("setup" %in% names(d)) match(as.character(setup), SETUP_ORDER) else 0) %>%
+    arrange(.c, .p, .s) %>% select(-.c, -.p, -.s)
+}
+round_desc <- function(d) {
+  d %>% mutate(dg = DIGITS[metric],
+               across(c(mean, median, sd, min, max), ~ round(.x, dg)),
+               var = signif(var, 4)) %>% select(-dg)
+}
+# Test used, Shapiro p of the paired differences, Holm p and the matching effect size.
+paper_tests <- function(t, keys) {
+  t %>% transmute(across(all_of(keys)), metric, comparison = paste(group_b, "vs", group_a), test,
+                  shapiro_p = round(shapiro_p_diff, 3), p_holm = signif(p_holm, 3),
+                  effect = ifelse(test == "paired t", "Cohen's d", "Cliff's delta"),
+                  effect_size = round(ifelse(test == "paired t", cohens_d, cliffs_delta_b_vs_a), 2))
+}
+
+if (exists("rq1_tests")) {
+  s1 <- read_csv(file.path(OUTPUT_DIR, "RQ1_summary.csv"), show_col_types = FALSE)
+  paper_csv(s1 %>% filter(metric == "energy_j_per_output_token") %>%
+              select(config, prompt_size, setup, metric, mean, median, sd, var, min, max) %>%
+              round_desc() %>% sort_paper(), "rq1_descriptives")
+  paper_csv(s1 %>% filter(metric %in% c("total_energy_j", "wall_time_s", "output_tokens")) %>%
+              select(config, prompt_size, setup, metric, mean, sd) %>%
+              mutate(dg = ifelse(metric == "wall_time_s", 1, 0), mean = round(mean, dg), sd = round(sd, dg)) %>%
+              select(-dg) %>% pivot_wider(names_from = metric, values_from = c(mean, sd)) %>% sort_paper(),
+            "rq1_energy_time_tokens")
+  paper_csv(paper_tests(rq1_tests, c("config", "prompt_size")) %>% sort_paper(), "rq1_tests")
+}
+
+for (rq in c("rq2", "rq3")) {
+  if (!exists(paste0(rq, "_tests"))) next
+  grp <- if (rq == "rq2") "quantization" else "model_family"
+  s <- read_csv(file.path(OUTPUT_DIR, paste0(toupper(rq), "_summary.csv")), show_col_types = FALSE)
+  paper_csv(s %>% filter(metric %in% PAPER_METRICS) %>%
+              select(metric, prompt_size, all_of(grp), mean, median, sd, var, min, max) %>%
+              round_desc() %>% mutate(.m = match(metric, PAPER_METRICS)) %>% sort_paper() %>%
+              arrange(.m) %>% select(-.m), paste0(rq, "_descriptives"))
+  paper_csv(paper_tests(get(paste0(rq, "_tests")) %>% filter(metric %in% PAPER_METRICS), "prompt_size") %>%
+              mutate(.m = match(metric, PAPER_METRICS)) %>% sort_paper() %>% arrange(.m) %>% select(-.m),
+            paste0(rq, "_tests"))
+}
+
+if (exists("rq4_tests")) {
+  s4 <- read_csv(file.path(OUTPUT_DIR, "RQ4_summary.csv"), show_col_types = FALSE)
+  paper_csv(s4 %>% filter(metric == "energy_j_per_output_token") %>%
+              select(config, prompt_size, setup, mean, median, sd, min, max) %>%
+              mutate(across(c(mean, median, sd, min, max), ~ round(.x, 3))) %>%
+              left_join(s4 %>% filter(metric == "wall_time_s") %>%
+                          transmute(config, prompt_size, setup, time_mean = round(mean, 2), time_sd = round(sd, 2)),
+                        by = c("config", "prompt_size", "setup")) %>% sort_paper(), "rq4_descriptives")
+  f4_metrics <- c("energy_j_per_output_token", "wall_time_s", "client_j_per_output_token")
+  pw <- paper_tests(rq4_tests %>% filter(metric %in% f4_metrics), c("config", "prompt_size")) %>%
+    mutate(lvl = ifelse(grepl("^Remote \\+100", comparison), "d100", "d500")) %>%
+    select(config, prompt_size, metric, lvl, test, p_holm, effect, effect_size) %>%
+    pivot_wider(names_from = lvl, values_from = c(test, p_holm, effect, effect_size))
+  paper_csv(rq4_friedman %>% filter(metric %in% f4_metrics) %>%
+              transmute(config, prompt_size, metric, friedman_chi2 = round(chi2, 1), friedman_p_holm = signif(p_holm, 3)) %>%
+              left_join(pw, by = c("config", "prompt_size", "metric")) %>%
+              mutate(.m = match(metric, f4_metrics)) %>% sort_paper() %>% arrange(.m) %>% select(-.m),
+            "rq4_tests")
+}
+
+paper_csv(bind_rows(sci_by_config %>% mutate(across(c(setup, config), as.character)), sci_total) %>%
+            transmute(setup, config, grid_g_per_kwh = round(grid_g_per_kwh_weighted, 0),
+                      client_operational_mg = round(sci_client_op_mg, 3), server_operational_mg = round(sci_server_op_mg, 3),
+                      laptop_embodied_mg = round(sci_laptop_emb_mg, 3), server_embodied_mg = round(sci_server_emb_mg, 3),
+                      sci_mg_per_token = round(sci_mg_per_token, 3), sci_low = round(sci_low_mg_per_token, 2),
+                      sci_high = round(sci_high_mg_per_token, 2), total_g = round(total_g, 1)), "sci")
+
+# Figures referenced in results.tex (the grid-intensity timeline is not used in the report).
+REPORT_FIGURES <- c("RQ1_01_distributions.png", "RQ1_02_qq_energy_per_token.png",
+                    "RQ2_01_distributions.png", "RQ2_02_qq_energy_per_token.png",
+                    "RQ3_01_distributions.png", "RQ3_02_qq_energy_per_token.png",
+                    "RQ4_01_distributions.png", "RQ4_02_qq_energy_per_token.png",
+                    "SCI_01_per_token_breakdown.png", "SCI_02_per_token_distribution.png")
+invisible(file.copy(file.path(PLOTS_DIR, REPORT_FIGURES), REPORT_FIG_DIR, overwrite = TRUE))
+
+# ============================================================
 # Final console report
 # ============================================================
 
@@ -766,3 +912,4 @@ print(count(df, setup, config, prompt_size), n = Inf)
 cat(sprintf("Carbon footprint: %.1f g CO2e total (%.1f operational + %.1f embodied), see SCI_summary.csv\n",
             sci_total$total_g, sci_total$operational_g, sci_total$embodied_g))
 cat("Plots: ", normalizePath(PLOTS_DIR, mustWork = FALSE), "\n", sep = "")
+cat("Paper tables: ", normalizePath(OUTPUT_DIR, mustWork = FALSE), "/paper_table_*.csv | figures: ", normalizePath(REPORT_FIG_DIR, mustWork = FALSE), "\n", sep = "")

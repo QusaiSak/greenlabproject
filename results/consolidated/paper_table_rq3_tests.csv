@@ -1,0 +1,19 @@
+prompt_size,metric,comparison,test,shapiro_p,p_holm,effect,effect_size
+Short,energy_j_per_output_token,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0,0.101,Cliff's delta,-1
+Medium,energy_j_per_output_token,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0,0.101,Cliff's delta,-1
+Long,energy_j_per_output_token,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0,0.101,Cliff's delta,-0.8
+Short,total_energy_j,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0,0.101,Cliff's delta,-1
+Medium,total_energy_j,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0,0.101,Cliff's delta,-1
+Long,total_energy_j,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0,0.101,Cliff's delta,-0.8
+Short,wall_time_s,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.106,1.33e-7,Cohen's d,-6.55
+Medium,wall_time_s,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0.045,0.101,Cliff's delta,-1
+Long,wall_time_s,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.493,4.13e-9,Cohen's d,-9.74
+Short,memory_avg_mb,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.059,4.24e-14,Cohen's d,35.56
+Medium,memory_avg_mb,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.792,5.96e-13,Cohen's d,26.25
+Long,memory_avg_mb,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.95,1.14e-13,Cohen's d,31.7
+Short,cpu_usage_avg_pct,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0.039,1,Cliff's delta,0.1
+Medium,cpu_usage_avg_pct,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0.02,0.515,Cliff's delta,0.46
+Long,cpu_usage_avg_pct,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.526,1,Cohen's d,0.11
+Short,gpu_usage_avg_pct,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.233,0.00133,Cohen's d,-2.17
+Medium,gpu_usage_avg_pct,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),paired t,0.057,4.06e-4,Cohen's d,-2.54
+Long,gpu_usage_avg_pct,Qwen3-16B-A3B (MoE) vs Qwen3-8B (Dense),Wilcoxon signed-rank,0.015,0.101,Cliff's delta,-1

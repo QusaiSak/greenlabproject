@@ -1,0 +1,19 @@
+prompt_size,metric,comparison,test,shapiro_p,p_holm,effect,effect_size
+Short,energy_j_per_output_token,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.582,Cliff's delta,0.8
+Medium,energy_j_per_output_token,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.582,Cliff's delta,0.8
+Long,energy_j_per_output_token,Q8_0 vs Q4_K_M,paired t,0.159,1.06e-7,Cohen's d,6.83
+Short,total_energy_j,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.415,Cliff's delta,0.8
+Medium,total_energy_j,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.582,Cliff's delta,0.8
+Long,total_energy_j,Q8_0 vs Q4_K_M,paired t,0.159,1.06e-7,Cohen's d,6.83
+Short,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.211,1.11e-5,Cohen's d,3.92
+Medium,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.19,6.79e-6,Cohen's d,4.2
+Long,wall_time_s,Q8_0 vs Q4_K_M,paired t,0.102,1.16e-5,Cohen's d,3.88
+Short,memory_avg_mb,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0,0.101,Cliff's delta,1
+Medium,memory_avg_mb,Q8_0 vs Q4_K_M,paired t,0.844,5.92e-11,Cohen's d,15.88
+Long,memory_avg_mb,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.026,0.101,Cliff's delta,1
+Short,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.534,0.582,Cohen's d,0.59
+Medium,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.764,0.532,Cohen's d,0.66
+Long,cpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.995,0.582,Cohen's d,0.51
+Short,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.188,0.408,Cohen's d,0.81
+Medium,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,paired t,0.051,0.582,Cohen's d,0.4
+Long,gpu_usage_avg_pct,Q8_0 vs Q4_K_M,Wilcoxon signed-rank,0.001,0.408,Cliff's delta,0.6

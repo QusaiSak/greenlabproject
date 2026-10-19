@@ -166,38 +166,74 @@ def get_server_metrics(llama_port):
     return metrics
 
 
-def collect_system_metrics():
-    metrics = {}
+class SystemSampler:
+    """Sample server CPU, memory and GPU utilization in the background during one request."""
 
-    try:
-        import psutil
+    def __init__(self, interval_s=ENERGY_INTERVAL_MS / 1000):
+        self.interval_s = interval_s
+        self.samples = {"cpu": [], "memory_mb": [], "memory_pct": [], "gpu": [], "gpu_memory_mb": []}
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        try:
+            import psutil
+            self._psutil = psutil
+            psutil.cpu_percent(interval=None)  # prime: the first call always returns 0.0
+        except Exception:
+            self._psutil = None
 
-        metrics["cpu_usage_avg_pct"] = float(psutil.cpu_percent(interval=0.1))
-        memory = psutil.virtual_memory()
-        metrics["memory_avg_mb"] = memory.used / 1024 / 1024
-        metrics["memory_avg_pct"] = float(memory.percent)
-    except Exception:
-        pass
+    def _sample(self):
+        if self._psutil is not None:
+            self.samples["cpu"].append(float(self._psutil.cpu_percent(interval=None)))
+            memory = self._psutil.virtual_memory()
+            self.samples["memory_mb"].append(memory.used / 1024 / 1024)
+            self.samples["memory_pct"].append(float(memory.percent))
+        try:
+            result = subprocess.run(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=utilization.gpu,memory.used",
+                    "--format=csv,noheader,nounits",
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                timeout=5,
+            )
+            gpu_usage, gpu_memory = result.stdout.strip().splitlines()[0].split(",", 1)
+            self.samples["gpu"].append(float(gpu_usage.strip()))
+            self.samples["gpu_memory_mb"].append(float(gpu_memory.strip()))
+        except Exception:
+            pass
 
-    try:
-        result = subprocess.run(
-            [
-                "nvidia-smi",
-                "--query-gpu=utilization.gpu,memory.used",
-                "--format=csv,noheader,nounits",
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-            timeout=5,
-        )
-        gpu_usage, gpu_memory = result.stdout.strip().split(",", 1)
-        metrics["gpu_usage_avg_pct"] = float(gpu_usage.strip())
-        metrics["gpu_memory_mb"] = float(gpu_memory.strip())
-    except Exception:
-        pass
+    def _run(self):
+        while not self._stop.wait(self.interval_s):
+            self._sample()
 
-    return metrics
+    def start(self):
+        self._thread.start()
+        return self
+
+    def stop(self):
+        self._stop.set()
+        self._thread.join(timeout=10)
+        metrics = {"sample_count": len(self.samples["cpu"]) or len(self.samples["gpu"])}
+        for key, name in [
+            ("cpu", "cpu_usage"),
+            ("gpu", "gpu_usage"),
+        ]:
+            values = self.samples[key]
+            if values:
+                metrics[f"{name}_avg_pct"] = sum(values) / len(values)
+                metrics[f"{name}_max_pct"] = max(values)
+        for key, name in [
+            ("memory_mb", "memory_avg_mb"),
+            ("memory_pct", "memory_avg_pct"),
+            ("gpu_memory_mb", "gpu_memory_mb"),
+        ]:
+            values = self.samples[key]
+            if values:
+                metrics[name] = sum(values) / len(values)
+        return metrics
 
 
 class OneShotHandler(BaseHTTPRequestHandler):
@@ -222,10 +258,13 @@ class OneShotHandler(BaseHTTPRequestHandler):
         request_body = self.rfile.read(length)
         payload = json.loads(request_body.decode("utf-8"))
         metrics_before = get_server_metrics(self.server.llama_port)
-        system_metrics = collect_system_metrics()
+        sampler = SystemSampler().start()
 
         try:
-            response = llama_request(self.server.llama_port, payload)
+            try:
+                response = llama_request(self.server.llama_port, payload)
+            finally:
+                system_metrics = sampler.stop()
             metrics_after = get_server_metrics(self.server.llama_port)
             result = {
                 "ok": True,

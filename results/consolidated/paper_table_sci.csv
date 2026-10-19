@@ -1,0 +1,14 @@
+setup,config,grid_g_per_kwh,client_operational_mg,server_operational_mg,laptop_embodied_mg,server_embodied_mg,sci_mg_per_token,sci_low,sci_high,total_g
+On-device,Qwen3-8B (Dense) Q4_K_M,631,0.23,0,0.051,0,0.281,0.26,0.3,12.5
+On-device,Qwen3-8B (Dense) Q8_0,583,0.256,0,0.076,0,0.332,0.31,0.36,15.1
+On-device,Qwen3-16B-A3B (MoE) Q4_K_M,539,0.096,0,0.026,0,0.122,0.11,0.13,5.1
+Remote (baseline),Qwen3-8B (Dense) Q4_K_M,580,0.005,0.631,0.006,0.046,0.688,0.66,0.75,29.7
+Remote (baseline),Qwen3-8B (Dense) Q8_0,559,0.006,0.843,0.009,0.065,0.923,0.89,1.02,42.3
+Remote (baseline),Qwen3-16B-A3B (MoE) Q4_K_M,558,0.002,0.429,0.004,0.032,0.467,0.45,0.51,18.8
+Remote +100 ms,Qwen3-8B (Dense) Q4_K_M,531,0.002,0.584,0.006,0.047,0.639,0.61,0.71,27.6
+Remote +100 ms,Qwen3-8B (Dense) Q8_0,525,0.004,0.794,0.009,0.066,0.873,0.84,0.97,40
+Remote +100 ms,Qwen3-16B-A3B (MoE) Q4_K_M,542,0.002,0.426,0.004,0.033,0.465,0.45,0.51,18.7
+Remote +500 ms,Qwen3-8B (Dense) Q4_K_M,495,0.002,0.544,0.007,0.05,0.603,0.58,0.67,26
+Remote +500 ms,Qwen3-8B (Dense) Q8_0,517,0.006,0.789,0.009,0.069,0.872,0.83,0.97,40
+Remote +500 ms,Qwen3-16B-A3B (MoE) Q4_K_M,496,0.002,0.394,0.005,0.036,0.437,0.42,0.49,17.6
+All runs,All configurations,539,0.052,0.457,0.018,0.037,0.565,0.54,0.62,293.3

@@ -1,0 +1,33 @@
+rq,group_b,metric,cells,normal,non_normal
+RQ1,Remote (baseline),energy_j_per_output_token,9,2,7
+RQ1,Remote (baseline),output_tokens,9,3,6
+RQ1,Remote (baseline),total_energy_j,9,2,7
+RQ1,Remote (baseline),wall_time_s,9,7,2
+RQ2,Q8_0,avg_power_w,3,0,3
+RQ2,Q8_0,cpu_usage_avg_pct,3,3,0
+RQ2,Q8_0,energy_j_per_output_token,3,1,2
+RQ2,Q8_0,gpu_usage_avg_pct,3,2,1
+RQ2,Q8_0,memory_avg_mb,3,1,2
+RQ2,Q8_0,tokens_per_second,3,1,2
+RQ2,Q8_0,total_energy_j,3,1,2
+RQ2,Q8_0,wall_time_s,3,3,0
+RQ3,Qwen3-16B-A3B (MoE),avg_power_w,3,0,3
+RQ3,Qwen3-16B-A3B (MoE),cpu_usage_avg_pct,3,1,2
+RQ3,Qwen3-16B-A3B (MoE),energy_j_per_output_token,3,0,3
+RQ3,Qwen3-16B-A3B (MoE),gpu_usage_avg_pct,3,2,1
+RQ3,Qwen3-16B-A3B (MoE),memory_avg_mb,3,3,0
+RQ3,Qwen3-16B-A3B (MoE),tokens_per_second,3,0,3
+RQ3,Qwen3-16B-A3B (MoE),total_energy_j,3,0,3
+RQ3,Qwen3-16B-A3B (MoE),wall_time_s,3,2,1
+RQ4,Remote +100 ms,client_j_per_output_token,9,4,5
+RQ4,Remote +100 ms,energy_j_per_output_token,9,5,4
+RQ4,Remote +100 ms,network_rtt_ms,9,1,8
+RQ4,Remote +100 ms,server_j_per_output_token,9,5,4
+RQ4,Remote +100 ms,total_energy_j,9,6,3
+RQ4,Remote +100 ms,wall_time_s,9,7,2
+RQ4,Remote +500 ms,client_j_per_output_token,9,4,5
+RQ4,Remote +500 ms,energy_j_per_output_token,9,7,2
+RQ4,Remote +500 ms,network_rtt_ms,9,0,9
+RQ4,Remote +500 ms,server_j_per_output_token,9,6,3
+RQ4,Remote +500 ms,total_energy_j,9,7,2
+RQ4,Remote +500 ms,wall_time_s,9,8,1

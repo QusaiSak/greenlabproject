@@ -1,4 +1,4 @@
-scenario,laptop_te_kg,server_te_kg,lifetime_years
-central,90,690,4
-low,90,515,6
-high,90,1231,3
+scenario,laptop_te_kg,server_te_kg,lifetime_years,server_pue
+central,90,690,4,1
+low,90,515,6,1
+high,90,1231,3,1

@@ -1,0 +1,19 @@
+config,prompt_size,setup,mean_output_tokens,mean_total_energy_j,mean_wall_time_s,sd_output_tokens,sd_total_energy_j,sd_wall_time_s
+Qwen3-8B (Dense) Q4_K_M,Short,On-device,1373,1600,89,0,635,9.1
+Qwen3-8B (Dense) Q4_K_M,Short,Remote (baseline),1249,4908,10.3,103,372,0.8
+Qwen3-8B (Dense) Q4_K_M,Medium,On-device,1536,2420,103.1,0,2041,12.3
+Qwen3-8B (Dense) Q4_K_M,Medium,Remote (baseline),1536,5956,12.8,0,94,0.3
+Qwen3-8B (Dense) Q4_K_M,Long,On-device,1536,1804,126,0,48,8.4
+Qwen3-8B (Dense) Q4_K_M,Long,Remote (baseline),1536,6202,13.1,0,188,0.1
+Qwen3-8B (Dense) Q8_0,Short,On-device,1480,2224,151.1,72,143,9.1
+Qwen3-8B (Dense) Q8_0,Short,Remote (baseline),1512,8219,17.9,41,217,0.5
+Qwen3-8B (Dense) Q8_0,Medium,On-device,1536,2380,159.8,0,96,5.8
+Qwen3-8B (Dense) Q8_0,Medium,Remote (baseline),1536,8344,18.3,0,149,0.3
+Qwen3-8B (Dense) Q8_0,Long,On-device,1536,2589,175.1,0,116,7.3
+Qwen3-8B (Dense) Q8_0,Long,Remote (baseline),1536,8476,18.6,0,175,0.1
+Qwen3-16B-A3B (MoE) Q4_K_M,Short,On-device,1073,564,35.4,167,90,5.6
+Qwen3-16B-A3B (MoE) Q4_K_M,Short,Remote (baseline),970,2669,5.5,179,467,1
+Qwen3-16B-A3B (MoE) Q4_K_M,Medium,On-device,1536,921,53.4,0,44,1.6
+Qwen3-16B-A3B (MoE) Q4_K_M,Medium,Remote (baseline),1510,4093,8.6,81,219,0.5
+Qwen3-16B-A3B (MoE) Q4_K_M,Long,On-device,1536,1169,62.5,0,321,4.8
+Qwen3-16B-A3B (MoE) Q4_K_M,Long,Remote (baseline),1536,4410,9.2,0,155,0.1
