@@ -1,37 +1,73 @@
-metric,prompt_size,model_family,mean,median,sd,var,min,max
-energy_j_per_output_token,Short,Qwen3-8B (Dense),1.165,0.978,0.462,0.2137,0.949,2.431
-energy_j_per_output_token,Short,Qwen3-16B-A3B (MoE),0.526,0.524,0.011,1.21e-4,0.514,0.551
-energy_j_per_output_token,Medium,Qwen3-8B (Dense),1.576,1.088,1.329,1.766,1.015,5.332
-energy_j_per_output_token,Medium,Qwen3-16B-A3B (MoE),0.6,0.587,0.029,8.227e-4,0.576,0.669
-energy_j_per_output_token,Long,Qwen3-8B (Dense),1.175,1.17,0.031,9.591e-4,1.139,1.246
-energy_j_per_output_token,Long,Qwen3-16B-A3B (MoE),0.761,0.676,0.209,0.04376,0.666,1.327
-total_energy_j,Short,Qwen3-8B (Dense),1600,1343,635,402900,1303,3338
-total_energy_j,Short,Qwen3-16B-A3B (MoE),564,556,90,8166,424,701
-total_energy_j,Medium,Qwen3-8B (Dense),2420,1671,2041,4167000,1560,8189
-total_energy_j,Medium,Qwen3-16B-A3B (MoE),921,902,44,1941,884,1027
-total_energy_j,Long,Qwen3-8B (Dense),1804,1797,48,2263,1749,1914
-total_energy_j,Long,Qwen3-16B-A3B (MoE),1169,1039,321,103300,1022,2038
-wall_time_s,Short,Qwen3-8B (Dense),89,89.5,9.1,83.55,68.3,100.1
-wall_time_s,Short,Qwen3-16B-A3B (MoE),35.4,34.6,5.6,31.69,25.9,43.7
-wall_time_s,Medium,Qwen3-8B (Dense),103.1,107.5,12.3,152,84.7,119.6
-wall_time_s,Medium,Qwen3-16B-A3B (MoE),53.4,53.4,1.6,2.51,51,56.2
-wall_time_s,Long,Qwen3-8B (Dense),126,122.8,8.4,70.58,118.3,147.1
-wall_time_s,Long,Qwen3-16B-A3B (MoE),62.5,63.3,4.8,22.68,50.8,70.2
-memory_avg_mb,Short,Qwen3-8B (Dense),14584,14572,45,2012,14541,14685
-memory_avg_mb,Short,Qwen3-16B-A3B (MoE),16787,16771,68,4691,16695,16901
-memory_avg_mb,Medium,Qwen3-8B (Dense),14527,14517,46,2120,14442,14610
-memory_avg_mb,Medium,Qwen3-16B-A3B (MoE),16653,16679,82,6703,16472,16733
-memory_avg_mb,Long,Qwen3-8B (Dense),14476,14500,85,7224,14244,14535
-memory_avg_mb,Long,Qwen3-16B-A3B (MoE),16590,16621,118,14010,16312,16693
-cpu_usage_avg_pct,Short,Qwen3-8B (Dense),4.19,2.25,4.54,20.6,1.23,13.49
-cpu_usage_avg_pct,Short,Qwen3-16B-A3B (MoE),3.01,2.95,1.88,3.519,1.62,7.95
-cpu_usage_avg_pct,Medium,Qwen3-8B (Dense),3.01,1.66,3.7,13.68,1.29,13.41
-cpu_usage_avg_pct,Medium,Qwen3-16B-A3B (MoE),4.32,3,4.08,16.66,1.54,12.58
-cpu_usage_avg_pct,Long,Qwen3-8B (Dense),2.93,1.63,3.32,11.05,1.31,12.09
-cpu_usage_avg_pct,Long,Qwen3-16B-A3B (MoE),3.17,1.75,2.62,6.841,1.5,9.51
-gpu_usage_avg_pct,Short,Qwen3-8B (Dense),98.28,98.58,0.5,0.2501,97.32,98.63
-gpu_usage_avg_pct,Short,Qwen3-16B-A3B (MoE),95.41,94.82,1.41,2.001,93.73,97.23
-gpu_usage_avg_pct,Medium,Qwen3-8B (Dense),98.33,98.59,0.58,0.3344,96.97,98.64
-gpu_usage_avg_pct,Medium,Qwen3-16B-A3B (MoE),96.29,96.47,1.02,1.037,95.06,97.36
-gpu_usage_avg_pct,Long,Qwen3-8B (Dense),98.6,98.71,0.32,0.1034,97.76,98.85
-gpu_usage_avg_pct,Long,Qwen3-16B-A3B (MoE),96.83,97.49,1.26,1.599,93.78,97.55
+setup,metric,prompt_size,model_family,mean,median,sd,var,min,max
+On-device,energy_j_per_output_token,Short,Qwen3-8B (Dense),1.165,0.978,0.462,0.2137,0.949,2.431
+On-device,energy_j_per_output_token,Short,Qwen3-16B-A3B (MoE),0.526,0.524,0.011,1.21e-4,0.514,0.551
+Remote (baseline),energy_j_per_output_token,Short,Qwen3-8B (Dense),3.933,3.976,0.08,0.006352,3.801,4.001
+Remote (baseline),energy_j_per_output_token,Short,Qwen3-16B-A3B (MoE),2.76,2.768,0.09,0.008157,2.631,2.905
+On-device,energy_j_per_output_token,Medium,Qwen3-8B (Dense),1.576,1.088,1.329,1.766,1.015,5.332
+On-device,energy_j_per_output_token,Medium,Qwen3-16B-A3B (MoE),0.6,0.587,0.029,8.227e-4,0.576,0.669
+Remote (baseline),energy_j_per_output_token,Medium,Qwen3-8B (Dense),3.878,3.905,0.061,0.003708,3.742,3.929
+Remote (baseline),energy_j_per_output_token,Medium,Qwen3-16B-A3B (MoE),2.71,2.734,0.059,0.003528,2.58,2.752
+On-device,energy_j_per_output_token,Long,Qwen3-8B (Dense),1.175,1.17,0.031,9.591e-4,1.139,1.246
+On-device,energy_j_per_output_token,Long,Qwen3-16B-A3B (MoE),0.761,0.676,0.209,0.04376,0.666,1.327
+Remote (baseline),energy_j_per_output_token,Long,Qwen3-8B (Dense),4.037,4.08,0.123,0.01503,3.701,4.111
+Remote (baseline),energy_j_per_output_token,Long,Qwen3-16B-A3B (MoE),2.871,2.903,0.101,0.0102,2.586,2.93
+On-device,total_energy_j,Short,Qwen3-8B (Dense),1600,1343,635,402900,1303,3338
+On-device,total_energy_j,Short,Qwen3-16B-A3B (MoE),564,556,90,8166,424,701
+Remote (baseline),total_energy_j,Short,Qwen3-8B (Dense),4908,4915,372,138500,4441,5454
+Remote (baseline),total_energy_j,Short,Qwen3-16B-A3B (MoE),2669,2521,467,217800,2114,3726
+On-device,total_energy_j,Medium,Qwen3-8B (Dense),2420,1671,2041,4167000,1560,8189
+On-device,total_energy_j,Medium,Qwen3-16B-A3B (MoE),921,902,44,1941,884,1027
+Remote (baseline),total_energy_j,Medium,Qwen3-8B (Dense),5956,5998,94,8749,5748,6035
+Remote (baseline),total_energy_j,Medium,Qwen3-16B-A3B (MoE),4093,4194,219,47890,3524,4228
+On-device,total_energy_j,Long,Qwen3-8B (Dense),1804,1797,48,2263,1749,1914
+On-device,total_energy_j,Long,Qwen3-16B-A3B (MoE),1169,1039,321,103300,1022,2038
+Remote (baseline),total_energy_j,Long,Qwen3-8B (Dense),6202,6266,188,35470,5685,6315
+Remote (baseline),total_energy_j,Long,Qwen3-16B-A3B (MoE),4410,4459,155,24080,3972,4501
+On-device,wall_time_s,Short,Qwen3-8B (Dense),89,89.5,9.1,83.55,68.3,100.1
+On-device,wall_time_s,Short,Qwen3-16B-A3B (MoE),35.4,34.6,5.6,31.69,25.9,43.7
+Remote (baseline),wall_time_s,Short,Qwen3-8B (Dense),10.3,10.2,0.8,0.6499,9.2,11.7
+Remote (baseline),wall_time_s,Short,Qwen3-16B-A3B (MoE),5.5,5.3,1,0.9965,4.2,7.7
+On-device,wall_time_s,Medium,Qwen3-8B (Dense),103.1,107.5,12.3,152,84.7,119.6
+On-device,wall_time_s,Medium,Qwen3-16B-A3B (MoE),53.4,53.4,1.6,2.51,51,56.2
+Remote (baseline),wall_time_s,Medium,Qwen3-8B (Dense),12.8,12.9,0.3,0.08261,12.2,13
+Remote (baseline),wall_time_s,Medium,Qwen3-16B-A3B (MoE),8.6,8.8,0.5,0.2225,7.4,9
+On-device,wall_time_s,Long,Qwen3-8B (Dense),126,122.8,8.4,70.58,118.3,147.1
+On-device,wall_time_s,Long,Qwen3-16B-A3B (MoE),62.5,63.3,4.8,22.68,50.8,70.2
+Remote (baseline),wall_time_s,Long,Qwen3-8B (Dense),13.1,13.2,0.1,0.01955,12.8,13.3
+Remote (baseline),wall_time_s,Long,Qwen3-16B-A3B (MoE),9.2,9.2,0.1,0.006442,9,9.3
+On-device,memory_avg_mb,Short,Qwen3-8B (Dense),14584,14572,45,2012,14541,14685
+On-device,memory_avg_mb,Short,Qwen3-16B-A3B (MoE),16787,16771,68,4691,16695,16901
+Remote (baseline),memory_avg_mb,Short,Qwen3-8B (Dense),2386,2376,31,989.6,2351,2455
+Remote (baseline),memory_avg_mb,Short,Qwen3-16B-A3B (MoE),2497,2487,20,404.3,2481,2547
+On-device,memory_avg_mb,Medium,Qwen3-8B (Dense),14527,14517,46,2120,14442,14610
+On-device,memory_avg_mb,Medium,Qwen3-16B-A3B (MoE),16653,16679,82,6703,16472,16733
+Remote (baseline),memory_avg_mb,Medium,Qwen3-8B (Dense),2390,2389,24,589.3,2351,2427
+Remote (baseline),memory_avg_mb,Medium,Qwen3-16B-A3B (MoE),2517,2515,22,497.2,2485,2553
+On-device,memory_avg_mb,Long,Qwen3-8B (Dense),14476,14500,85,7224,14244,14535
+On-device,memory_avg_mb,Long,Qwen3-16B-A3B (MoE),16590,16621,118,14010,16312,16693
+Remote (baseline),memory_avg_mb,Long,Qwen3-8B (Dense),2381,2370,31,960.4,2347,2437
+Remote (baseline),memory_avg_mb,Long,Qwen3-16B-A3B (MoE),2510,2509,22,467.6,2460,2537
+On-device,cpu_usage_avg_pct,Short,Qwen3-8B (Dense),4.19,2.25,4.54,20.6,1.23,13.49
+On-device,cpu_usage_avg_pct,Short,Qwen3-16B-A3B (MoE),3.01,2.95,1.88,3.519,1.62,7.95
+Remote (baseline),cpu_usage_avg_pct,Short,Qwen3-8B (Dense),13.06,13.06,0.02,4.816e-4,13.03,13.1
+Remote (baseline),cpu_usage_avg_pct,Short,Qwen3-16B-A3B (MoE),12.72,12.7,0.09,0.007429,12.58,12.87
+On-device,cpu_usage_avg_pct,Medium,Qwen3-8B (Dense),3.01,1.66,3.7,13.68,1.29,13.41
+On-device,cpu_usage_avg_pct,Medium,Qwen3-16B-A3B (MoE),4.32,3,4.08,16.66,1.54,12.58
+Remote (baseline),cpu_usage_avg_pct,Medium,Qwen3-8B (Dense),13.13,13.14,0.02,3.637e-4,13.09,13.15
+Remote (baseline),cpu_usage_avg_pct,Medium,Qwen3-16B-A3B (MoE),12.94,12.95,0.03,0.001013,12.86,12.96
+On-device,cpu_usage_avg_pct,Long,Qwen3-8B (Dense),2.93,1.63,3.32,11.05,1.31,12.09
+On-device,cpu_usage_avg_pct,Long,Qwen3-16B-A3B (MoE),3.17,1.75,2.62,6.841,1.5,9.51
+Remote (baseline),cpu_usage_avg_pct,Long,Qwen3-8B (Dense),13.13,13.14,0.01,1.166e-4,13.12,13.15
+Remote (baseline),cpu_usage_avg_pct,Long,Qwen3-16B-A3B (MoE),12.96,12.96,0.01,1.923e-4,12.93,12.97
+On-device,gpu_usage_avg_pct,Short,Qwen3-8B (Dense),98.28,98.58,0.5,0.2501,97.32,98.63
+On-device,gpu_usage_avg_pct,Short,Qwen3-16B-A3B (MoE),95.41,94.82,1.41,2.001,93.73,97.23
+Remote (baseline),gpu_usage_avg_pct,Short,Qwen3-8B (Dense),96.33,96.1,0.43,0.1867,95.91,96.93
+Remote (baseline),gpu_usage_avg_pct,Short,Qwen3-16B-A3B (MoE),94.29,94.16,0.52,0.2728,93.54,94.95
+On-device,gpu_usage_avg_pct,Medium,Qwen3-8B (Dense),98.33,98.59,0.58,0.3344,96.97,98.64
+On-device,gpu_usage_avg_pct,Medium,Qwen3-16B-A3B (MoE),96.29,96.47,1.02,1.037,95.06,97.36
+Remote (baseline),gpu_usage_avg_pct,Medium,Qwen3-8B (Dense),96.57,96.8,0.46,0.2151,95.95,97.02
+Remote (baseline),gpu_usage_avg_pct,Medium,Qwen3-16B-A3B (MoE),94.61,94.74,0.47,0.2251,93.88,95.1
+On-device,gpu_usage_avg_pct,Long,Qwen3-8B (Dense),98.6,98.71,0.32,0.1034,97.76,98.85
+On-device,gpu_usage_avg_pct,Long,Qwen3-16B-A3B (MoE),96.83,97.49,1.26,1.599,93.78,97.55
+Remote (baseline),gpu_usage_avg_pct,Long,Qwen3-8B (Dense),96.45,96.25,0.45,0.1983,96.05,97.08
+Remote (baseline),gpu_usage_avg_pct,Long,Qwen3-16B-A3B (MoE),94.87,95.02,0.42,0.1758,94.26,95.32

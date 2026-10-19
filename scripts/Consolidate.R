@@ -246,9 +246,10 @@ config_levels <- c("Qwen3-8B (Dense) Q4_K_M", "Qwen3-8B (Dense) Q8_0", "Qwen3-16
 runs$config <- factor(runs$config, levels = unique(c(config_levels, sort(unique(runs$config)))))
 runs <- runs %>%
   mutate(config_short = case_when(
-    grepl("16B-A3B", model) ~ paste("MoE", sub("_.*", "", quantization)),
+    grepl("16B-A3B", model) ~ paste("16B-A3B", sub("_.*", "", quantization)),
     TRUE ~ paste("8B", sub("_.*", "", quantization))
-  ))
+  ),
+  config_short = factor(config_short, levels = unique(c("8B Q4", "8B Q8", "16B-A3B Q4", sort(unique(config_short))))))
 
 # ============================================================
 # Carbon footprint (Green Software Foundation SCI specification)
@@ -441,7 +442,8 @@ friedman_tests <- function(data, factor_col, strata, metrics, rq) {
 
 # Share of paired-difference cells that pass Shapiro-Wilk, per metric.
 normality_summary <- function(tests) {
-  tests %>% group_by(rq, group_b, metric) %>%
+  # RQ2 / RQ3 are tested per setup (on-device and remote); RQ1 / RQ4 have no setup column (NA).
+  tests %>% group_by(rq, across(any_of("setup")), group_b, metric) %>%
     summarise(cells = n(), normal = sum(normal_diff), non_normal = cells - normal, .groups = "drop")
 }
 
@@ -536,7 +538,9 @@ metric_files <- function(data, metrics, group, pal, by, prefix, title_prefix) {
 }
 
 # Violin + box + runs for several metrics in one image. Rows = metrics; columns = levels of `by` (optional).
-dist_figure <- function(data, metrics, group, pal, title, filename, by = NULL, ncol = 2, width = 9, height = 10) {
+# free_panels = TRUE gives every (metric, by) panel its own y-axis, for columns measured on different hardware.
+dist_figure <- function(data, metrics, group, pal, title, filename, by = NULL, ncol = 2, width = 9, height = 10,
+                        free_panels = FALSE, note = NULL) {
   long <- data %>%
     select(all_of(c("prompt_size", group, by, metrics))) %>%
     pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
@@ -545,7 +549,9 @@ dist_figure <- function(data, metrics, group, pal, title, filename, by = NULL, n
   pd <- position_dodge(width = 0.8)
   # Metric names are drawn on the left as y-axis titles (strip switched to the outside of the axis).
   facet <- if (is.null(by)) facet_wrap(~ metric, scales = "free_y", ncol = ncol, strip.position = "left",
-                                       labeller = label_wrap_gen(30)) else
+                                       labeller = label_wrap_gen(30)) else if (free_panels)
+    facet_wrap(vars(metric, .data[[by]]), scales = "free_y", ncol = n_distinct(long[[by]]), strip.position = "left",
+               labeller = labeller(metric = label_wrap_gen(24), .multi_line = TRUE)) else
     facet_grid(rows = vars(metric), cols = vars(.data[[by]]), scales = "free_y", switch = "y",
                labeller = labeller(metric = label_wrap_gen(22), .default = label_wrap_gen(28)))
   p <- ggplot(long, aes(prompt_size, value, fill = .data[[group]])) +
@@ -555,7 +561,7 @@ dist_figure <- function(data, metrics, group, pal, title, filename, by = NULL, n
                size = 0.8, alpha = 0.6, show.legend = FALSE) +
     facet + fill_scale(pal) + colour_scale(pal) +
     scale_y_continuous(expand = expansion(mult = c(0.05, 0.12))) +
-    labs(title = title, subtitle = VIOLIN_NOTE, x = "Prompt length", y = NULL, fill = NULL) +
+    labs(title = title, subtitle = paste(c(VIOLIN_NOTE, note), collapse = "\n"), x = "Prompt length", y = NULL, fill = NULL) +
     theme(strip.placement = "outside",
           strip.text.y.left = element_text(angle = 90, face = "bold", size = 10),
           strip.background.y = element_blank())
@@ -577,12 +583,75 @@ qq_figure <- function(data, factor_col, ref, others, metric, title, filename, wi
   p <- ggplot(d, aes(sample = z, colour = comparison)) +
     stat_qq(size = 1.2, alpha = 0.8) +
     stat_qq_line(linewidth = 0.4) +
-    facet_grid(rows = vars(config), cols = vars(prompt_size), labeller = labeller(config = label_wrap_gen(16))) +
+    facet_grid(rows = vars(config), cols = vars(prompt_size), labeller = labeller(config = label_wrap_gen(14))) +
     labs(title = title, subtitle = paste("Standardised paired differences of", metric_labels[[metric]],
                                          "; points on the line = normal"),
          x = "Theoretical quantiles", y = "Sample quantiles", colour = NULL)
   if (length(others) == 1) p <- p + scale_colour_manual(values = "#457b9d", guide = "none")
   save_plot(p, filename, width, height)
+  # Paper version at column width (rows = configurations / setups).
+  save_paper(p + labs(colour = NULL) + guides(colour = guide_legend(nrow = 2)),
+             paste0("paper_", filename), height = 0.6 + 1.0 * n_distinct(d$config) + 0.25 * (length(others) > 1))
+}
+
+# ------------------------------------------------------------
+# Paper figures: drawn at single-column size (3.4 in wide, 8 pt text) so they are readable in the
+# two-column report without scaling. Titles and the hardware note go into the LaTeX caption instead.
+# Files are saved as plots/paper_*.png and copied to reportTemplate/figures.
+# ------------------------------------------------------------
+
+PAPER_W <- 3.4
+PAPER_LABELS <- c(energy_j_per_output_token = "Energy per token (J)", total_energy_j = "Total energy (J)",
+                  wall_time_s = "Execution time (s)", memory_avg_mb = "Memory (MB)",
+                  cpu_usage_avg_pct = "CPU usage (%)", gpu_usage_avg_pct = "GPU usage (%)",
+                  client_j_per_output_token = "Client energy per token (J)", network_rtt_ms = "Measured RTT (ms)",
+                  sci_mg_per_output_token = "SCI (mg CO2e per token)")
+
+paper_theme <- theme_minimal(base_size = 8) +
+  theme(plot.title = element_blank(), plot.subtitle = element_blank(), plot.caption = element_blank(),
+        axis.title = element_text(face = "bold", size = 7.5), axis.text = element_text(size = 6.5, colour = "grey20"),
+        strip.text = element_text(face = "bold", size = 6.3, margin = margin(2, 1, 2, 1)), strip.background = element_rect(fill = "grey93", colour = NA),
+        legend.position = "bottom", legend.title = element_blank(), legend.text = element_text(size = 6.5),
+        legend.key.size = unit(0.32, "cm"), legend.margin = margin(0, 0, 0, 0), legend.box.margin = margin(-6, 0, 0, 0),
+        panel.grid.minor = element_blank(), panel.spacing = unit(0.45, "lines"), plot.margin = margin(3, 4, 2, 2))
+
+save_paper <- function(p, filename, height, width = PAPER_W) {
+  ggsave(file.path(PLOTS_DIR, filename), p + paper_theme, width = width, height = height, dpi = 400, bg = "white")
+}
+
+# Same design as the full-size plots: violin (density) + box (median, IQR) + every run as a point.
+paper_box <- function(data, y, group, pal) {
+  pd <- position_dodge(width = 0.8)
+  ggplot(data, aes(prompt_size, .data[[y]], fill = .data[[group]])) +
+    geom_violin(position = pd, width = 0.75, alpha = 0.35, scale = "width", linewidth = 0.25, trim = TRUE) +
+    geom_boxplot(position = pd, width = 0.22, alpha = 0.85, outlier.shape = NA, linewidth = 0.3) +
+    geom_point(aes(colour = .data[[group]]), position = position_jitterdodge(jitter.width = 0.06, dodge.width = 0.8, seed = 1),
+               size = 0.45, alpha = 0.7, show.legend = FALSE) +
+    fill_scale(pal) + colour_scale(pal) +
+    labs(x = "Prompt length", fill = NULL)
+}
+
+# Several metrics in one column-width figure. Without `by`: one panel per metric (ncol columns).
+# With `by`: one row per level of `by`, one column per metric; every panel has its own y-axis.
+paper_metrics <- function(data, metrics, group, pal, filename, height, by = NULL, ncol = 2) {
+  long <- data %>%
+    select(all_of(c("prompt_size", group, by, metrics))) %>%
+    pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
+    filter(is.finite(value)) %>%
+    mutate(metric = factor(metric, levels = metrics, labels = PAPER_LABELS[metrics]))
+  facet <- if (is.null(by)) facet_wrap(~ metric, ncol = ncol, scales = "free_y") else
+    facet_wrap(vars(.data[[by]], metric), ncol = length(metrics), scales = "free_y",
+               labeller = labeller(.multi_line = TRUE))
+  save_paper(paper_box(long, "value", group, pal) + facet + labs(y = NULL), filename, height)
+}
+
+# One metric, one panel per level of `by` stacked vertically.
+paper_single <- function(data, metric, group, pal, filename, by = "config", height = 4.0, legend_rows = 1) {
+  p <- paper_box(data %>% filter(is.finite(.data[[metric]])), metric, group, pal) +
+    facet_wrap(vars(.data[[by]]), ncol = 1, scales = "free_y") +
+    labs(y = PAPER_LABELS[[metric]]) +
+    guides(fill = guide_legend(nrow = legend_rows))
+  save_paper(p, filename, height)
 }
 
 # ============================================================
@@ -597,6 +666,9 @@ if (n_distinct(rq1_df$setup) == 2) {
   dist_figure(rq1_df, c("energy_j_per_output_token", "total_energy_j", "wall_time_s"), "setup", PAL_SETUP,
               "RQ1 · On-device vs remote (client + server)", "RQ1_01_distributions.png", by = "config",
               width = 12, height = 10)
+  for (m in c("energy_j_per_output_token", "total_energy_j", "wall_time_s")) {
+    paper_single(rq1_df, m, "setup", PAL_SETUP, sprintf("paper_RQ1_%s.png", m))
+  }
   qq_figure(rq1_df, "setup", "On-device", "Remote (baseline)", "energy_j_per_output_token",
             "RQ1 · Normality of paired differences", "RQ1_02_qq_energy_per_token.png")
 
@@ -613,7 +685,7 @@ if (n_distinct(rq1_df$setup) == 2) {
 }
 
 # ============================================================
-# RQ2 — Quantization (Qwen3-8B Q4_K_M vs Q8_0), on-device
+# RQ2 — Quantization (Qwen3-8B Q4_K_M vs Q8_0), on-device and remote (baseline network)
 # ============================================================
 
 RESOURCE_METRICS <- c("total_energy_j", "energy_j_per_output_token", "wall_time_s", "cpu_usage_avg_pct",
@@ -621,42 +693,61 @@ RESOURCE_METRICS <- c("total_energy_j", "energy_j_per_output_token", "wall_time_
 PLOT_METRICS <- c("energy_j_per_output_token", "total_energy_j", "wall_time_s",
                   "memory_avg_mb", "cpu_usage_avg_pct", "gpu_usage_avg_pct")
 
-rq2_df <- local_df %>% filter(model_family == "Qwen3-8B (Dense)") %>% droplevels()
+# Tests run separately per setup; Holm correction is applied within each setup, so the
+# on-device family (the RQ as defined) is not changed by adding the remote comparison.
+tests_per_setup <- function(data, factor_col, metrics, rq) {
+  map_dfr(levels(droplevels(data$setup)), function(st)
+    pairwise_tests(data %>% filter(setup == st), factor_col, c("setup", "prompt_size"), metrics, rq))
+}
+
+rq2_df <- rq1_df %>% filter(model_family == "Qwen3-8B (Dense)") %>% droplevels()
 
 if (n_distinct(rq2_df$quantization) >= 2) {
   rq2_df$quantization <- factor(rq2_df$quantization, levels = c("Q4_K_M", "Q8_0"))
   pal_q <- c(Q4_K_M = "#2a9d8f", Q8_0 = "#264653")
 
-  dist_figure(rq2_df, PLOT_METRICS, "quantization", pal_q, "RQ2 · Qwen3-8B Q4_K_M vs Q8_0 (on-device)",
-              "RQ2_01_distributions.png")
-  qq_figure(rq2_df %>% mutate(config = "Qwen3-8B"), "quantization", "Q4_K_M", "Q8_0", "energy_j_per_output_token",
-            "RQ2 · Normality of paired differences (Q8_0 - Q4_K_M)", "RQ2_02_qq_energy_per_token.png", height = 3.8)
+  dist_figure(rq2_df, PLOT_METRICS, "quantization", pal_q, "RQ2 · Qwen3-8B Q4_K_M vs Q8_0, on-device and remote",
+              "RQ2_01_distributions.png", by = "setup", width = 10, height = 15,
+              note = paste("Each panel has its own y-axis. Remote CPU / GPU / memory are measured on the server",
+                          "\n(i9-11900KF, RTX 3090; memory = server RAM, model weights are in GPU VRAM)."), free_panels = TRUE)
+  for (st in levels(droplevels(rq2_df$setup))) {
+    paper_metrics(rq2_df %>% filter(setup == st), PLOT_METRICS, "quantization", pal_q,
+                  sprintf("paper_RQ2_%s.png", ifelse(st == "On-device", "on_device", "remote")), height = 4.4)
+  }
+  qq_figure(rq2_df %>% mutate(config = setup), "quantization", "Q4_K_M", "Q8_0", "energy_j_per_output_token",
+            "RQ2 · Normality of paired differences (Q8_0 - Q4_K_M)", "RQ2_02_qq_energy_per_token.png", height = 5.5)
 
-  rq2_tests <- pairwise_tests(rq2_df, "quantization", "prompt_size", RESOURCE_METRICS, "RQ2")
+  rq2_tests <- tests_per_setup(rq2_df, "quantization", RESOURCE_METRICS, "RQ2")
   write_csv(rq2_tests, file.path(OUTPUT_DIR, "RQ2_tests.csv"), na = "")
-  write_csv(summarise_metrics(rq2_df, c("quantization", "prompt_size"), RESOURCE_METRICS),
+  write_csv(summarise_metrics(rq2_df, c("setup", "quantization", "prompt_size"), RESOURCE_METRICS),
             file.path(OUTPUT_DIR, "RQ2_summary.csv"), na = "")
 }
 
 # ============================================================
-# RQ3 — Model choice on-device at equal quantization (Q4_K_M): Dense 8B vs MoE 16B-A3B
+# RQ3 — Model choice at equal quantization (Q4_K_M): Dense 8B vs MoE 16B-A3B, on-device and remote
 # ============================================================
 
-rq3_df <- local_df %>% filter(quantization == "Q4_K_M") %>% droplevels()
+rq3_df <- rq1_df %>% filter(quantization == "Q4_K_M") %>% droplevels()
 
 if (n_distinct(rq3_df$model_family) >= 2) {
   pal_m <- c("Qwen3-8B (Dense)" = "#2a9d8f", "Qwen3-16B-A3B (MoE)" = "#e9c46a")
   rq3_df$model_family <- factor(rq3_df$model_family, levels = names(pal_m))
 
-  dist_figure(rq3_df, PLOT_METRICS, "model_family", pal_m, "RQ3 · Dense vs MoE, Q4_K_M (on-device)",
-              "RQ3_01_distributions.png")
-  qq_figure(rq3_df %>% mutate(config = "Q4_K_M"), "model_family", "Qwen3-8B (Dense)", "Qwen3-16B-A3B (MoE)",
+  dist_figure(rq3_df, PLOT_METRICS, "model_family", pal_m, "RQ3 · Dense vs MoE (Q4_K_M), on-device and remote",
+              "RQ3_01_distributions.png", by = "setup", width = 10, height = 15,
+              note = paste("Each panel has its own y-axis. Remote CPU / GPU / memory are measured on the server",
+                          "\n(i9-11900KF, RTX 3090; memory = server RAM, model weights are in GPU VRAM)."), free_panels = TRUE)
+  for (st in levels(droplevels(rq3_df$setup))) {
+    paper_metrics(rq3_df %>% filter(setup == st), PLOT_METRICS, "model_family", pal_m,
+                  sprintf("paper_RQ3_%s.png", ifelse(st == "On-device", "on_device", "remote")), height = 4.4)
+  }
+  qq_figure(rq3_df %>% mutate(config = setup), "model_family", "Qwen3-8B (Dense)", "Qwen3-16B-A3B (MoE)",
             "energy_j_per_output_token", "RQ3 · Normality of paired differences (MoE - Dense)",
-            "RQ3_02_qq_energy_per_token.png", height = 3.8)
+            "RQ3_02_qq_energy_per_token.png", height = 5.5)
 
-  rq3_tests <- pairwise_tests(rq3_df, "model_family", "prompt_size", RESOURCE_METRICS, "RQ3")
+  rq3_tests <- tests_per_setup(rq3_df, "model_family", RESOURCE_METRICS, "RQ3")
   write_csv(rq3_tests, file.path(OUTPUT_DIR, "RQ3_tests.csv"), na = "")
-  write_csv(summarise_metrics(rq3_df, c("model_family", "prompt_size"), RESOURCE_METRICS),
+  write_csv(summarise_metrics(rq3_df, c("setup", "model_family", "prompt_size"), RESOURCE_METRICS),
             file.path(OUTPUT_DIR, "RQ3_summary.csv"), na = "")
 }
 
@@ -673,6 +764,10 @@ if (n_distinct(remote_df$setup) >= 2) {
               "setup", pal_net, "RQ4 · Remote generation under added network delay", "RQ4_01_distributions.png",
               by = "config", width = 12, height = 11)
   delay_lv <- levels(droplevels(remote_df$setup))
+  paper_metrics(remote_df, c("energy_j_per_output_token", "wall_time_s"), "setup", pal_net,
+                "paper_RQ4_energy_time.png", height = 4.6, by = "config")
+  paper_metrics(remote_df, c("client_j_per_output_token", "network_rtt_ms"), "setup", pal_net,
+                "paper_RQ4_client_rtt.png", height = 4.6, by = "config")
   qq_figure(remote_df, "setup", delay_lv[1], delay_lv[-1], "energy_j_per_output_token",
             "RQ4 · Normality of paired differences vs baseline", "RQ4_02_qq_energy_per_token.png")
 
@@ -780,6 +875,23 @@ save_plot(p, "SCI_01_per_token_breakdown.png", 13, 6.5)
 dist_figure(df, "sci_mg_per_output_token", "setup", PAL_SETUP, "SCI per output token, per run",
             "SCI_02_per_token_distribution.png", by = "config", width = 12, height = 4.8)
 
+# Paper versions: horizontal stacked bars (no rotated labels) and per-run boxes, at column width.
+sci_parts_p <- sci_parts %>% mutate(config_short = factor(config, levels = rev(levels(df$config))))
+sci_cfg_p <- sci_by_config %>% mutate(config_short = factor(config, levels = levels(sci_parts_p$config_short)))
+p <- ggplot(sci_parts_p, aes(x = mg, y = config_short)) +
+  geom_col(aes(fill = part), width = 0.65) +
+  geom_errorbar(data = sci_cfg_p, aes(x = sci_mg_per_token, xmin = sci_low_mg_per_token, xmax = sci_high_mg_per_token),
+                width = 0.25, linewidth = 0.35, orientation = "y") +
+  geom_text(data = sci_cfg_p, aes(x = sci_high_mg_per_token, label = sprintf("%.2f", sci_mg_per_token)),
+            hjust = -0.25, size = 2.2) +
+  facet_wrap(~ setup, ncol = 1) +
+  scale_fill_manual(values = SCI_PARTS, breaks = names(SCI_PARTS)) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(x = "SCI (mg CO2e per output token)", y = NULL, fill = NULL) +
+  guides(fill = guide_legend(nrow = 2))
+save_paper(p, "paper_SCI_breakdown.png", height = 4.2)
+paper_single(df, "sci_mg_per_output_token", "setup", PAL_SETUP, "paper_SCI_distribution.png", height = 4.4, legend_rows = 2)
+
 # Fig SCI 3: grid carbon intensity during the experiment, with run windows.
 to_time <- function(t) as.POSIXct(t, origin = "1970-01-01", tz = "UTC")
 windows <- df %>%
@@ -856,10 +968,10 @@ for (rq in c("rq2", "rq3")) {
   grp <- if (rq == "rq2") "quantization" else "model_family"
   s <- read_csv(file.path(OUTPUT_DIR, paste0(toupper(rq), "_summary.csv")), show_col_types = FALSE)
   paper_csv(s %>% filter(metric %in% PAPER_METRICS) %>%
-              select(metric, prompt_size, all_of(grp), mean, median, sd, var, min, max) %>%
+              select(setup, metric, prompt_size, all_of(grp), mean, median, sd, var, min, max) %>%
               round_desc() %>% mutate(.m = match(metric, PAPER_METRICS)) %>% sort_paper() %>%
               arrange(.m) %>% select(-.m), paste0(rq, "_descriptives"))
-  paper_csv(paper_tests(get(paste0(rq, "_tests")) %>% filter(metric %in% PAPER_METRICS), "prompt_size") %>%
+  paper_csv(paper_tests(get(paste0(rq, "_tests")) %>% filter(metric %in% PAPER_METRICS), c("setup", "prompt_size")) %>%
               mutate(.m = match(metric, PAPER_METRICS)) %>% sort_paper() %>% arrange(.m) %>% select(-.m),
             paste0(rq, "_tests"))
 }
@@ -891,12 +1003,10 @@ paper_csv(bind_rows(sci_by_config %>% mutate(across(c(setup, config), as.charact
                       sci_mg_per_token = round(sci_mg_per_token, 3), sci_low = round(sci_low_mg_per_token, 2),
                       sci_high = round(sci_high_mg_per_token, 2), total_g = round(total_g, 1)), "sci")
 
-# Figures referenced in results.tex (the grid-intensity timeline is not used in the report).
-REPORT_FIGURES <- c("RQ1_01_distributions.png", "RQ1_02_qq_energy_per_token.png",
-                    "RQ2_01_distributions.png", "RQ2_02_qq_energy_per_token.png",
-                    "RQ3_01_distributions.png", "RQ3_02_qq_energy_per_token.png",
-                    "RQ4_01_distributions.png", "RQ4_02_qq_energy_per_token.png",
-                    "SCI_01_per_token_breakdown.png", "SCI_02_per_token_distribution.png")
+# Figures referenced in results.tex.
+# Only the column-width paper_*.png versions are used in the report.
+unlink(list.files(REPORT_FIG_DIR, pattern = "^(RQ|SCI|paper_).*\\.png$", full.names = TRUE))
+REPORT_FIGURES <- list.files(PLOTS_DIR, pattern = "^paper_.*\\.png$")
 invisible(file.copy(file.path(PLOTS_DIR, REPORT_FIGURES), REPORT_FIG_DIR, overwrite = TRUE))
 
 # ============================================================

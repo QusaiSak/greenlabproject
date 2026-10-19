@@ -1,37 +1,73 @@
-metric,prompt_size,quantization,mean,median,sd,var,min,max
-energy_j_per_output_token,Short,Q4_K_M,1.165,0.978,0.462,0.2137,0.949,2.431
-energy_j_per_output_token,Short,Q8_0,1.502,1.502,0.047,0.002165,1.42,1.597
-energy_j_per_output_token,Medium,Q4_K_M,1.576,1.088,1.329,1.766,1.015,5.332
-energy_j_per_output_token,Medium,Q8_0,1.549,1.542,0.063,0.003922,1.469,1.706
-energy_j_per_output_token,Long,Q4_K_M,1.175,1.17,0.031,9.591e-4,1.139,1.246
-energy_j_per_output_token,Long,Q8_0,1.685,1.684,0.076,0.005714,1.514,1.784
-total_energy_j,Short,Q4_K_M,1600,1343,635,402900,1303,3338
-total_energy_j,Short,Q8_0,2224,2238,143,20540,2036,2454
-total_energy_j,Medium,Q4_K_M,2420,1671,2041,4167000,1560,8189
-total_energy_j,Medium,Q8_0,2380,2369,96,9254,2256,2620
-total_energy_j,Long,Q4_K_M,1804,1797,48,2263,1749,1914
-total_energy_j,Long,Q8_0,2589,2586,116,13480,2325,2740
-wall_time_s,Short,Q4_K_M,89,89.5,9.1,83.55,68.3,100.1
-wall_time_s,Short,Q8_0,151.1,151.8,9.1,83.32,137.5,165.2
-wall_time_s,Medium,Q4_K_M,103.1,107.5,12.3,152,84.7,119.6
-wall_time_s,Medium,Q8_0,159.8,160.6,5.8,34.11,145.8,167.2
-wall_time_s,Long,Q4_K_M,126,122.8,8.4,70.58,118.3,147.1
-wall_time_s,Long,Q8_0,175.1,177.2,7.3,53.13,159.1,185.7
-memory_avg_mb,Short,Q4_K_M,14584,14572,45,2012,14541,14685
-memory_avg_mb,Short,Q8_0,16054,16040,181,32760,15873,16523
-memory_avg_mb,Medium,Q4_K_M,14527,14517,46,2120,14442,14610
-memory_avg_mb,Medium,Q8_0,16012,16019,69,4830,15882,16110
-memory_avg_mb,Long,Q4_K_M,14476,14500,85,7224,14244,14535
-memory_avg_mb,Long,Q8_0,16035,16026,189,35680,15850,16519
-cpu_usage_avg_pct,Short,Q4_K_M,4.19,2.25,4.54,20.6,1.23,13.49
-cpu_usage_avg_pct,Short,Q8_0,9.04,11.46,6.25,39.1,1.42,19.05
-cpu_usage_avg_pct,Medium,Q4_K_M,3.01,1.66,3.7,13.68,1.29,13.41
-cpu_usage_avg_pct,Medium,Q8_0,5.21,4.29,3.4,11.57,1.37,11.24
-cpu_usage_avg_pct,Long,Q4_K_M,2.93,1.63,3.32,11.05,1.31,12.09
-cpu_usage_avg_pct,Long,Q8_0,5.91,5.39,4.14,17.11,1.39,14.78
-gpu_usage_avg_pct,Short,Q4_K_M,98.28,98.58,0.5,0.2501,97.32,98.63
-gpu_usage_avg_pct,Short,Q8_0,98.64,98.75,0.21,0.04396,98.16,98.78
-gpu_usage_avg_pct,Medium,Q4_K_M,98.33,98.59,0.58,0.3344,96.97,98.64
-gpu_usage_avg_pct,Medium,Q8_0,98.58,98.69,0.28,0.0805,98,98.83
-gpu_usage_avg_pct,Long,Q4_K_M,98.6,98.71,0.32,0.1034,97.76,98.85
-gpu_usage_avg_pct,Long,Q8_0,98.8,98.81,0.07,0.005442,98.66,98.89
+setup,metric,prompt_size,quantization,mean,median,sd,var,min,max
+On-device,energy_j_per_output_token,Short,Q4_K_M,1.165,0.978,0.462,0.2137,0.949,2.431
+On-device,energy_j_per_output_token,Short,Q8_0,1.502,1.502,0.047,0.002165,1.42,1.597
+Remote (baseline),energy_j_per_output_token,Short,Q4_K_M,3.933,3.976,0.08,0.006352,3.801,4.001
+Remote (baseline),energy_j_per_output_token,Short,Q8_0,5.436,5.452,0.071,0.004976,5.248,5.494
+On-device,energy_j_per_output_token,Medium,Q4_K_M,1.576,1.088,1.329,1.766,1.015,5.332
+On-device,energy_j_per_output_token,Medium,Q8_0,1.549,1.542,0.063,0.003922,1.469,1.706
+Remote (baseline),energy_j_per_output_token,Medium,Q4_K_M,3.878,3.905,0.061,0.003708,3.742,3.929
+Remote (baseline),energy_j_per_output_token,Medium,Q8_0,5.432,5.464,0.097,0.00947,5.21,5.519
+On-device,energy_j_per_output_token,Long,Q4_K_M,1.175,1.17,0.031,9.591e-4,1.139,1.246
+On-device,energy_j_per_output_token,Long,Q8_0,1.685,1.684,0.076,0.005714,1.514,1.784
+Remote (baseline),energy_j_per_output_token,Long,Q4_K_M,4.037,4.08,0.123,0.01503,3.701,4.111
+Remote (baseline),energy_j_per_output_token,Long,Q8_0,5.519,5.552,0.114,0.01295,5.227,5.613
+On-device,total_energy_j,Short,Q4_K_M,1600,1343,635,402900,1303,3338
+On-device,total_energy_j,Short,Q8_0,2224,2238,143,20540,2036,2454
+Remote (baseline),total_energy_j,Short,Q4_K_M,4908,4915,372,138500,4441,5454
+Remote (baseline),total_energy_j,Short,Q8_0,8219,8328,217,47240,7878,8438
+On-device,total_energy_j,Medium,Q4_K_M,2420,1671,2041,4167000,1560,8189
+On-device,total_energy_j,Medium,Q8_0,2380,2369,96,9254,2256,2620
+Remote (baseline),total_energy_j,Medium,Q4_K_M,5956,5998,94,8749,5748,6035
+Remote (baseline),total_energy_j,Medium,Q8_0,8344,8392,149,22340,8003,8477
+On-device,total_energy_j,Long,Q4_K_M,1804,1797,48,2263,1749,1914
+On-device,total_energy_j,Long,Q8_0,2589,2586,116,13480,2325,2740
+Remote (baseline),total_energy_j,Long,Q4_K_M,6202,6266,188,35470,5685,6315
+Remote (baseline),total_energy_j,Long,Q8_0,8476,8528,175,30550,8029,8622
+On-device,wall_time_s,Short,Q4_K_M,89,89.5,9.1,83.55,68.3,100.1
+On-device,wall_time_s,Short,Q8_0,151.1,151.8,9.1,83.32,137.5,165.2
+Remote (baseline),wall_time_s,Short,Q4_K_M,10.3,10.2,0.8,0.6499,9.2,11.7
+Remote (baseline),wall_time_s,Short,Q8_0,17.9,18.1,0.5,0.2194,17.1,18.2
+On-device,wall_time_s,Medium,Q4_K_M,103.1,107.5,12.3,152,84.7,119.6
+On-device,wall_time_s,Medium,Q8_0,159.8,160.6,5.8,34.11,145.8,167.2
+Remote (baseline),wall_time_s,Medium,Q4_K_M,12.8,12.9,0.3,0.08261,12.2,13
+Remote (baseline),wall_time_s,Medium,Q8_0,18.3,18.4,0.3,0.07266,17.7,18.5
+On-device,wall_time_s,Long,Q4_K_M,126,122.8,8.4,70.58,118.3,147.1
+On-device,wall_time_s,Long,Q8_0,175.1,177.2,7.3,53.13,159.1,185.7
+Remote (baseline),wall_time_s,Long,Q4_K_M,13.1,13.2,0.1,0.01955,12.8,13.3
+Remote (baseline),wall_time_s,Long,Q8_0,18.6,18.6,0.1,0.02015,18.3,18.7
+On-device,memory_avg_mb,Short,Q4_K_M,14584,14572,45,2012,14541,14685
+On-device,memory_avg_mb,Short,Q8_0,16054,16040,181,32760,15873,16523
+Remote (baseline),memory_avg_mb,Short,Q4_K_M,2386,2376,31,989.6,2351,2455
+Remote (baseline),memory_avg_mb,Short,Q8_0,2403,2398,17,291,2385,2440
+On-device,memory_avg_mb,Medium,Q4_K_M,14527,14517,46,2120,14442,14610
+On-device,memory_avg_mb,Medium,Q8_0,16012,16019,69,4830,15882,16110
+Remote (baseline),memory_avg_mb,Medium,Q4_K_M,2390,2389,24,589.3,2351,2427
+Remote (baseline),memory_avg_mb,Medium,Q8_0,2378,2369,28,774.4,2347,2438
+On-device,memory_avg_mb,Long,Q4_K_M,14476,14500,85,7224,14244,14535
+On-device,memory_avg_mb,Long,Q8_0,16035,16026,189,35680,15850,16519
+Remote (baseline),memory_avg_mb,Long,Q4_K_M,2381,2370,31,960.4,2347,2437
+Remote (baseline),memory_avg_mb,Long,Q8_0,2382,2378,26,659.8,2337,2423
+On-device,cpu_usage_avg_pct,Short,Q4_K_M,4.19,2.25,4.54,20.6,1.23,13.49
+On-device,cpu_usage_avg_pct,Short,Q8_0,9.04,11.46,6.25,39.1,1.42,19.05
+Remote (baseline),cpu_usage_avg_pct,Short,Q4_K_M,13.06,13.06,0.02,4.816e-4,13.03,13.1
+Remote (baseline),cpu_usage_avg_pct,Short,Q8_0,13.4,13.4,0.01,8.392e-5,13.39,13.42
+On-device,cpu_usage_avg_pct,Medium,Q4_K_M,3.01,1.66,3.7,13.68,1.29,13.41
+On-device,cpu_usage_avg_pct,Medium,Q8_0,5.21,4.29,3.4,11.57,1.37,11.24
+Remote (baseline),cpu_usage_avg_pct,Medium,Q4_K_M,13.13,13.14,0.02,3.637e-4,13.09,13.15
+Remote (baseline),cpu_usage_avg_pct,Medium,Q8_0,13.4,13.4,0.01,9.193e-5,13.39,13.41
+On-device,cpu_usage_avg_pct,Long,Q4_K_M,2.93,1.63,3.32,11.05,1.31,12.09
+On-device,cpu_usage_avg_pct,Long,Q8_0,5.91,5.39,4.14,17.11,1.39,14.78
+Remote (baseline),cpu_usage_avg_pct,Long,Q4_K_M,13.13,13.14,0.01,1.166e-4,13.12,13.15
+Remote (baseline),cpu_usage_avg_pct,Long,Q8_0,13.4,13.4,0.01,2.826e-5,13.39,13.41
+On-device,gpu_usage_avg_pct,Short,Q4_K_M,98.28,98.58,0.5,0.2501,97.32,98.63
+On-device,gpu_usage_avg_pct,Short,Q8_0,98.64,98.75,0.21,0.04396,98.16,98.78
+Remote (baseline),gpu_usage_avg_pct,Short,Q4_K_M,96.33,96.1,0.43,0.1867,95.91,96.93
+Remote (baseline),gpu_usage_avg_pct,Short,Q8_0,97.24,97.08,0.32,0.1017,97,97.96
+On-device,gpu_usage_avg_pct,Medium,Q4_K_M,98.33,98.59,0.58,0.3344,96.97,98.64
+On-device,gpu_usage_avg_pct,Medium,Q8_0,98.58,98.69,0.28,0.0805,98,98.83
+Remote (baseline),gpu_usage_avg_pct,Medium,Q4_K_M,96.57,96.8,0.46,0.2151,95.95,97.02
+Remote (baseline),gpu_usage_avg_pct,Medium,Q8_0,97.31,97.11,0.39,0.1538,96.98,98
+On-device,gpu_usage_avg_pct,Long,Q4_K_M,98.6,98.71,0.32,0.1034,97.76,98.85
+On-device,gpu_usage_avg_pct,Long,Q8_0,98.8,98.81,0.07,0.005442,98.66,98.89
+Remote (baseline),gpu_usage_avg_pct,Long,Q4_K_M,96.45,96.25,0.45,0.1983,96.05,97.08
+Remote (baseline),gpu_usage_avg_pct,Long,Q8_0,97.38,97.21,0.33,0.1087,97.09,97.96
