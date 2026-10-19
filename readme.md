@@ -152,8 +152,8 @@ replace `<user>` with your account name on the server.
 3. **Copy the runner and the prompts to the server** (from the repository root on the MacBook):
 
    ```bash
-   scp scripts/run_remote_benchmark.py requirements.txt <remote-host>:~/greenlabbench/scripts/
-   scp prompts/prompt_small.txt prompts/prompt_medium.txt prompts/prompt_large.txt <remote-host>:~/greenlabbench/prompts/
+   scp -O scripts/run_remote_benchmark.py requirements.txt <remote-host>:~/greenlabbench/scripts/
+   scp -O prompts/prompt_small.txt prompts/prompt_medium.txt prompts/prompt_large.txt <remote-host>:~/greenlabbench/prompts/
    ```
 
 4. **Create the Python environment on the server.** The runner activates the virtual environment
@@ -191,7 +191,7 @@ replace `<user>` with your account name on the server.
    there directly):
 
    ```bash
-   scp models/Qwen3-8B-Q4_K_M.gguf models/Qwen3-8B-Q8_0.gguf \
+   scp -O models/Qwen3-8B-Q4_K_M.gguf models/Qwen3-8B-Q8_0.gguf \
        models/kalomaze_Qwen3-16B-A3B-Q4_K_M.gguf <remote-host>:~/greenlabbench/models/
    ```
 
