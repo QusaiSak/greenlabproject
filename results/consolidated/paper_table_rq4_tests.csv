@@ -1,28 +1,28 @@
-config,prompt_size,metric,friedman_chi2,friedman_p_holm,test_d100,test_d500,p_holm_d100,p_holm_d500,effect_d100,effect_d500,effect_size_d100,effect_size_d500
-Qwen3-8B (Dense) Q4_K_M,Short,energy_j_per_output_token,1.8,1,Wilcoxon signed-rank,paired t,1,1,Cliff's delta,Cohen's d,0.22,0.09
-Qwen3-8B (Dense) Q4_K_M,Medium,energy_j_per_output_token,7.4,0.173,Wilcoxon signed-rank,paired t,1,0.975,Cliff's delta,Cohen's d,0.32,0.8
-Qwen3-8B (Dense) Q4_K_M,Long,energy_j_per_output_token,1.4,1,paired t,paired t,1,1,Cohen's d,Cohen's d,0.34,0.27
-Qwen3-8B (Dense) Q8_0,Short,energy_j_per_output_token,12.6,0.0366,paired t,paired t,1,0.113,Cohen's d,Cohen's d,0.54,1.45
-Qwen3-8B (Dense) Q8_0,Medium,energy_j_per_output_token,9.8,0.0819,paired t,paired t,1,0.254,Cohen's d,Cohen's d,-0.21,1.27
-Qwen3-8B (Dense) Q8_0,Long,energy_j_per_output_token,15.2,0.013,Wilcoxon signed-rank,Wilcoxon signed-rank,1,0.448,Cliff's delta,Cliff's delta,0.1,0.54
-Qwen3-16B-A3B (MoE) Q4_K_M,Short,energy_j_per_output_token,12.8,0.0366,Wilcoxon signed-rank,paired t,0.975,0.1,Cliff's delta,Cohen's d,0.58,1.49
-Qwen3-16B-A3B (MoE) Q4_K_M,Medium,energy_j_per_output_token,10.4,0.0772,paired t,paired t,0.883,0.21,Cohen's d,Cohen's d,0.84,1.31
-Qwen3-16B-A3B (MoE) Q4_K_M,Long,energy_j_per_output_token,16.2,0.00971,paired t,Wilcoxon signed-rank,0.424,0.448,Cohen's d,Cliff's delta,1.15,0.8
-Qwen3-8B (Dense) Q4_K_M,Short,wall_time_s,20,0.00245,Wilcoxon signed-rank,paired t,0.448,1.23e-8,Cliff's delta,Cohen's d,0.28,10.33
-Qwen3-8B (Dense) Q4_K_M,Medium,wall_time_s,20,0.00245,Wilcoxon signed-rank,paired t,0.448,8.1e-8,Cliff's delta,Cohen's d,0.66,8.33
-Qwen3-8B (Dense) Q4_K_M,Long,wall_time_s,20,0.00245,paired t,paired t,0.00766,3.17e-8,Cohen's d,Cohen's d,2.14,9.28
-Qwen3-8B (Dense) Q8_0,Short,wall_time_s,20,0.00245,paired t,paired t,0.00106,1.86e-7,Cohen's d,Cohen's d,2.76,7.57
-Qwen3-8B (Dense) Q8_0,Medium,wall_time_s,20,0.00245,paired t,paired t,0.00368,2.9e-7,Cohen's d,Cohen's d,2.35,7.2
-Qwen3-8B (Dense) Q8_0,Long,wall_time_s,20,0.00245,paired t,paired t,0.00284,7.55e-8,Cohen's d,Cohen's d,2.43,8.41
-Qwen3-16B-A3B (MoE) Q4_K_M,Short,wall_time_s,20,0.00245,paired t,paired t,0.00192,7.98e-9,Cohen's d,Cohen's d,2.56,10.86
-Qwen3-16B-A3B (MoE) Q4_K_M,Medium,wall_time_s,20,0.00245,paired t,Wilcoxon signed-rank,0.0019,0.448,Cohen's d,Cliff's delta,2.57,0.86
-Qwen3-16B-A3B (MoE) Q4_K_M,Long,wall_time_s,20,0.00245,Wilcoxon signed-rank,Wilcoxon signed-rank,0.448,0.448,Cliff's delta,Cliff's delta,0.9,1
-Qwen3-8B (Dense) Q4_K_M,Short,client_j_per_output_token,20,0.00245,Wilcoxon signed-rank,Wilcoxon signed-rank,0.448,0.448,Cliff's delta,Cliff's delta,-1,-1
-Qwen3-8B (Dense) Q4_K_M,Medium,client_j_per_output_token,20,0.00245,paired t,paired t,4.34e-6,2.87e-6,Cohen's d,Cohen's d,-5.28,-5.54
-Qwen3-8B (Dense) Q4_K_M,Long,client_j_per_output_token,18.2,0.0038,Wilcoxon signed-rank,Wilcoxon signed-rank,0.448,0.448,Cliff's delta,Cliff's delta,-1,-0.9
-Qwen3-8B (Dense) Q8_0,Short,client_j_per_output_token,15.2,0.013,paired t,paired t,0.0192,1,Cohen's d,Cohen's d,-1.89,0.57
-Qwen3-8B (Dense) Q8_0,Medium,client_j_per_output_token,15.8,0.0108,Wilcoxon signed-rank,Wilcoxon signed-rank,0.448,1,Cliff's delta,Cliff's delta,-1,0
-Qwen3-8B (Dense) Q8_0,Long,client_j_per_output_token,15,0.013,Wilcoxon signed-rank,paired t,0.448,1,Cliff's delta,Cohen's d,-1,0.46
-Qwen3-16B-A3B (MoE) Q4_K_M,Short,client_j_per_output_token,15.8,0.0108,paired t,Wilcoxon signed-rank,1,0.448,Cohen's d,Cliff's delta,0.07,1
-Qwen3-16B-A3B (MoE) Q4_K_M,Medium,client_j_per_output_token,15.8,0.0108,paired t,paired t,1,1.13e-7,Cohen's d,Cohen's d,0.16,8.02
-Qwen3-16B-A3B (MoE) Q4_K_M,Long,client_j_per_output_token,12.2,0.0366,Wilcoxon signed-rank,Wilcoxon signed-rank,1,0.448,Cliff's delta,Cliff's delta,0.12,1
+config,prompt_size,metric,omnibus_test,omnibus_stat,omnibus_df,omnibus_p_holm,test_d100,test_d500,p_holm_d100,p_holm_d500,effect_d100,effect_d500,effect_size_d100,effect_size_d500
+Qwen3-8B (Dense) Q4_K_M,Short,energy_j_per_output_token,Kruskal-Wallis,1.7,2,1,Mann-Whitney U,Mann-Whitney U,1,1,Cliff's delta,Cliff's delta,0.22,-0.04
+Qwen3-8B (Dense) Q4_K_M,Medium,energy_j_per_output_token,Kruskal-Wallis,2.8,2,1,Mann-Whitney U,Mann-Whitney U,1,1,Cliff's delta,Cliff's delta,0.32,0.4
+Qwen3-8B (Dense) Q4_K_M,Long,energy_j_per_output_token,Kruskal-Wallis,0.4,2,1,Mann-Whitney U,Mann-Whitney U,1,1,Cliff's delta,Cliff's delta,0.12,-0.08
+Qwen3-8B (Dense) Q8_0,Short,energy_j_per_output_token,Kruskal-Wallis,9.8,2,0.198,Mann-Whitney U,Mann-Whitney U,1,0.235,Cliff's delta,Cliff's delta,0.2,0.78
+Qwen3-8B (Dense) Q8_0,Medium,energy_j_per_output_token,Kruskal-Wallis,4,2,1,Mann-Whitney U,Mann-Whitney U,1,1,Cliff's delta,Cliff's delta,-0.16,0.34
+Qwen3-8B (Dense) Q8_0,Long,energy_j_per_output_token,Kruskal-Wallis,5,2,1,Mann-Whitney U,Mann-Whitney U,1,1,Cliff's delta,Cliff's delta,0.1,0.54
+Qwen3-16B-A3B (MoE) Q4_K_M,Short,energy_j_per_output_token,Welch ANOVA,6.4,"2, 17.9",0.198,Welch t,Welch t,1,0.173,Cohen's d,Cohen's d,1.08,1.58
+Qwen3-16B-A3B (MoE) Q4_K_M,Medium,energy_j_per_output_token,Kruskal-Wallis,4.7,2,1,Mann-Whitney U,Mann-Whitney U,1,0.691,Cliff's delta,Cliff's delta,0.28,0.68
+Qwen3-16B-A3B (MoE) Q4_K_M,Long,energy_j_per_output_token,Kruskal-Wallis,11,2,0.12,Mann-Whitney U,Mann-Whitney U,1,0.192,Cliff's delta,Cliff's delta,0.6,0.8
+Qwen3-8B (Dense) Q4_K_M,Short,wall_time_s,Welch ANOVA,5.6,"2, 18.0",0.289,Welch t,Welch t,1,0.289,Cohen's d,Cohen's d,0.33,1.44
+Qwen3-8B (Dense) Q4_K_M,Medium,wall_time_s,Kruskal-Wallis,22.2,2,6.15e-4,Mann-Whitney U,Mann-Whitney U,0.841,0.0189,Cliff's delta,Cliff's delta,0.66,1
+Qwen3-8B (Dense) Q4_K_M,Long,wall_time_s,Kruskal-Wallis,23.9,2,2.7e-4,Mann-Whitney U,Mann-Whitney U,0.119,0.0189,Cliff's delta,Cliff's delta,0.84,1
+Qwen3-8B (Dense) Q8_0,Short,wall_time_s,Kruskal-Wallis,14.9,2,0.0171,Mann-Whitney U,Mann-Whitney U,1,0.0569,Cliff's delta,Cliff's delta,0.5,0.9
+Qwen3-8B (Dense) Q8_0,Medium,wall_time_s,Kruskal-Wallis,21.9,2,6.97e-4,Mann-Whitney U,Mann-Whitney U,0.841,0.0189,Cliff's delta,Cliff's delta,0.66,1
+Qwen3-8B (Dense) Q8_0,Long,wall_time_s,Kruskal-Wallis,21.5,2,8.03e-4,Mann-Whitney U,Mann-Whitney U,1,0.0189,Cliff's delta,Cliff's delta,0.58,1
+Qwen3-16B-A3B (MoE) Q4_K_M,Short,wall_time_s,Welch ANOVA,3.6,"2, 18.0",0.991,Welch t,Welch t,1,1,Cohen's d,Cohen's d,0.3,1.17
+Qwen3-16B-A3B (MoE) Q4_K_M,Medium,wall_time_s,Kruskal-Wallis,15.5,2,0.0135,Mann-Whitney U,Mann-Whitney U,1,0.0934,Cliff's delta,Cliff's delta,0.51,0.86
+Qwen3-16B-A3B (MoE) Q4_K_M,Long,wall_time_s,Kruskal-Wallis,24.6,2,1.98e-4,Mann-Whitney U,Mann-Whitney U,0.0569,0.0189,Cliff's delta,Cliff's delta,0.9,1
+Qwen3-8B (Dense) Q4_K_M,Short,client_j_per_output_token,Kruskal-Wallis,22.9,2,4.39e-4,Mann-Whitney U,Mann-Whitney U,0.0189,0.0189,Cliff's delta,Cliff's delta,-1,-1
+Qwen3-8B (Dense) Q4_K_M,Medium,client_j_per_output_token,Welch ANOVA,159.5,"2, 14.3",8.8e-9,Welch t,Welch t,8.53e-7,1.44e-6,Cohen's d,Cohen's d,-7.34,-8.09
+Qwen3-8B (Dense) Q4_K_M,Long,client_j_per_output_token,Kruskal-Wallis,19.7,2,0.00194,Mann-Whitney U,Mann-Whitney U,0.0189,0.0569,Cliff's delta,Cliff's delta,-1,-0.9
+Qwen3-8B (Dense) Q8_0,Short,client_j_per_output_token,Kruskal-Wallis,19.2,2,0.00227,Mann-Whitney U,Mann-Whitney U,0.0189,1,Cliff's delta,Cliff's delta,-1,0.32
+Qwen3-8B (Dense) Q8_0,Medium,client_j_per_output_token,Kruskal-Wallis,19.4,2,0.00219,Mann-Whitney U,Mann-Whitney U,0.0189,1,Cliff's delta,Cliff's delta,-1,0
+Qwen3-8B (Dense) Q8_0,Long,client_j_per_output_token,Kruskal-Wallis,19.5,2,0.00208,Mann-Whitney U,Mann-Whitney U,0.0189,1,Cliff's delta,Cliff's delta,-1,0.16
+Qwen3-16B-A3B (MoE) Q4_K_M,Short,client_j_per_output_token,Kruskal-Wallis,19.4,2,0.00219,Welch t,Mann-Whitney U,1,0.0189,Cohen's d,Cliff's delta,0.09,1
+Qwen3-16B-A3B (MoE) Q4_K_M,Medium,client_j_per_output_token,Welch ANOVA,96.3,"2, 16.0",6.35e-8,Welch t,Welch t,1,5.3e-8,Cohen's d,Cohen's d,0.21,6.26
+Qwen3-16B-A3B (MoE) Q4_K_M,Long,client_j_per_output_token,Kruskal-Wallis,16.3,2,0.00918,Mann-Whitney U,Mann-Whitney U,1,0.0189,Cliff's delta,Cliff's delta,0.12,1

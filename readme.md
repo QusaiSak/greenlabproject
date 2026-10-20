@@ -76,7 +76,7 @@ also be available on the server in `DEFAULT_REMOTE_MODEL_DIR`.
 2. Install the R packages (needed for the analysis):
 
    ```r
-   install.packages(c("jsonlite", "readr", "dplyr", "purrr", "ggplot2", "tidyr"))
+   install.packages(c("jsonlite", "readr", "dplyr", "purrr", "ggplot2", "tidyr", "ARTool"))
    ```
 
 3. Create a Python virtual environment and install the Python packages (needed for the benchmark):
@@ -272,10 +272,12 @@ The script reads `results/raw/`, writes CSV files to `results/consolidated/` and
 `results/consolidated/plots/` (the plots folder is emptied first, so no stale figures remain). All
 results, tables and figures can be regenerated with this one command.
 
-Statistical procedure: runs are paired by repetition number within the same prompt
-length. Shapiro-Wilk is applied to the paired differences; if normality holds a paired t-test with
-Cohen's d is used, otherwise a Wilcoxon signed-rank test with Cliff's delta. RQ4 (three delay levels)
-additionally uses a Friedman test. All p-values are Holm-corrected within each research question
+Statistical procedure: each treatment was run in its own session, so the groups are compared as
+independent samples within the same prompt length. Shapiro-Wilk is applied to each group; if both are
+normal a Welch t-test with Cohen's d is used, otherwise a Mann-Whitney U test with Cliff's delta.
+RQ4 (three delay levels) first uses an omnibus test (Welch ANOVA if all groups are normal, otherwise
+Kruskal-Wallis). The RQ1 setup × prompt-length interaction is tested with a mixed ANOVA (ART ANOVA if
+the residuals are not normal). All p-values are Holm-corrected within each research question
 (RQ2 and RQ3: within each setup).
 
 | Output | Content |
@@ -284,9 +286,10 @@ additionally uses a Friedman test. All p-values are Holm-corrected within each r
 | `data_quality.csv` | Every run with its validity flag |
 | `outliers.csv` | IQR-rule outliers per group, and runs slower than 2x the group median |
 | `RQ1_summary.csv` … `RQ4_summary.csv` | n, mean, SD, variance, median, IQR, min, max and 95% CI per condition |
-| `RQ1_tests.csv` … `RQ4_tests.csv` | Paired tests with Shapiro-Wilk p, test used, Holm-adjusted p, Cohen's d and Cliff's delta |
-| `RQ4_friedman.csv` | Friedman test across the three network conditions |
-| `normality_summary.csv` | Number of cells where normality of the paired differences holds, per metric |
+| `RQ1_tests.csv` … `RQ4_tests.csv` | Independent-sample tests with per-group Shapiro-Wilk p, test used, Holm-adjusted p, Cohen's d and Cliff's delta |
+| `RQ1_interaction_anova.csv` | Mixed two-way ANOVA (setup between, prompt length within) per model: residual Shapiro-Wilk p, mixed and ART ANOVA F/p, partial eta², test used, Holm-adjusted p |
+| `RQ4_omnibus.csv` | Welch ANOVA or Kruskal-Wallis test across the three network conditions |
+| `normality_summary.csv` | Number of cells where both groups pass Shapiro-Wilk, per metric |
 | `paper_table_*.csv` | Compact, rounded summary tables (descriptive statistics and tests per RQ, SCI) |
 | `SCI_summary.csv`, `SCI_summary_by_prompt.csv` | Carbon footprint per setup and model, by sub-component, and for the whole experiment |
 | `SCI_assumptions.csv` | Embodied-carbon parameters and PUE for the central, low and high scenarios |

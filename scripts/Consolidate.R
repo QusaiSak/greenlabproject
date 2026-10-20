@@ -1,4 +1,4 @@
-required_packages <- c("jsonlite", "readr", "dplyr", "purrr", "ggplot2", "tidyr")
+required_packages <- c("jsonlite", "readr", "dplyr", "purrr", "ggplot2", "tidyr", "ARTool")
 missing_packages <- required_packages[!vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)]
 if (length(missing_packages) > 0) {
   stop("Install missing packages first: ", paste(missing_packages, collapse = ", "))
@@ -395,34 +395,36 @@ cliffs_delta <- function(a, b) {
   mean(sign(outer(a, b, "-")))
 }
 
-# Paired comparison of two levels of `factor_col`, per stratum. Runs are paired by repetition number.
-# Shapiro-Wilk on the paired differences decides the test: paired t-test (+ Cohen's d) when normal,
-# Wilcoxon signed-rank (+ Cliff's delta) otherwise. Both effect sizes are always reported.
+# Comparison of two levels of `factor_col`, per stratum. The treatments were measured in separate
+# sessions (different days / machines), so repetition k of one treatment is not related to repetition k
+# of the other: the two groups are treated as independent samples.
+# Shapiro-Wilk on each group decides the test: Welch's t-test (+ Cohen's d, pooled SD) when both groups
+# are normal, Mann-Whitney U (+ Cliff's delta) otherwise. Both effect sizes are always reported.
 pairwise_test_two <- function(data, factor_col, lv, strata, metrics) {
+  sw_p <- function(x) if (length(unique(x)) >= 3) shapiro.test(x)$p.value else NA_real_
   data %>%
     filter(.data[[factor_col]] %in% lv) %>%
-    select(all_of(c(factor_col, strata, "run", metrics))) %>%
+    select(all_of(c(factor_col, strata, metrics))) %>%
     pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
     group_by(across(all_of(c(strata, "metric")))) %>%
     group_modify(function(g, key) {
-      a <- g[g[[factor_col]] == lv[1], c("run", "value")]
-      b <- g[g[[factor_col]] == lv[2], c("run", "value")]
-      p <- inner_join(a, b, by = "run", suffix = c("_a", "_b")) %>% filter(is.finite(value_a), is.finite(value_b))
-      if (nrow(p) < 3) return(tibble())
-      d <- p$value_b - p$value_a
-      sw <- if (length(unique(d)) >= 3) shapiro.test(d)$p.value else NA_real_
-      normal <- is.finite(sw) && sw > 0.05
-      p_t <- if (sd(d) > 0) t.test(p$value_b, p$value_a, paired = TRUE)$p.value else 1
-      p_w <- if (any(d != 0)) suppressWarnings(wilcox.test(p$value_b, p$value_a, paired = TRUE, exact = FALSE)$p.value) else 1
+      a <- g$value[g[[factor_col]] == lv[1]]; a <- a[is.finite(a)]
+      b <- g$value[g[[factor_col]] == lv[2]]; b <- b[is.finite(b)]
+      if (length(a) < 3 || length(b) < 3) return(tibble())
+      sw_a <- sw_p(a); sw_b <- sw_p(b)
+      normal <- is.finite(sw_a) && is.finite(sw_b) && sw_a > 0.05 && sw_b > 0.05
+      sp <- sqrt(((length(a) - 1) * var(a) + (length(b) - 1) * var(b)) / (length(a) + length(b) - 2))
+      p_t <- if (sd(a) > 0 || sd(b) > 0) t.test(b, a, var.equal = FALSE)$p.value else 1
+      p_u <- if (!identical(sort(a), sort(b))) suppressWarnings(wilcox.test(b, a, exact = FALSE)$p.value) else 1
       tibble(
-        group_a = lv[1], group_b = lv[2], n_pairs = nrow(p),
-        median_a = median(p$value_a), median_b = median(p$value_b),
-        pct_change_b_vs_a = 100 * (median(p$value_b) - median(p$value_a)) / median(p$value_a),
-        shapiro_p_diff = sw, normal_diff = normal,
-        test = ifelse(normal, "paired t", "Wilcoxon signed-rank"),
-        p_value = ifelse(normal, p_t, p_w),
-        cohens_d = ifelse(sd(d) > 0, mean(d) / sd(d), NA_real_),
-        cliffs_delta_b_vs_a = cliffs_delta(p$value_b, p$value_a)
+        group_a = lv[1], group_b = lv[2], n_a = length(a), n_b = length(b),
+        median_a = median(a), median_b = median(b),
+        pct_change_b_vs_a = 100 * (median(b) - median(a)) / median(a),
+        shapiro_p_a = sw_a, shapiro_p_b = sw_b, normal = normal,
+        test = ifelse(normal, "Welch t", "Mann-Whitney U"),
+        p_value = ifelse(normal, p_t, p_u),
+        cohens_d = ifelse(sp > 0, (mean(b) - mean(a)) / sp, NA_real_),
+        cliffs_delta_b_vs_a = cliffs_delta(b, a)
       )
     }) %>%
     ungroup()
@@ -436,28 +438,80 @@ pairwise_tests <- function(data, factor_col, strata, metrics, rq) {
     mutate(rq = rq, p_holm = p.adjust(p_value, "holm"), .before = 1)
 }
 
-# Friedman test (paired, k levels) per stratum; blocks = repetition number.
-friedman_tests <- function(data, factor_col, strata, metrics, rq) {
+# Omnibus test over k independent levels per stratum: Welch's one-way ANOVA when every group passes
+# Shapiro-Wilk, Kruskal-Wallis otherwise.
+omnibus_tests <- function(data, factor_col, strata, metrics, rq) {
   data %>%
-    select(all_of(c(factor_col, strata, "run", metrics))) %>%
+    select(all_of(c(factor_col, strata, metrics))) %>%
     pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
     group_by(across(all_of(c(strata, "metric")))) %>%
     group_modify(function(g, key) {
-      w <- g %>% transmute(run, lvl = as.character(.data[[factor_col]]), value) %>%
-        pivot_wider(names_from = lvl, values_from = value) %>% na.omit()
-      if (nrow(w) < 3) return(tibble())
-      ft <- friedman.test(as.matrix(w[, -1]))
-      tibble(n_blocks = nrow(w), chi2 = unname(ft$statistic), df = unname(ft$parameter), p_value = ft$p.value)
+      g <- g %>% transmute(f = droplevels(factor(.data[[factor_col]])), value) %>% filter(is.finite(value))
+      if (nlevels(g$f) < 2 || min(table(g$f)) < 3) return(tibble())
+      sw <- tapply(g$value, g$f, function(x) if (length(unique(x)) >= 3) shapiro.test(x)$p.value else NA_real_)
+      normal <- all(is.finite(sw)) && all(sw > 0.05)
+      if (normal) {
+        ft <- oneway.test(value ~ f, data = g, var.equal = FALSE)
+        tibble(n = nrow(g), min_shapiro_p = min(sw), normal = TRUE, test = "Welch ANOVA",
+               statistic = unname(ft$statistic), df1 = unname(ft$parameter[1]), df2 = unname(ft$parameter[2]),
+               p_value = ft$p.value)
+      } else {
+        kt <- kruskal.test(value ~ f, data = g)
+        tibble(n = nrow(g), min_shapiro_p = suppressWarnings(min(sw, na.rm = TRUE)), normal = FALSE, test = "Kruskal-Wallis",
+               statistic = unname(kt$statistic), df1 = unname(kt$parameter), df2 = NA_real_, p_value = kt$p.value)
+      }
     }) %>%
     ungroup() %>%
     mutate(rq = rq, p_holm = p.adjust(p_value, "holm"), .before = 1)
 }
 
-# Share of paired-difference cells that pass Shapiro-Wilk, per metric.
+# Mixed two-way ANOVA (factor x prompt length) per stratum. The factor levels come from separate sessions
+# (between-subjects); the three prompt lengths of repetition k were run in the same block of one session
+# (within-subjects), so the subject is the session block (factor level x repetition number).
+# Shapiro-Wilk on the residuals of the within stratum decides the test: ANOVA when normal,
+# aligned rank transform (ART) ANOVA otherwise.
+interaction_anova <- function(data, factor_col, strata, metrics, rq) {
+  data %>%
+    select(all_of(c(factor_col, strata, "prompt_size", "run", metrics))) %>%
+    pivot_longer(all_of(metrics), names_to = "metric", values_to = "value") %>%
+    group_by(across(all_of(c(strata, "metric")))) %>%
+    group_modify(function(g, key) {
+      g <- g %>% transmute(f = droplevels(factor(.data[[factor_col]])), prompt_size = droplevels(factor(prompt_size)),
+                           run = factor(run), value) %>% filter(is.finite(value)) %>%
+        mutate(subject = interaction(f, run, drop = TRUE))
+      # Keep only session blocks observed at every prompt length (balanced design).
+      full <- g %>% count(subject) %>% filter(n == nlevels(g$prompt_size)) %>% pull(subject)
+      g <- g %>% filter(subject %in% full) %>% droplevels()
+      if (min(table(g$f)) < 3 * nlevels(g$prompt_size)) return(tibble())
+      fit <- aov(value ~ f * prompt_size + Error(subject / prompt_size), data = g)
+      st <- summary(fit[["subject:prompt_size"]])[[1]]
+      st <- st[c(grep("f:prompt_size", rownames(st)), grep("Residuals", rownames(st))), , drop = FALSE]
+      ss <- st[["Sum Sq"]]
+      res <- residuals(fit[["subject:prompt_size"]])
+      sw <- if (length(unique(round(res, 12))) >= 3) shapiro.test(res)$p.value else NA_real_
+      normal <- is.finite(sw) && sw > 0.05
+      a <- anova(ARTool::art(value ~ f * prompt_size + Error(subject), data = g))
+      art_row <- a[a$Term == "f:prompt_size", ]
+      tibble(
+        n_subjects = nlevels(g$subject), shapiro_p_resid = sw, normal_resid = normal,
+        anova_F = st[1, "F value"], anova_df1 = st[1, "Df"], anova_df2 = st[2, "Df"], anova_p = st[1, "Pr(>F)"],
+        partial_eta2 = ss[1] / (ss[1] + ss[2]),
+        art_F = art_row$F, art_df2 = art_row$Df.res, art_p = art_row$`Pr(>F)`,
+        art_partial_eta2 = art_row$F * art_row$Df / (art_row$F * art_row$Df + art_row$Df.res),
+        test = ifelse(normal, "Mixed ANOVA", "ART ANOVA"),
+        p_value = ifelse(normal, anova_p, art_p),
+        eta2_reported = ifelse(normal, partial_eta2, art_partial_eta2)
+      )
+    }) %>%
+    ungroup() %>%
+    mutate(rq = rq, p_holm = p.adjust(p_value, "holm"), .before = 1)
+}
+
+# Share of test cells in which both groups pass Shapiro-Wilk, per metric.
 normality_summary <- function(tests) {
   # RQ2 / RQ3 are tested per setup (on-device and remote); RQ1 / RQ4 have no setup column (NA).
   tests %>% group_by(rq, across(any_of("setup")), group_b, metric) %>%
-    summarise(cells = n(), normal = sum(normal_diff), non_normal = cells - normal, .groups = "drop")
+    summarise(cells = n(), normal = sum(normal), non_normal = cells - normal, .groups = "drop")
 }
 
 # ============================================================
@@ -581,30 +635,27 @@ dist_figure <- function(data, metrics, group, pal, title, filename, by = NULL, n
   save_plot(p, filename, width, height)
 }
 
-# Normal Q-Q plots of the standardised paired differences (level - reference) for one metric.
+# Normal Q-Q plots of the values standardised within each group, for one metric.
 qq_figure <- function(data, factor_col, ref, others, metric, title, filename, width = 9, height = 6.5) {
-  d <- map_dfr(others, function(o) {
-    data %>% filter(.data[[factor_col]] %in% c(ref, o)) %>%
-      transmute(config, prompt_size, run, lvl = ifelse(.data[[factor_col]] == ref, "a", "b"), value = .data[[metric]]) %>%
-      pivot_wider(names_from = lvl, values_from = value) %>%
-      mutate(diff = b - a, comparison = paste(o, "-", ref))
-  }) %>%
-    filter(is.finite(diff)) %>%
+  # Groups are independent samples, so normality is checked per group (values standardised within group).
+  d <- data %>% filter(.data[[factor_col]] %in% c(ref, others)) %>%
+    transmute(config, prompt_size, comparison = factor(as.character(.data[[factor_col]]), levels = c(ref, others)),
+              value = .data[[metric]]) %>%
+    filter(is.finite(value)) %>%
     group_by(config, prompt_size, comparison) %>%
-    mutate(z = if (sd(diff) > 0) (diff - mean(diff)) / sd(diff) else 0) %>%
+    mutate(z = if (sd(value) > 0) (value - mean(value)) / sd(value) else 0) %>%
     ungroup()
   p <- ggplot(d, aes(sample = z, colour = comparison)) +
     stat_qq(size = 1.2, alpha = 0.8) +
     stat_qq_line(linewidth = 0.4) +
     facet_grid(rows = vars(config), cols = vars(prompt_size), labeller = labeller(config = label_wrap_gen(14))) +
-    labs(title = title, subtitle = paste("Standardised paired differences of", metric_labels[[metric]],
+    labs(title = title, subtitle = paste("Standardised values per group of", metric_labels[[metric]],
                                          "; points on the line = normal"),
          x = "Theoretical quantiles", y = "Sample quantiles", colour = NULL)
-  if (length(others) == 1) p <- p + scale_colour_manual(values = "#457b9d", guide = "none")
   save_plot(p, filename, width, height)
   # Paper version at column width (rows = configurations / setups).
   save_paper(p + labs(colour = NULL) + guides(colour = guide_legend(nrow = 2)),
-             paste0("paper_", filename), height = 0.6 + 1.0 * n_distinct(d$config) + 0.25 * (length(others) > 1))
+             paste0("paper_", filename), height = 0.6 + 1.0 * n_distinct(d$config) + 0.25)
 }
 
 # ------------------------------------------------------------
@@ -683,7 +734,7 @@ if (n_distinct(rq1_df$setup) == 2) {
     paper_single(rq1_df, m, "setup", PAL_SETUP, sprintf("paper_RQ1_%s.png", m))
   }
   qq_figure(rq1_df, "setup", "On-device", "Remote (baseline)", "energy_j_per_output_token",
-            "RQ1 · Normality of paired differences", "RQ1_02_qq_energy_per_token.png")
+            "RQ1 · Normality per group", "RQ1_02_qq_energy_per_token.png")
 
   write_csv(summarise_metrics(rq1_df, c("setup", "config", "prompt_size"),
                               c("prompt_tokens", RQ1_METRICS, "client_energy_j", "server_energy_j",
@@ -695,6 +746,9 @@ if (n_distinct(rq1_df$setup) == 2) {
 
   rq1_tests <- pairwise_tests(rq1_df, "setup", c("config", "prompt_size"), RQ1_METRICS, "RQ1")
   write_csv(rq1_tests, file.path(OUTPUT_DIR, "RQ1_tests.csv"), na = "")
+
+  rq1_interaction <- interaction_anova(rq1_df, "setup", "config", c("energy_j_per_output_token", "total_energy_j", "wall_time_s"), "RQ1")
+  write_csv(rq1_interaction, file.path(OUTPUT_DIR, "RQ1_interaction_anova.csv"), na = "")
 }
 
 # ============================================================
@@ -728,7 +782,7 @@ if (n_distinct(rq2_df$quantization) >= 2) {
                   sprintf("paper_RQ2_%s.png", ifelse(st == "On-device", "on_device", "remote")), height = 4.4)
   }
   qq_figure(rq2_df %>% mutate(config = setup), "quantization", "Q4_K_M", "Q8_0", "energy_j_per_output_token",
-            "RQ2 · Normality of paired differences (Q8_0 - Q4_K_M)", "RQ2_02_qq_energy_per_token.png", height = 5.5)
+            "RQ2 · Normality per group", "RQ2_02_qq_energy_per_token.png", height = 5.5)
 
   rq2_tests <- tests_per_setup(rq2_df, "quantization", RESOURCE_METRICS, "RQ2")
   write_csv(rq2_tests, file.path(OUTPUT_DIR, "RQ2_tests.csv"), na = "")
@@ -755,7 +809,7 @@ if (n_distinct(rq3_df$model_family) >= 2) {
                   sprintf("paper_RQ3_%s.png", ifelse(st == "On-device", "on_device", "remote")), height = 4.4)
   }
   qq_figure(rq3_df %>% mutate(config = setup), "model_family", "Qwen3-8B (Dense)", "Qwen3-16B-A3B (MoE)",
-            "energy_j_per_output_token", "RQ3 · Normality of paired differences (MoE - Dense)",
+            "energy_j_per_output_token", "RQ3 · Normality per group",
             "RQ3_02_qq_energy_per_token.png", height = 5.5)
 
   rq3_tests <- tests_per_setup(rq3_df, "model_family", RESOURCE_METRICS, "RQ3")
@@ -782,10 +836,10 @@ if (n_distinct(remote_df$setup) >= 2) {
   paper_metrics(remote_df, c("client_j_per_output_token", "network_rtt_ms"), "setup", pal_net,
                 "paper_RQ4_client_rtt.png", height = 4.6, by = "config")
   qq_figure(remote_df, "setup", delay_lv[1], delay_lv[-1], "energy_j_per_output_token",
-            "RQ4 · Normality of paired differences vs baseline", "RQ4_02_qq_energy_per_token.png")
+            "RQ4 · Normality per group", "RQ4_02_qq_energy_per_token.png")
 
-  rq4_friedman <- friedman_tests(remote_df, "setup", c("config", "prompt_size"), NET_METRICS, "RQ4")
-  write_csv(rq4_friedman, file.path(OUTPUT_DIR, "RQ4_friedman.csv"), na = "")
+  rq4_omnibus <- omnibus_tests(remote_df, "setup", c("config", "prompt_size"), NET_METRICS, "RQ4")
+  write_csv(rq4_omnibus, file.path(OUTPUT_DIR, "RQ4_omnibus.csv"), na = "")
   rq4_tests <- pairwise_tests(remote_df, "setup", c("config", "prompt_size"), NET_METRICS, "RQ4")
   write_csv(rq4_tests, file.path(OUTPUT_DIR, "RQ4_tests.csv"), na = "")
   write_csv(summarise_metrics(remote_df, c("setup", "config", "prompt_size"), NET_METRICS),
@@ -954,12 +1008,12 @@ round_desc <- function(d) {
                across(c(mean, median, sd, min, max), ~ round(.x, dg)),
                var = signif(var, 4)) %>% select(-dg)
 }
-# Test used, Shapiro p of the paired differences, Holm p and the matching effect size.
+# Test used, smallest Shapiro p of the two groups, Holm p and the matching effect size.
 paper_tests <- function(t, keys) {
   t %>% transmute(across(all_of(keys)), metric, comparison = paste(group_b, "vs", group_a), test,
-                  shapiro_p = round(shapiro_p_diff, 3), p_holm = signif(p_holm, 3),
-                  effect = ifelse(test == "paired t", "Cohen's d", "Cliff's delta"),
-                  effect_size = round(ifelse(test == "paired t", cohens_d, cliffs_delta_b_vs_a), 2))
+                  shapiro_p = round(pmin(shapiro_p_a, shapiro_p_b), 3), p_holm = signif(p_holm, 3),
+                  effect = ifelse(test == "Welch t", "Cohen's d", "Cliff's delta"),
+                  effect_size = round(ifelse(test == "Welch t", cohens_d, cliffs_delta_b_vs_a), 2))
 }
 
 if (exists("rq1_tests")) {
@@ -1001,8 +1055,10 @@ if (exists("rq4_tests")) {
     mutate(lvl = ifelse(grepl("^Remote \\+100", comparison), "d100", "d500")) %>%
     select(config, prompt_size, metric, lvl, test, p_holm, effect, effect_size) %>%
     pivot_wider(names_from = lvl, values_from = c(test, p_holm, effect, effect_size))
-  paper_csv(rq4_friedman %>% filter(metric %in% f4_metrics) %>%
-              transmute(config, prompt_size, metric, friedman_chi2 = round(chi2, 1), friedman_p_holm = signif(p_holm, 3)) %>%
+  paper_csv(rq4_omnibus %>% filter(metric %in% f4_metrics) %>%
+              transmute(config, prompt_size, metric, omnibus_test = test, omnibus_stat = round(statistic, 1),
+                        omnibus_df = ifelse(is.na(df2), as.character(df1), sprintf("%d, %.1f", as.integer(df1), df2)),
+                        omnibus_p_holm = signif(p_holm, 3)) %>%
               left_join(pw, by = c("config", "prompt_size", "metric")) %>%
               mutate(.m = match(metric, f4_metrics)) %>% sort_paper() %>% arrange(.m) %>% select(-.m),
             "rq4_tests")
