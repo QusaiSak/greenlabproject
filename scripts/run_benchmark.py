@@ -1,4 +1,24 @@
 
+"""On-device LLM energy benchmark (MacBook, llama-server + EnergiBridge).
+
+Starts a local llama-server for one GGUF model, sends one warm-up request per
+prompt size, then runs `--runs` measured repetitions of every prompt size
+(small / medium / large) in a seeded random order. Each measured request runs
+as a child process of this script inside EnergiBridge, so only that request's
+energy is recorded.
+
+Usage (from the repository root):
+    python scripts/run_benchmark.py --model models/<model>.gguf --quantization Q4_K_M
+
+Requires: llama-server and energibridge on PATH, psutil, python-dotenv, the
+prompt files in prompts/, and a .env with DEFAULT_SERVER_HOST and
+DEFAULT_LLAMA_PORT.
+
+Output: results/raw/<model>/<quantization>/<prompt_size>/run_XX/
+    (energy.csv, output.txt, client_result.json, stderr.txt, metadata.json),
+which scripts/Consolidate.R then reads.
+"""
+
 import argparse
 import json
 import os
@@ -14,26 +34,31 @@ from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
+# Prompt-length treatment levels -> file names inside --prompt-dir.
 PROMPT_SIZES = {
     "small": "prompt_small.txt",
     "medium": "prompt_medium.txt",
     "large": "prompt_large.txt",
 }
 
+# Repetitions per prompt size, and the max number of generated tokens per request.
 DEFAULT_RUNS = 10
 DEFAULT_OUTPUT_TOKENS = 1536
 
+# llama-server settings, kept identical for every model:
+# 99 GPU layers = offload the whole model to the GPU; 4096-token context fits the largest prompt
+# plus the output; batch / micro-batch sizes control how prompt tokens are processed.
 GPU_LAYERS = 99
 CONTEXT_SIZE = 4096
 BATCH_SIZE = 512
 UBATCH_SIZE = 256
 
+# Pause between runs so heat and power draw from one run do not carry into the next.
 RUN_COOLDOWN_SECONDS = 10
-BLOCK_COOLDOWN_SECONDS = 120
+# Sampling interval of EnergiBridge and of the CPU / GPU / memory monitor (200 ms).
 ENERGYBRIDGE_INTERVAL_MS = 200
 MONITOR_INTERVAL_SECONDS = 0.2
 
@@ -42,6 +67,7 @@ DEFAULT_SERVER_PORT = os.getenv("DEFAULT_LLAMA_PORT")
 
 
 def run_command(command, check=True):
+    """Run a command and return (stdout, stderr, returncode); raise on failure when check is set."""
     print("\nRunning:")
     print(" ".join(str(x) for x in command))
     print()
@@ -60,6 +86,7 @@ def run_command(command, check=True):
 
 
 def infer_architecture(model_path):
+    """Guess Dense vs MoE from the model file name (e.g. 'A3B' marks a Qwen MoE model)."""
     name = Path(model_path).stem.lower()
     return "MoE" if ("a3b" in name or "moe" in name) else "Dense"
 
@@ -69,11 +96,13 @@ def get_model_name(model_path):
 
 
 def save_metadata(path, metadata):
+    """Write a run's metadata dict to a JSON file."""
     with open(path, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
 
 def sleep_with_message(seconds, reason):
+    """Sleep for `seconds` while printing a countdown, so pauses are visible in the console."""
     print(f"\n{reason}")
     print(f"Waiting {seconds} seconds...")
     for remaining in range(seconds, 0, -1):
@@ -87,6 +116,7 @@ def sleep_with_message(seconds, reason):
 # ============================================================
 
 def get_cpu_usage():
+    """System-wide CPU utilisation (%) since the previous call, or None if psutil is unavailable."""
     try:
         import psutil
         return float(psutil.cpu_percent(interval=None))
@@ -95,6 +125,7 @@ def get_cpu_usage():
 
 
 def get_memory_usage():
+    """Current system memory use (MB and %), with None values if psutil is unavailable."""
     try:
         import psutil
         memory = psutil.virtual_memory()
@@ -112,6 +143,7 @@ def get_memory_usage():
 
 
 def get_gpu_usage_macos():
+    """Apple GPU utilisation (%) read from ioreg's IOAccelerator entry, or None if not found."""
     try:
         result = subprocess.run(
             ["ioreg", "-r", "-d", "1", "-c", "IOAccelerator"],
@@ -133,6 +165,7 @@ def get_gpu_usage_macos():
 
 
 class SystemMonitor:
+    """Sample CPU, GPU and memory utilisation in a background thread during one request."""
     def __init__(self, interval=MONITOR_INTERVAL_SECONDS):
         self.interval = interval
         self.running = False
@@ -201,6 +234,7 @@ class SystemMonitor:
 # ============================================================
 
 def http_json(url, payload=None, timeout=30):
+    """GET (no payload) or POST JSON to `url` and return the decoded JSON response."""
     if payload is None:
         request = urllib.request.Request(url, method="GET")
     else:
@@ -217,6 +251,7 @@ def http_json(url, payload=None, timeout=30):
 
 
 def get_server_metrics(base_url):
+    """Read llama-server's Prometheus /metrics endpoint into a {metric_name: value} dict."""
     with urllib.request.urlopen(
         f"{base_url}/metrics", timeout=10
     ) as response:
@@ -237,6 +272,7 @@ def get_server_metrics(base_url):
 
 
 def wait_for_server(base_url, timeout=180):
+    """Poll llama-server's /health endpoint until it returns 200 or `timeout` seconds pass."""
     deadline = time.time() + timeout
     last_error = None
 
@@ -258,6 +294,7 @@ def wait_for_server(base_url, timeout=180):
 
 
 def start_server(model, port, server_log):
+    """Launch llama-server with the fixed experiment settings; output goes to `server_log`."""
     command = [
         "llama-server",
         "-m", str(model),
@@ -284,6 +321,7 @@ def start_server(model, port, server_log):
 
 
 def stop_server(process, log_file):
+    """Terminate llama-server (kill it if it does not exit in 15 s) and close its log file."""
     if process is None:
         return
     if process.poll() is None:
@@ -311,6 +349,7 @@ def stop_server(process, log_file):
 # ============================================================
 
 def internal_request(args):
+    """Child mode run inside EnergiBridge: send one chat request and report token/timing deltas."""
     base_url = f"http://{args.host}:{args.port}"
 
     before = get_server_metrics(base_url)
@@ -412,6 +451,7 @@ def run_single(
     order_seed,
     schedule_index,
 ):
+    """Run one measured repetition: one prompt, wrapped in EnergiBridge, results saved under run_dir."""
     model_name = get_model_name(model)
 
     run_dir = (
@@ -631,6 +671,7 @@ def run_single(
 # ============================================================
 
 def warmup(model_name, prompt_file, output_tokens, host, port):
+    """Send one unmeasured request so model loading and caches do not affect the measured runs."""
     prompt = prompt_file.read_text(encoding="utf-8").strip()
 
     print()
@@ -667,6 +708,7 @@ def warmup(model_name, prompt_file, output_tokens, host, port):
 # ============================================================
 
 def parse_internal_args():
+    """Parse the arguments of the --internal-request child mode."""
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--internal-request", action="store_true")
     parser.add_argument("--host", default=DEFAULT_SERVER_HOST)
@@ -683,6 +725,7 @@ def parse_internal_args():
 # ============================================================
 
 def main():
+    """Entry point: either the EnergiBridge child request, or the full benchmark for one model."""
     # IMPORTANT: only parse the internal-request arguments when this
     # process was explicitly launched as the EnergiBridge child.
     # Calling parse_internal_args() unconditionally would make the

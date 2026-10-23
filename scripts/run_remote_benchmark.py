@@ -1,3 +1,29 @@
+"""Remote LLM energy benchmark (Mac client -> GPU server over SSH).
+
+The same file runs in three modes:
+  * orchestrator (default, on the Mac): starts llama-server on the remote host
+    over SSH, opens an SSH tunnel, optionally adds artificial network delay,
+    warms up, then runs `--runs` repetitions of every prompt size in a seeded
+    random order and copies the results back.
+  * --agent (on the server): one-shot HTTP agent run inside EnergiBridge that
+    forwards a single request to llama-server and records server metrics.
+  * --remote-request (on the Mac): the client request, run inside EnergiBridge
+    so the Mac's energy during the request is measured too.
+
+Usage (from the repository root):
+    python scripts/run_remote_benchmark.py --model models/<model>.gguf \\
+        --quantization Q4_K_M --architecture Dense [--network-delay-ms 100 \\
+        --network-condition delay_100ms]
+
+Requires: ssh/scp access to the server, energibridge on both machines,
+llama-server (CUDA build) and this script + a venv on the server, and a .env
+with the DEFAULT_REMOTE_* / DEFAULT_*_PORT / DEFAULT_NETWORK_DELAY_IP values.
+
+Output: results/raw/remote/<model>/<quantization>/<prompt_size>/run_XX/
+(client and server energy CSVs, agent result, output text), read by
+scripts/Consolidate.R.
+"""
+
 import argparse
 import csv
 import json
@@ -24,14 +50,19 @@ PROMPT_SIZES = {
     "large": "prompt_large.txt",
 }
 
+# Repetitions per prompt size, max generated tokens per request, and the seed of the
+# randomized run order (fixed so the schedule is reproducible).
 DEFAULT_RUNS = 10
 DEFAULT_OUTPUT_TOKENS = 1536
 DEFAULT_ORDER_SEED = 42
 DEFAULT_AGENT_PORT = os.getenv("DEFAULT_AGENT_PORT")
 DEFAULT_LLAMA_PORT = os.getenv("DEFAULT_LLAMA_PORT")
+# EnergiBridge / system sampling interval (200 ms).
 ENERGY_INTERVAL_MS = 200
+# Idle time after warm-up and between runs, so power and temperature settle.
 WARMUP_STABILIZATION_SECONDS = 30
 RUN_COOLDOWN_SECONDS = 10
+# Remote host paths and settings, all read from .env.
 DEFAULT_REMOTE_HOST = os.getenv("DEFAULT_REMOTE_HOST")
 DEFAULT_REMOTE_MODEL_DIR = os.getenv("DEFAULT_REMOTE_MODEL_DIR")
 DEFAULT_REMOTE_PROMPT_DIR = os.getenv("DEFAULT_REMOTE_PROMPT_DIR")
@@ -50,6 +81,7 @@ DEFAULT_NETWORK_DELAY_MS = 0
 
 
 def http_json(url, payload=None, timeout=900):
+    """GET (no payload) or POST JSON to `url` and return the decoded JSON response."""
     if payload is None:
         request = urllib.request.Request(url, method="GET")
     else:
@@ -66,6 +98,7 @@ def http_json(url, payload=None, timeout=900):
 
 
 def run_command(command, check=True):
+    """Run a command, raising on failure when check is set; returns the CompletedProcess."""
     result = subprocess.run(
         [str(value) for value in command],
         stdout=subprocess.PIPE,
@@ -84,6 +117,7 @@ def run_command(command, check=True):
 
 
 def ssh_command(host, command, user=None):
+    """Build the ssh argument list that runs `command` on the remote host."""
     target = host or DEFAULT_REMOTE_HOST
     if user:
         target = f"{user}@{target}"
@@ -91,6 +125,7 @@ def ssh_command(host, command, user=None):
 
 
 def scp_from_remote(host, remote_path, local_path, user=None):
+    """Copy one file from the remote host to a local path."""
     target = host or DEFAULT_REMOTE_HOST
     run_command([
         "scp","-O",
@@ -118,6 +153,7 @@ def wait_for_http(url, timeout=120):
 
 
 def read_remote_file(host, path, user=None):
+    """Return the text content of a file on the remote host."""
     result = run_command(
         ssh_command(
             host,
@@ -134,6 +170,7 @@ def read_remote_file(host, path, user=None):
 
 
 def llama_request(llama_port, payload):
+    """Send one chat-completion request to the local llama-server (used by the agent)."""
     return http_json(
         f"http://127.0.0.1:{llama_port}/v1/chat/completions",
         payload,
@@ -141,6 +178,7 @@ def llama_request(llama_port, payload):
 
 
 def get_server_metrics(llama_port):
+    """Read llama-server's Prometheus /metrics endpoint into a {metric_name: value} dict."""
     try:
         with urllib.request.urlopen(
             f"http://127.0.0.1:{llama_port}/metrics",
@@ -239,6 +277,7 @@ class SystemSampler:
 
 
 class OneShotHandler(BaseHTTPRequestHandler):
+    """HTTP handler of the agent: GET /health for readiness, POST /infer runs one measured request."""
     server_version = "RemoteBenchmarkAgent/1.0"
 
     def do_GET(self):
@@ -306,6 +345,7 @@ class OneShotHandler(BaseHTTPRequestHandler):
 
 
 def run_agent(args):
+    """Agent mode (runs on the server inside EnergiBridge): serve exactly one /infer request, then exit."""
     server = ThreadingHTTPServer(("0.0.0.0", args.agent_port), OneShotHandler)
     server.llama_port = args.llama_port
     server.result_path = Path(args.result_file)
@@ -315,6 +355,7 @@ def run_agent(args):
 
 
 def run_remote_request(args):
+    """Client mode (runs on the Mac inside EnergiBridge): send one request to the agent and print the result."""
     payload = json.loads(args.request_payload_json)
     started = time.perf_counter()
     try:
@@ -340,6 +381,7 @@ def run_remote_request(args):
 
 
 def calculate_energy(path):
+    """Total energy (J) in an EnergiBridge CSV, or None if it cannot be read."""
     try:
         with path.open(newline="", encoding="utf-8") as energy_file:
             rows = csv.DictReader(energy_file)
@@ -367,6 +409,7 @@ def calculate_energy(path):
 
 
 def remote_shell_path(path):
+    """Shell-quote a remote path for use inside an ssh command."""
     return shlex.quote(str(path))
 
 
@@ -401,6 +444,7 @@ def remote_ssh_peer_ports(args):
 
 
 def find_tunnel_port(args, ports_before):
+    """Identify the SSH tunnel's port as the one connection that appeared after the tunnel opened."""
     # Inside the tunnel the agent port only exists on the remote loopback, so
     # agent-delay (which filters on the server's network interface) must target the tunnel's SSH
     # connection instead: remote:22 -> <delay ip>:<ephemeral port>.
@@ -415,6 +459,7 @@ def find_tunnel_port(args, ports_before):
 
 
 def apply_network_delay(args, delay_port):
+    """Add the configured artificial latency to the tunnel's traffic; returns the delay process state or None."""
 
     if args.network_delay_ms <= 0:
         return None
@@ -472,6 +517,7 @@ def apply_network_delay(args, delay_port):
 
 
 def remove_network_delay(args, delay_process, delay_pid):
+    """Remove the artificial latency and stop the agent-delay process."""
 
     if delay_process is None or delay_pid is None:
         return
@@ -526,6 +572,7 @@ def open_ssh_tunnel(args):
 
 
 def close_ssh_tunnel(process):
+    """Terminate the SSH tunnel process."""
     if process is None or process.poll() is not None:
         return
     process.terminate()
@@ -630,6 +677,9 @@ def remote_stop_server(args):
 
 
 def remote_run_one(args, run_dir, prompt, model_name, prompt_size, run_number, schedule_index):
+    """Run one measured repetition: start the agent under EnergiBridge on the server, send the request
+    from the Mac under EnergiBridge, then copy the server's results into run_dir.
+    """
     remote_run_dir = args.remote_root / model_name / args.quantization / prompt_size / f"run_{run_number:02d}"
     run_command(
         ssh_command(
@@ -838,6 +888,7 @@ def remote_run_one(args, run_dir, prompt, model_name, prompt_size, run_number, s
 
 
 def run_remote(args):
+    """Orchestrator: set up tunnel/delay and llama-server, warm up, run the randomized schedule, clean up."""
     args.remote_root = Path(args.remote_root)
     args.remote_prompt_dir = Path(args.remote_prompt_dir)
     local_root = Path(args.results_dir).expanduser().resolve()
@@ -972,6 +1023,7 @@ def run_remote(args):
 
 
 def parse_args():
+    """Command-line arguments shared by the orchestrator, agent and client-request modes."""
     parser = argparse.ArgumentParser(
         description="Run the benchmark against a remote llama-server."
     )
@@ -1041,6 +1093,7 @@ def parse_args():
 
 
 def main():
+    """Entry point: dispatch to client-request mode, agent mode or the full orchestrator."""
     args = parse_args()
     args.delay_target_port = None
 

@@ -1,3 +1,18 @@
+# Consolidate.R - turns the raw benchmark runs into analysis tables, statistics and plots.
+#
+# Run from the repository root:   Rscript scripts/Consolidate.R
+#
+# Input : results/raw/   per-run folders written by run_benchmark.py (on-device)
+#                        and run_remote_benchmark.py (results/raw/remote)
+#         data/carbon_intensity_nl.csv   NL grid carbon intensity (downloaded if missing)
+# Output: results/consolidated/
+#           run_table.csv                 one row per run with all derived metrics
+#           RQ1-RQ4 *_tests.csv / summaries  statistical tests per research question
+#           normality_summary.csv, outliers.csv, SCI carbon tables
+#           plots/*.png                   all figures (folder is cleared first)
+#
+# Steps: read every run -> derive metrics -> carbon footprint (SCI) -> per-RQ tests -> plots.
+
 required_packages <- c("jsonlite", "readr", "dplyr", "purrr", "ggplot2", "tidyr", "ARTool")
 missing_packages <- required_packages[!vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)]
 if (length(missing_packages) > 0) {
