@@ -15,7 +15,7 @@ prompt files in prompts/, and a .env with DEFAULT_SERVER_HOST and
 DEFAULT_LLAMA_PORT.
 
 Output: results/raw/<model>/<quantization>/<prompt_size>/run_XX/
-    (energy.csv, output.txt, client_result.json, stderr.txt, metadata.json),
+    (energy.csv, output.txt, client_result.json, metadata.json),
 which scripts/Consolidate.R then reads.
 """
 
